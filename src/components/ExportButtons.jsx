@@ -13,7 +13,7 @@ export default function ExportButtons({ data }) {
     if (data.length === 0) return;
 
     const headers = [
-      'Keyword',
+      'Keyword Phrase',
       'Search Volume',
       'Competing Products',
       'Title Density',
