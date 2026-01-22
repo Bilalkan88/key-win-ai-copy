@@ -96,7 +96,7 @@ export default function FileUploader({ onFileUpload, hasFile, fileName }) {
               </p>
               <div className="flex items-center gap-2 text-xs text-slate-400">
                 <FileSpreadsheet className="w-4 h-4" />
-                <span>Required: Keyword, Search Volume, Competing Products, Title Density</span>
+                <span>Required: Keyword Phrase, Search Volume, Competing Products, Title Density</span>
               </div>
             </>
           )}

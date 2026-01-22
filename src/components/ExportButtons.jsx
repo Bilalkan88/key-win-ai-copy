@@ -26,7 +26,7 @@ export default function ExportButtons({ data }) {
     const csvContent = [
       headers.join(','),
       ...data.map(row => [
-        `"${row['Keyword'].replace(/"/g, '""')}"`,
+        `"${row['Keyword Phrase'].replace(/"/g, '""')}"`,
         row.searchVolume,
         row.competingProducts,
         row.titleDensity,
@@ -50,8 +50,8 @@ export default function ExportButtons({ data }) {
     if (data.length === 0) return;
 
     // Create Excel-compatible XML
-    const headers = [
-      'Keyword',
+    const headersXml = [
+      'Keyword Phrase',
       'Search Volume',
       'Competing Products',
       'Title Density',
@@ -69,14 +69,14 @@ export default function ExportButtons({ data }) {
 <Table>
 <Row>`;
 
-    headers.forEach(header => {
+    headersXml.forEach(header => {
       xmlContent += `<Cell><Data ss:Type="String">${header}</Data></Cell>`;
     });
     xmlContent += `</Row>`;
 
     data.forEach(row => {
       xmlContent += `<Row>
-        <Cell><Data ss:Type="String">${escapeXml(row['Keyword'])}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(row['Keyword Phrase'])}</Data></Cell>
         <Cell><Data ss:Type="Number">${row.searchVolume}</Data></Cell>
         <Cell><Data ss:Type="Number">${row.competingProducts}</Data></Cell>
         <Cell><Data ss:Type="Number">${row.titleDensity}</Data></Cell>

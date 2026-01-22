@@ -17,7 +17,7 @@ import FilterSummary from '@/components/FilterSummary';
 import KeywordTable from '@/components/KeywordTable';
 import ExportButtons from '@/components/ExportButtons';
 
-const REQUIRED_COLUMNS = ['Keyword', 'Search Volume', 'Competing Products', 'Title Density'];
+const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
 
 const FILTER_CONFIG = {
@@ -150,7 +150,7 @@ export default function Home() {
 
     // Step 2: Word count filter
     let afterWordFilter = afterNumericFilter.filter(row => {
-      const wordCount = row['Keyword'].trim().split(/\s+/).length;
+      const wordCount = row['Keyword Phrase'].trim().split(/\s+/).length;
       if (wordCount < FILTER_CONFIG.MIN_WORD_COUNT) {
         excludedShort++;
         return false;
@@ -160,7 +160,7 @@ export default function Home() {
 
     // Step 3: Brand filter
     let afterBrandFilter = afterWordFilter.filter(row => {
-      if (containsBrand(row['Keyword'])) {
+      if (containsBrand(row['Keyword Phrase'])) {
         excludedBranded++;
         return false;
       }
@@ -170,7 +170,7 @@ export default function Home() {
     // Step 4: Remove duplicates (keep best)
     const keywordMap = new Map();
     afterBrandFilter.forEach(row => {
-      const keyword = row['Keyword'].toLowerCase().trim();
+      const keyword = row['Keyword Phrase'].toLowerCase().trim();
       const existing = keywordMap.get(keyword);
       if (!existing || row.searchVolume > existing.searchVolume || 
           (row.searchVolume === existing.searchVolume && row.competingProducts < existing.competingProducts)) {
@@ -187,7 +187,7 @@ export default function Home() {
       const batchSize = 30;
       for (let i = 0; i < uniqueKeywords.length; i += batchSize) {
         const batch = uniqueKeywords.slice(i, i + batchSize);
-        const keywordList = batch.map(r => r['Keyword']).join('\n');
+        const keywordList = batch.map(r => r['Keyword Phrase']).join('\n');
 
         const response = await base44.integrations.Core.InvokeLLM({
           prompt: `Analyze these Amazon product keywords for buyer intent and clarity. For each keyword, determine if it should be INCLUDED or EXCLUDED.
@@ -236,12 +236,12 @@ Return a JSON object with this format:
         });
 
         batch.forEach(row => {
-          const analysis = resultMap.get(row['Keyword'].toLowerCase().trim());
+          const analysis = resultMap.get(row['Keyword Phrase'].toLowerCase().trim());
           if (analysis?.include) {
             finalKeywords.push({
               ...row,
               selectionReason: analysis.reason,
-              amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(row['Keyword']).replace(/%20/g, '+')}`
+              amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(row['Keyword Phrase']).replace(/%20/g, '+')}`
             });
           } else {
             excludedUnclear++;
@@ -268,7 +268,7 @@ Return a JSON object with this format:
     
     if (searchTerm) {
       data = data.filter(row => 
-        row['Keyword'].toLowerCase().includes(searchTerm.toLowerCase())
+        row['Keyword Phrase'].toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 

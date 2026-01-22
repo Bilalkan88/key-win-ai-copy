@@ -89,10 +89,10 @@ export default function KeywordTable({ data }) {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="cursor-default line-clamp-2">{row['Keyword']}</span>
+                          <span className="cursor-default line-clamp-2">{row['Keyword Phrase']}</span>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className="max-w-sm">{row['Keyword']}</p>
+                          <p className="max-w-sm">{row['Keyword Phrase']}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
