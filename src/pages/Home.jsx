@@ -13,6 +13,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 import FileUploader from '@/components/FileUploader';
+import FilterSettings from '@/components/FilterSettings';
 import FilterSummary from '@/components/FilterSummary';
 import KeywordTable from '@/components/KeywordTable';
 import ExportButtons from '@/components/ExportButtons';
@@ -20,11 +21,11 @@ import ExportButtons from '@/components/ExportButtons';
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
 
-const FILTER_CONFIG = {
-  SEARCH_VOLUME_MIN: 900,
-  TITLE_DENSITY_MAX: 30,
-  COMPETING_PRODUCTS_MAX: 2000,
-  MIN_WORD_COUNT: 4
+const DEFAULT_FILTERS = {
+  minSearchVolume: 900,
+  maxTitleDensity: 30,
+  maxCompetingProducts: 2000,
+  minWordCount: 4
 };
 
 const BRAND_KEYWORDS = [
@@ -48,6 +49,7 @@ export default function Home() {
   const [sortBy, setSortBy] = useState('search_volume_desc');
   const [stats, setStats] = useState(null);
   const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [filterSettings, setFilterSettings] = useState(DEFAULT_FILTERS);
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -134,9 +136,13 @@ export default function Home() {
 
       if (searchVolume === null || titleDensity === null || competingProducts === null) return;
       
-      if (searchVolume >= FILTER_CONFIG.SEARCH_VOLUME_MIN &&
-          titleDensity <= FILTER_CONFIG.TITLE_DENSITY_MAX &&
-          competingProducts <= FILTER_CONFIG.COMPETING_PRODUCTS_MAX) {
+      const minVol = filterSettings.minSearchVolume === '' ? 0 : filterSettings.minSearchVolume;
+      const maxTD = filterSettings.maxTitleDensity === '' ? 100 : filterSettings.maxTitleDensity;
+      const maxComp = filterSettings.maxCompetingProducts === '' ? Infinity : filterSettings.maxCompetingProducts;
+      
+      if (searchVolume >= minVol &&
+          titleDensity <= maxTD &&
+          competingProducts <= maxComp) {
         afterNumericFilter.push({
           ...row,
           searchVolume,
@@ -149,9 +155,10 @@ export default function Home() {
     });
 
     // Step 2: Word count filter
+    const minWords = filterSettings.minWordCount === '' ? 1 : filterSettings.minWordCount;
     let afterWordFilter = afterNumericFilter.filter(row => {
       const wordCount = row['Keyword Phrase'].trim().split(/\s+/).length;
-      if (wordCount < FILTER_CONFIG.MIN_WORD_COUNT) {
+      if (wordCount < minWords) {
         excludedShort++;
         return false;
       }
@@ -331,6 +338,21 @@ Return a JSON object with this format:
             fileName={rawData.length > 0 ? `${rawData.length} keywords loaded` : null}
           />
         </motion.div>
+
+        {/* Filter Settings */}
+        {rawData.length > 0 && !analysisComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mt-6"
+          >
+            <FilterSettings 
+              filters={filterSettings} 
+              onFilterChange={setFilterSettings} 
+            />
+          </motion.div>
+        )}
 
         {/* Error Display */}
         <AnimatePresence>
