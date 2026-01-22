@@ -1,0 +1,436 @@
+import React, { useState, useMemo } from 'react';
+import { base44 } from '@/api/base44Client';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Upload, Search, Download, ExternalLink, Loader2, 
+  TrendingUp, ShieldCheck, Filter, AlertCircle, CheckCircle2,
+  FileSpreadsheet, Sparkles, ArrowUpDown
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+import FileUploader from '@/components/FileUploader';
+import FilterSummary from '@/components/FilterSummary';
+import KeywordTable from '@/components/KeywordTable';
+import ExportButtons from '@/components/ExportButtons';
+
+const REQUIRED_COLUMNS = ['Keyword', 'Search Volume', 'Competing Products', 'Title Density'];
+const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
+
+const FILTER_CONFIG = {
+  SEARCH_VOLUME_MIN: 900,
+  TITLE_DENSITY_MAX: 30,
+  COMPETING_PRODUCTS_MAX: 2000,
+  MIN_WORD_COUNT: 4
+};
+
+const BRAND_KEYWORDS = [
+  'nike', 'adidas', 'apple', 'samsung', 'sony', 'huawei', 'xiaomi', 'lg', 'dell', 
+  'hp', 'lenovo', 'asus', 'acer', 'microsoft', 'google', 'amazon', 'anker', 'jbl',
+  'bose', 'beats', 'fitbit', 'garmin', 'gopro', 'canon', 'nikon', 'panasonic',
+  'philips', 'braun', 'dyson', 'kitchenaid', 'ninja', 'instant pot', 'cuisinart',
+  'black decker', 'dewalt', 'makita', 'bosch', 'stanley', 'craftsman', 'milwaukee',
+  'ryobi', 'dewalt', 'puma', 'reebok', 'under armour', 'new balance', 'converse',
+  'vans', 'timberland', 'north face', 'patagonia', 'columbia', 'coleman', 'yeti',
+  'hydroflask', 'contigo', 'thermos', 'rubbermaid', 'tupperware', 'pyrex', 'corelle',
+  'oxo', 'lodge', 'le creuset', 'staub', 'all clad', 'calphalon', 't-fal', 'farberware'
+];
+
+export default function Home() {
+  const [rawData, setRawData] = useState([]);
+  const [processedData, setProcessedData] = useState([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('search_volume_desc');
+  const [stats, setStats] = useState(null);
+  const [analysisComplete, setAnalysisComplete] = useState(false);
+
+  const parseCSV = (text) => {
+    const lines = text.split('\n').filter(line => line.trim());
+    if (lines.length < 2) return [];
+    
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    
+    return lines.slice(1).map(line => {
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let char of line) {
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim());
+      
+      const row = {};
+      headers.forEach((header, i) => {
+        row[header] = values[i] || '';
+      });
+      return row;
+    });
+  };
+
+  const validateColumns = (data) => {
+    if (!data.length) return { valid: false, missing: REQUIRED_COLUMNS };
+    const columns = Object.keys(data[0]);
+    const missing = REQUIRED_COLUMNS.filter(col => !columns.includes(col));
+    return { valid: missing.length === 0, missing };
+  };
+
+  const parseNumber = (value) => {
+    if (!value) return null;
+    const cleaned = String(value).replace(/[,$]/g, '');
+    const num = parseFloat(cleaned);
+    return isNaN(num) ? null : num;
+  };
+
+  const containsBrand = (keyword) => {
+    const lower = keyword.toLowerCase();
+    return BRAND_KEYWORDS.some(brand => lower.includes(brand));
+  };
+
+  const handleFileUpload = async (file) => {
+    setError(null);
+    setAnalysisComplete(false);
+    setProcessedData([]);
+    setStats(null);
+
+    const text = await file.text();
+    const data = parseCSV(text);
+    
+    const validation = validateColumns(data);
+    if (!validation.valid) {
+      setError(`Invalid CSV file. Missing required columns: ${validation.missing.join(', ')}`);
+      return;
+    }
+
+    setRawData(data);
+  };
+
+  const analyzeKeywords = async () => {
+    setIsAnalyzing(true);
+    setError(null);
+
+    const totalUploaded = rawData.length;
+    let afterNumericFilter = [];
+    let excludedShort = 0;
+    let excludedBranded = 0;
+
+    // Step 1: Numeric filtering
+    rawData.forEach(row => {
+      const searchVolume = parseNumber(row['Search Volume']);
+      const titleDensity = parseNumber(row['Title Density']);
+      const competingProducts = parseNumber(row['Competing Products']);
+
+      if (searchVolume === null || titleDensity === null || competingProducts === null) return;
+      
+      if (searchVolume >= FILTER_CONFIG.SEARCH_VOLUME_MIN &&
+          titleDensity <= FILTER_CONFIG.TITLE_DENSITY_MAX &&
+          competingProducts <= FILTER_CONFIG.COMPETING_PRODUCTS_MAX) {
+        afterNumericFilter.push({
+          ...row,
+          searchVolume,
+          titleDensity,
+          competingProducts,
+          keywordSales: parseNumber(row['Keyword Sales']),
+          organicRank: parseNumber(row['Organic Rank'])
+        });
+      }
+    });
+
+    // Step 2: Word count filter
+    let afterWordFilter = afterNumericFilter.filter(row => {
+      const wordCount = row['Keyword'].trim().split(/\s+/).length;
+      if (wordCount < FILTER_CONFIG.MIN_WORD_COUNT) {
+        excludedShort++;
+        return false;
+      }
+      return true;
+    });
+
+    // Step 3: Brand filter
+    let afterBrandFilter = afterWordFilter.filter(row => {
+      if (containsBrand(row['Keyword'])) {
+        excludedBranded++;
+        return false;
+      }
+      return true;
+    });
+
+    // Step 4: Remove duplicates (keep best)
+    const keywordMap = new Map();
+    afterBrandFilter.forEach(row => {
+      const keyword = row['Keyword'].toLowerCase().trim();
+      const existing = keywordMap.get(keyword);
+      if (!existing || row.searchVolume > existing.searchVolume || 
+          (row.searchVolume === existing.searchVolume && row.competingProducts < existing.competingProducts)) {
+        keywordMap.set(keyword, row);
+      }
+    });
+    const uniqueKeywords = Array.from(keywordMap.values());
+
+    // Step 5: Semantic analysis with LLM (batch processing)
+    let finalKeywords = [];
+    let excludedUnclear = 0;
+
+    if (uniqueKeywords.length > 0) {
+      const batchSize = 30;
+      for (let i = 0; i < uniqueKeywords.length; i += batchSize) {
+        const batch = uniqueKeywords.slice(i, i + batchSize);
+        const keywordList = batch.map(r => r['Keyword']).join('\n');
+
+        const response = await base44.integrations.Core.InvokeLLM({
+          prompt: `Analyze these Amazon product keywords for buyer intent and clarity. For each keyword, determine if it should be INCLUDED or EXCLUDED.
+
+INCLUDE a keyword ONLY if it:
+- Has clear, specific meaning
+- Describes a physical product OR a specific use/problem/feature
+- Shows buyer intent (someone wanting to purchase)
+
+EXCLUDE a keyword if it:
+- Is vague or unclear
+- Is informational only (how to, what is, etc.)
+- Does not describe a product
+- Is too generic
+
+Keywords to analyze:
+${keywordList}
+
+Return a JSON object with this format:
+{
+  "results": [
+    {"keyword": "exact keyword", "include": true/false, "reason": "brief reason"}
+  ]
+}`,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              results: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    keyword: { type: "string" },
+                    include: { type: "boolean" },
+                    reason: { type: "string" }
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        const resultMap = new Map();
+        response.results?.forEach(r => {
+          resultMap.set(r.keyword.toLowerCase().trim(), r);
+        });
+
+        batch.forEach(row => {
+          const analysis = resultMap.get(row['Keyword'].toLowerCase().trim());
+          if (analysis?.include) {
+            finalKeywords.push({
+              ...row,
+              selectionReason: analysis.reason,
+              amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(row['Keyword']).replace(/%20/g, '+')}`
+            });
+          } else {
+            excludedUnclear++;
+          }
+        });
+      }
+    }
+
+    setProcessedData(finalKeywords);
+    setStats({
+      totalUploaded,
+      afterNumericFilter: afterNumericFilter.length,
+      excludedShort,
+      excludedBranded,
+      excludedUnclear,
+      finalCount: finalKeywords.length
+    });
+    setAnalysisComplete(true);
+    setIsAnalyzing(false);
+  };
+
+  const sortedAndFilteredData = useMemo(() => {
+    let data = [...processedData];
+    
+    if (searchTerm) {
+      data = data.filter(row => 
+        row['Keyword'].toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    switch (sortBy) {
+      case 'search_volume_desc':
+        data.sort((a, b) => b.searchVolume - a.searchVolume);
+        break;
+      case 'search_volume_asc':
+        data.sort((a, b) => a.searchVolume - b.searchVolume);
+        break;
+      case 'competing_asc':
+        data.sort((a, b) => a.competingProducts - b.competingProducts);
+        break;
+      case 'competing_desc':
+        data.sort((a, b) => b.competingProducts - a.competingProducts);
+        break;
+      case 'title_density_asc':
+        data.sort((a, b) => a.titleDensity - b.titleDensity);
+        break;
+      case 'keyword_sales_desc':
+        data.sort((a, b) => (b.keywordSales || 0) - (a.keywordSales || 0));
+        break;
+      default:
+        break;
+    }
+
+    return data;
+  }, [processedData, searchTerm, sortBy]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {/* Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-sm font-medium mb-4">
+            <Sparkles className="w-4 h-4" />
+            AI-Powered Analysis
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight mb-4">
+            Keyword Winner Finder
+          </h1>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            Upload your Helium 10 CSV and discover high-potential Amazon keywords with AI-powered semantic analysis
+          </p>
+        </motion.div>
+
+        {/* Upload Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <FileUploader 
+            onFileUpload={handleFileUpload} 
+            hasFile={rawData.length > 0}
+            fileName={rawData.length > 0 ? `${rawData.length} keywords loaded` : null}
+          />
+        </motion.div>
+
+        {/* Error Display */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="mt-6"
+            >
+              <Card className="border-red-200 bg-red-50">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <p className="text-red-700">{error}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Analyze Button */}
+        {rawData.length > 0 && !analysisComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8 text-center"
+          >
+            <Button
+              size="lg"
+              onClick={analyzeKeywords}
+              disabled={isAnalyzing}
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-200 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-300"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Analyzing Keywords...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Analyze {rawData.length.toLocaleString()} Keywords
+                </>
+              )}
+            </Button>
+            <p className="text-sm text-slate-500 mt-3">
+              This may take a moment for large files
+            </p>
+          </motion.div>
+        )}
+
+        {/* Results Section */}
+        <AnimatePresence>
+          {analysisComplete && stats && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* Summary Stats */}
+              <FilterSummary stats={stats} />
+
+              {/* Controls */}
+              <div className="mt-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Input
+                    placeholder="Search keywords..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
+                  />
+                </div>
+                
+                <div className="flex gap-3">
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-48 h-11">
+                      <ArrowUpDown className="w-4 h-4 mr-2 text-slate-400" />
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="search_volume_desc">Search Volume (High)</SelectItem>
+                      <SelectItem value="search_volume_asc">Search Volume (Low)</SelectItem>
+                      <SelectItem value="competing_asc">Competition (Low)</SelectItem>
+                      <SelectItem value="competing_desc">Competition (High)</SelectItem>
+                      <SelectItem value="title_density_asc">Title Density (Low)</SelectItem>
+                      <SelectItem value="keyword_sales_desc">Keyword Sales (High)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  <ExportButtons data={sortedAndFilteredData} />
+                </div>
+              </div>
+
+              {/* Results Table */}
+              <KeywordTable data={sortedAndFilteredData} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}

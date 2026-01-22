@@ -1,0 +1,163 @@
+import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+const formatNumber = (num) => {
+  if (num === null || num === undefined) return '-';
+  return num.toLocaleString();
+};
+
+export default function KeywordTable({ data }) {
+  if (data.length === 0) {
+    return (
+      <Card className="mt-6">
+        <CardContent className="p-12 text-center">
+          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+            <BarChart3 className="w-8 h-8 text-slate-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">No keywords found</h3>
+          <p className="text-slate-500">Try adjusting your search or uploading a different file</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+    >
+      <Card className="mt-6 overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-slate-50 hover:bg-slate-50">
+                <TableHead className="font-semibold text-slate-700">Keyword</TableHead>
+                <TableHead className="font-semibold text-slate-700 text-right">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <TrendingUp className="w-4 h-4" />
+                    Volume
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 text-right">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <Users className="w-4 h-4" />
+                    Competition
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 text-right">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <Hash className="w-4 h-4" />
+                    Title Density
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 text-right">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <ShoppingCart className="w-4 h-4" />
+                    Sales
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700">Reason</TableHead>
+                <TableHead className="font-semibold text-slate-700 text-center">Amazon</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((row, index) => (
+                <TableRow 
+                  key={index} 
+                  className="group hover:bg-indigo-50/50 transition-colors"
+                >
+                  <TableCell className="font-medium text-slate-900 max-w-xs">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-default line-clamp-2">{row['Keyword']}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-sm">{row['Keyword']}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 font-semibold">
+                      {formatNumber(row.searchVolume)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span className={`font-medium ${row.competingProducts <= 500 ? 'text-emerald-600' : row.competingProducts <= 1000 ? 'text-amber-600' : 'text-slate-600'}`}>
+                      {formatNumber(row.competingProducts)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span className={`font-medium ${row.titleDensity <= 10 ? 'text-emerald-600' : row.titleDensity <= 20 ? 'text-amber-600' : 'text-slate-600'}`}>
+                      {formatNumber(row.titleDensity)}%
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right text-slate-600">
+                    {row.keywordSales ? formatNumber(row.keywordSales) : '-'}
+                  </TableCell>
+                  <TableCell className="max-w-xs">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-sm text-slate-500 cursor-default line-clamp-2">
+                            {row.selectionReason}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-sm">{row.selectionReason}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      asChild
+                      className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100"
+                    >
+                      <a 
+                        href={row.amazonLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        
+        <div className="px-4 py-3 bg-slate-50 border-t border-slate-100">
+          <p className="text-sm text-slate-500">
+            Showing <span className="font-medium text-slate-700">{data.length}</span> profitable keywords
+          </p>
+        </div>
+      </Card>
+    </motion.div>
+  );
+}
