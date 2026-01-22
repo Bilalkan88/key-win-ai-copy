@@ -10,7 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart } from 'lucide-react';
+import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy } from 'lucide-react';
+import { toast } from "sonner";
 import { motion } from 'framer-motion';
 import {
   Tooltip,
@@ -89,10 +90,19 @@ export default function KeywordTable({ data }) {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="cursor-default line-clamp-2">{row['Keyword Phrase']}</span>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(row['Keyword Phrase']);
+                              toast.success('Keyword copied to clipboard');
+                            }}
+                            className="text-left cursor-pointer hover:text-indigo-600 transition-colors flex items-center gap-2 group/kw"
+                          >
+                            <span className="line-clamp-2">{row['Keyword Phrase']}</span>
+                            <Copy className="w-3.5 h-3.5 opacity-0 group-hover/kw:opacity-50 transition-opacity flex-shrink-0" />
+                          </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className="max-w-sm">{row['Keyword Phrase']}</p>
+                          <p className="max-w-sm">Click to copy: {row['Keyword Phrase']}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
