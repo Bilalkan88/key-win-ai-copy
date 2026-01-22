@@ -109,7 +109,7 @@ export default function KeywordTable({ data }) {
                   </TableCell>
                   <TableCell className="text-right">
                     <span className={`font-medium ${row.titleDensity <= 10 ? 'text-emerald-600' : row.titleDensity <= 20 ? 'text-amber-600' : 'text-slate-600'}`}>
-                      {formatNumber(row.titleDensity)}%
+                      {formatNumber(row.titleDensity)}
                     </span>
                   </TableCell>
                   <TableCell className="text-right text-slate-600">
