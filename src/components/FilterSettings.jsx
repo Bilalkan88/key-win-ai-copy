@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sliders, TrendingUp, Users, Hash } from 'lucide-react';
+import { Sliders, TrendingUp, Users, Hash, Text } from 'lucide-react';
 
 export default function FilterSettings({ filters, onFilterChange }) {
   const handleChange = (field, value) => {
@@ -22,7 +22,7 @@ export default function FilterSettings({ filters, onFilterChange }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Minimum Search Volume */}
           <div className="space-y-2">
             <Label htmlFor="minVolume" className="flex items-center gap-2 text-sm font-medium text-slate-700">
@@ -75,6 +75,24 @@ export default function FilterSettings({ filters, onFilterChange }) {
               className="h-10 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
             />
             <p className="text-xs text-slate-500">Keywords with title density ≤ this value</p>
+          </div>
+
+          {/* Minimum Word Count */}
+          <div className="space-y-2">
+            <Label htmlFor="minWordCount" className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <Text className="w-4 h-4 text-purple-500" />
+              Min Word Count
+            </Label>
+            <Input
+              id="minWordCount"
+              type="number"
+              min="1"
+              value={filters.minWordCount}
+              onChange={(e) => handleChange('minWordCount', e.target.value)}
+              placeholder="4"
+              className="h-10 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
+            />
+            <p className="text-xs text-slate-500">Keywords with at least this many words</p>
           </div>
         </div>
       </CardContent>
