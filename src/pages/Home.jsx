@@ -338,6 +338,26 @@ Return a JSON object with this format:
             hasFile={rawData.length > 0}
             fileName={rawData.length > 0 ? `${rawData.length} keywords loaded` : null}
           />
+          {(rawData.length > 0 || analysisComplete) && (
+            <div className="mt-4 text-center">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setRawData([]);
+                  setProcessedData([]);
+                  setStats(null);
+                  setAnalysisComplete(false);
+                  setError(null);
+                  setSearchTerm('');
+                  setFilterSettings(DEFAULT_FILTERS);
+                }}
+                className="text-slate-600 hover:text-slate-800"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Upload New File
+              </Button>
+            </div>
+          )}
         </motion.div>
 
         {/* Filter Settings */}

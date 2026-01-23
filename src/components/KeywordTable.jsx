@@ -25,6 +25,11 @@ const formatNumber = (num) => {
   return num.toLocaleString();
 };
 
+const isProfitableKeyword = (row) => {
+  // High volume (>= 1500), low competition (<= 800), low title density (<= 15)
+  return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
+};
+
 export default function KeywordTable({ data }) {
   if (data.length === 0) {
     return (
@@ -82,12 +87,14 @@ export default function KeywordTable({ data }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((row, index) => (
+              {data.map((row, index) => {
+                const isProfitable = isProfitableKeyword(row);
+                return (
                 <TableRow 
                   key={index} 
-                  className="group hover:bg-indigo-50/50 transition-colors"
+                  className={`group hover:bg-indigo-50/50 transition-colors ${isProfitable ? 'bg-emerald-50/40' : ''}`}
                 >
-                  <TableCell className="font-medium text-slate-900 max-w-xs">
+                  <TableCell className={`max-w-xs ${isProfitable ? 'font-bold text-emerald-800' : 'font-medium text-slate-900'}`}>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -98,12 +105,13 @@ export default function KeywordTable({ data }) {
                             }}
                             className="text-left cursor-pointer hover:text-indigo-600 transition-colors flex items-center gap-2 group/kw"
                           >
+                            {isProfitable && <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />}
                             <span className="line-clamp-2">{row['Keyword Phrase']}</span>
                             <Copy className="w-3.5 h-3.5 opacity-0 group-hover/kw:opacity-50 transition-opacity flex-shrink-0" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className="max-w-sm">Click to copy: {row['Keyword Phrase']}</p>
+                          <p className="max-w-sm">{isProfitable ? '⭐ Top Pick! ' : ''}Click to copy: {row['Keyword Phrase']}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -193,7 +201,8 @@ export default function KeywordTable({ data }) {
                     </TooltipProvider>
                   </TableCell>
                 </TableRow>
-              ))}
+              );
+              })}
             </TableBody>
           </Table>
         </div>
