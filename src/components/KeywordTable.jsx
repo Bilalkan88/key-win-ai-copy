@@ -11,7 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, Target, Gauge, Lightbulb } from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { motion } from 'framer-motion';
 import {
