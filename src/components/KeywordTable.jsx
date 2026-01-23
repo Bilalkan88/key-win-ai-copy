@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy } from 'lucide-react';
+import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search } from 'lucide-react';
 import { toast } from "sonner";
 import { motion } from 'framer-motion';
 import {
