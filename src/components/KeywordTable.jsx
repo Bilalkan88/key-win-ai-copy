@@ -77,6 +77,7 @@ export default function KeywordTable({ data }) {
                   </div>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700">Reason</TableHead>
+                <TableHead className="font-semibold text-slate-700 text-center">SERP</TableHead>
                 <TableHead className="font-semibold text-slate-700 text-center">Amazon</TableHead>
               </TableRow>
             </TableHeader>
@@ -140,21 +141,56 @@ export default function KeywordTable({ data }) {
                     </TooltipProvider>
                   </TableCell>
                   <TableCell className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                      className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100"
-                    >
-                      <a 
-                        href={row.amazonLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            asChild
+                            className="text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+                          >
+                            <a 
+                              href={`https://www.google.com/search?q=${encodeURIComponent(row['Keyword Phrase'])}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Search className="w-4 h-4" />
+                            </a>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>View Google SERP</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            asChild
+                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100"
+                          >
+                            <a 
+                              href={row.amazonLink} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>View on Amazon</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </TableCell>
                 </TableRow>
               ))}
