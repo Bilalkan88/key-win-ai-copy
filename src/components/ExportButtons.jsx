@@ -19,9 +19,6 @@ export default function ExportButtons({ data }) {
       'Title Density',
       'Keyword Sales',
       'Organic Rank',
-      'Purchase Intent Score',
-      'Difficulty Score',
-      'Related Keywords',
       'Selection Reason',
       'Amazon Search Link'
     ];
@@ -35,9 +32,6 @@ export default function ExportButtons({ data }) {
         row.titleDensity,
         row.keywordSales || '',
         row.organicRank || '',
-        row.purchaseIntentScore || '',
-        row.difficultyScore || '',
-        `"${(row.relatedKeywords || []).join('; ')}"`,
         `"${(row.selectionReason || '').replace(/"/g, '""')}"`,
         `"${row.amazonLink}"`
       ].join(','))
@@ -63,9 +57,6 @@ export default function ExportButtons({ data }) {
       'Title Density',
       'Keyword Sales',
       'Organic Rank',
-      'Purchase Intent Score',
-      'Difficulty Score',
-      'Related Keywords',
       'Selection Reason',
       'Amazon Search Link'
     ];
@@ -84,20 +75,17 @@ export default function ExportButtons({ data }) {
     xmlContent += `</Row>`;
 
     data.forEach(row => {
-            xmlContent += `<Row>
-              <Cell><Data ss:Type="String">${escapeXml(row['Keyword Phrase'])}</Data></Cell>
-              <Cell><Data ss:Type="Number">${row.searchVolume}</Data></Cell>
-              <Cell><Data ss:Type="Number">${row.competingProducts}</Data></Cell>
-              <Cell><Data ss:Type="Number">${row.titleDensity}</Data></Cell>
-              <Cell><Data ss:Type="${row.keywordSales ? 'Number' : 'String'}">${row.keywordSales || ''}</Data></Cell>
-              <Cell><Data ss:Type="${row.organicRank ? 'Number' : 'String'}">${row.organicRank || ''}</Data></Cell>
-              <Cell><Data ss:Type="${row.purchaseIntentScore ? 'Number' : 'String'}">${row.purchaseIntentScore || ''}</Data></Cell>
-              <Cell><Data ss:Type="${row.difficultyScore ? 'Number' : 'String'}">${row.difficultyScore || ''}</Data></Cell>
-              <Cell><Data ss:Type="String">${escapeXml((row.relatedKeywords || []).join('; '))}</Data></Cell>
-              <Cell><Data ss:Type="String">${escapeXml(row.selectionReason || '')}</Data></Cell>
-              <Cell><Data ss:Type="String">${escapeXml(row.amazonLink)}</Data></Cell>
-            </Row>`;
-          });
+      xmlContent += `<Row>
+        <Cell><Data ss:Type="String">${escapeXml(row['Keyword Phrase'])}</Data></Cell>
+        <Cell><Data ss:Type="Number">${row.searchVolume}</Data></Cell>
+        <Cell><Data ss:Type="Number">${row.competingProducts}</Data></Cell>
+        <Cell><Data ss:Type="Number">${row.titleDensity}</Data></Cell>
+        <Cell><Data ss:Type="${row.keywordSales ? 'Number' : 'String'}">${row.keywordSales || ''}</Data></Cell>
+        <Cell><Data ss:Type="${row.organicRank ? 'Number' : 'String'}">${row.organicRank || ''}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(row.selectionReason || '')}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(row.amazonLink)}</Data></Cell>
+      </Row>`;
+    });
 
     xmlContent += `</Table></Worksheet></Workbook>`;
 

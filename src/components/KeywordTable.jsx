@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, Target, Gauge, Lightbulb } from 'lucide-react';
+import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search } from 'lucide-react';
 import { toast } from "sonner";
 import { motion } from 'framer-motion';
 import {
@@ -23,30 +23,6 @@ import {
 const formatNumber = (num) => {
   if (num === null || num === undefined) return '-';
   return num.toLocaleString();
-};
-
-const getScoreColor = (score, inverted = false) => {
-  if (score === null || score === undefined) return 'text-slate-400';
-  if (inverted) {
-    if (score <= 3) return 'text-emerald-600';
-    if (score <= 6) return 'text-amber-600';
-    return 'text-red-500';
-  }
-  if (score >= 8) return 'text-emerald-600';
-  if (score >= 5) return 'text-amber-600';
-  return 'text-red-500';
-};
-
-const getScoreBg = (score, inverted = false) => {
-  if (score === null || score === undefined) return 'bg-slate-100';
-  if (inverted) {
-    if (score <= 3) return 'bg-emerald-100';
-    if (score <= 6) return 'bg-amber-100';
-    return 'bg-red-100';
-  }
-  if (score >= 8) return 'bg-emerald-100';
-  if (score >= 5) return 'bg-amber-100';
-  return 'bg-red-100';
 };
 
 export default function KeywordTable({ data }) {
@@ -100,24 +76,6 @@ export default function KeywordTable({ data }) {
                     Sales
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 text-center">
-                  <div className="flex items-center justify-center gap-1.5">
-                    <Target className="w-4 h-4" />
-                    Intent
-                  </div>
-                </TableHead>
-                <TableHead className="font-semibold text-slate-700 text-center">
-                  <div className="flex items-center justify-center gap-1.5">
-                    <Gauge className="w-4 h-4" />
-                    Difficulty
-                  </div>
-                </TableHead>
-                <TableHead className="font-semibold text-slate-700">
-                  <div className="flex items-center gap-1.5">
-                    <Lightbulb className="w-4 h-4" />
-                    Related Keywords
-                  </div>
-                </TableHead>
                 <TableHead className="font-semibold text-slate-700">Reason</TableHead>
                 <TableHead className="font-semibold text-slate-700 text-center">SERP</TableHead>
                 <TableHead className="font-semibold text-slate-700 text-center">Amazon</TableHead>
@@ -167,67 +125,6 @@ export default function KeywordTable({ data }) {
                   </TableCell>
                   <TableCell className="text-right text-slate-600">
                     {row.keywordSales ? formatNumber(row.keywordSales) : '-'}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {row.purchaseIntentScore ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${getScoreBg(row.purchaseIntentScore)} ${getScoreColor(row.purchaseIntentScore)}`}>
-                              {row.purchaseIntentScore}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Purchase Intent: {row.purchaseIntentScore}/10</p>
-                            <p className="text-xs text-slate-400">Higher = More likely to buy</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : '-'}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {row.difficultyScore ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${getScoreBg(row.difficultyScore, true)} ${getScoreColor(row.difficultyScore, true)}`}>
-                              {row.difficultyScore}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Keyword Difficulty: {row.difficultyScore}/10</p>
-                            <p className="text-xs text-slate-400">Lower = Easier to rank</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : '-'}
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    {row.relatedKeywords && row.relatedKeywords.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {row.relatedKeywords.slice(0, 3).map((kw, i) => (
-                          <TooltipProvider key={i}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Badge 
-                                  variant="outline" 
-                                  className="text-xs cursor-pointer hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(kw);
-                                    toast.success('Related keyword copied');
-                                  }}
-                                >
-                                  {kw.length > 20 ? kw.substring(0, 20) + '...' : kw}
-                                </Badge>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Click to copy: {kw}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ))}
-                      </div>
-                    ) : '-'}
                   </TableCell>
                   <TableCell className="max-w-xs">
                     <TooltipProvider>
