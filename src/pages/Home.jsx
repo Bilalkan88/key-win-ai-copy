@@ -198,7 +198,7 @@ export default function Home() {
         const keywordList = batch.map(r => r['Keyword Phrase']).join('\n');
 
         const response = await base44.integrations.Core.InvokeLLM({
-          prompt: `Analyze these Amazon product keywords for buyer intent and clarity. For each keyword, determine if it should be INCLUDED or EXCLUDED.
+          prompt: `Analyze these Amazon product keywords for buyer intent, clarity, and commercial potential. For each keyword, determine if it should be INCLUDED or EXCLUDED, and provide additional insights.
 
 INCLUDE a keyword ONLY if it:
 - Has clear, specific meaning
@@ -211,13 +211,25 @@ EXCLUDE a keyword if it:
 - Does not describe a product
 - Is too generic
 
+For INCLUDED keywords, also provide:
+1. Purchase Intent Score (1-10): How likely is someone searching this to buy? 10 = ready to purchase now, 1 = just browsing
+2. Related Keywords: 2-3 similar keywords that could also be profitable
+3. Keyword Difficulty (1-10): Based on how competitive/saturated this niche likely is. 10 = very difficult, 1 = easy opportunity
+
 Keywords to analyze:
 ${keywordList}
 
 Return a JSON object with this format:
 {
   "results": [
-    {"keyword": "exact keyword", "include": true/false, "reason": "brief reason"}
+    {
+      "keyword": "exact keyword", 
+      "include": true/false, 
+      "reason": "brief reason",
+      "purchase_intent_score": 8,
+      "related_keywords": ["keyword 1", "keyword 2"],
+      "difficulty_score": 5
+    }
   ]
 }`,
           response_json_schema: {
@@ -230,7 +242,10 @@ Return a JSON object with this format:
                   properties: {
                     keyword: { type: "string" },
                     include: { type: "boolean" },
-                    reason: { type: "string" }
+                    reason: { type: "string" },
+                    purchase_intent_score: { type: "number" },
+                    related_keywords: { type: "array", items: { type: "string" } },
+                    difficulty_score: { type: "number" }
                   }
                 }
               }
@@ -249,6 +264,9 @@ Return a JSON object with this format:
             finalKeywords.push({
               ...row,
               selectionReason: analysis.reason,
+              purchaseIntentScore: analysis.purchase_intent_score || null,
+              relatedKeywords: analysis.related_keywords || [],
+              difficultyScore: analysis.difficulty_score || null,
               amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(row['Keyword Phrase']).replace(/%20/g, '+')}`
             });
           } else {
