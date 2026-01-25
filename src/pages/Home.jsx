@@ -188,18 +188,30 @@ export default function Home() {
     });
     const uniqueKeywords = Array.from(keywordMap.values());
 
-    // Step 5: Semantic analysis with LLM (batch processing)
+    // Step 5: Semantic analysis with LLM (parallel batch processing)
     let finalKeywords = [];
     let excludedUnclear = 0;
 
     if (uniqueKeywords.length > 0) {
-      const batchSize = 30;
+      const batchSize = 100; // Increased from 30 for faster processing
+      const batches = [];
+      
       for (let i = 0; i < uniqueKeywords.length; i += batchSize) {
-        const batch = uniqueKeywords.slice(i, i + batchSize);
-        const keywordList = batch.map(r => r['Keyword Phrase']).join('\n');
+        batches.push(uniqueKeywords.slice(i, i + batchSize));
+      }
 
-        const response = await base44.integrations.Core.InvokeLLM({
-          prompt: `Analyze these Amazon product keywords for buyer intent and clarity. For each keyword, determine if it should be INCLUDED or EXCLUDED.
+      // Process batches in parallel (max 3 concurrent requests)
+      const maxConcurrent = 3;
+      const results = [];
+      
+      for (let i = 0; i < batches.length; i += maxConcurrent) {
+        const concurrentBatches = batches.slice(i, i + maxConcurrent);
+        
+        const batchPromises = concurrentBatches.map(async (batch) => {
+          const keywordList = batch.map(r => r['Keyword Phrase']).join('\n');
+
+          const response = await base44.integrations.Core.InvokeLLM({
+            prompt: `Analyze these Amazon product keywords for buyer intent and clarity. For each keyword, determine if it should be INCLUDED or EXCLUDED.
 
 INCLUDE a keyword ONLY if it:
 - Has clear, specific meaning
@@ -221,24 +233,33 @@ Return a JSON object with this format:
     {"keyword": "exact keyword", "include": true/false, "reason": "brief reason"}
   ]
 }`,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              results: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    keyword: { type: "string" },
-                    include: { type: "boolean" },
-                    reason: { type: "string" }
+            response_json_schema: {
+              type: "object",
+              properties: {
+                results: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      keyword: { type: "string" },
+                      include: { type: "boolean" },
+                      reason: { type: "string" }
+                    }
                   }
                 }
               }
             }
-          }
+          });
+
+          return { batch, response };
         });
 
+        const batchResults = await Promise.all(batchPromises);
+        results.push(...batchResults);
+      }
+
+      // Process all results
+      results.forEach(({ batch, response }) => {
         const resultMap = new Map();
         response.results?.forEach(r => {
           resultMap.set(r.keyword.toLowerCase().trim(), r);
@@ -256,7 +277,7 @@ Return a JSON object with this format:
             excludedUnclear++;
           }
         });
-      }
+      });
     }
 
     setProcessedData(finalKeywords);
