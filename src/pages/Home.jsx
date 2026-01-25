@@ -18,7 +18,6 @@ import FilterSummary from '@/components/FilterSummary';
 import KeywordTable from '@/components/KeywordTable';
 import ExportButtons from '@/components/ExportButtons';
 import FeedbackSection from '@/components/FeedbackSection';
-import CompetitorAnalysis from '@/components/CompetitorAnalysis';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -470,15 +469,10 @@ Return a JSON object with this format:
               </div>
 
               {/* Results Table */}
-                                  <KeywordTable data={sortedAndFilteredData} />
-
-                                  {/* Competitor Analysis */}
-                                  <div className="mt-8">
-                                    <CompetitorAnalysis keywords={sortedAndFilteredData} />
-                                  </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
+              <KeywordTable data={sortedAndFilteredData} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Feedback Section */}
         <motion.div
