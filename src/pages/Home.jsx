@@ -22,6 +22,7 @@ import ExportButtons from '@/components/ExportButtons';
 import FeedbackSection from '@/components/FeedbackSection';
 import DashboardMetrics from '@/components/DashboardMetrics';
 import KeywordCharts from '@/components/KeywordCharts';
+import AIKeywordResearch from '@/components/AIKeywordResearch';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -326,6 +327,24 @@ Return JSON:
     toast.success(`Deleted ${selectedKeywords.size} keyword${selectedKeywords.size > 1 ? 's' : ''}`);
   };
 
+  const handleAddKeywords = (newKeywords) => {
+    const existingKeywords = new Set(processedData.map(k => k['Keyword Phrase'].toLowerCase()));
+    const uniqueNewKeywords = newKeywords.filter(k => 
+      !existingKeywords.has(k['Keyword Phrase'].toLowerCase())
+    );
+    
+    if (uniqueNewKeywords.length < newKeywords.length) {
+      toast.info(`Skipped ${newKeywords.length - uniqueNewKeywords.length} duplicate keyword(s)`);
+    }
+    
+    const updatedData = [...processedData, ...uniqueNewKeywords];
+    setProcessedData(updatedData);
+    setStats(prev => ({
+      ...prev,
+      finalCount: updatedData.length
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -457,6 +476,17 @@ Return JSON:
             <p className="text-sm text-slate-500 mt-3">
               Optimized for fast processing
             </p>
+          </motion.div>
+        )}
+
+        {/* AI Keyword Research */}
+        {(analysisComplete || processedData.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8"
+          >
+            <AIKeywordResearch onAddKeywords={handleAddKeywords} />
           </motion.div>
         )}
 
