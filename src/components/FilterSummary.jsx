@@ -12,15 +12,15 @@ const StatCard = ({ icon: Icon, label, value, color, delay }) => (
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
   >
-    <Card className="border-slate-200 hover:shadow-md transition-shadow duration-300">
+    <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-900 hover:shadow-md transition-shadow duration-300">
       <CardContent className="p-4">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center flex-shrink-0`}>
             <Icon className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-slate-900">{value.toLocaleString()}</p>
-            <p className="text-sm text-slate-500">{label}</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-white">{value.toLocaleString()}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
           </div>
         </div>
       </CardContent>
@@ -41,8 +41,8 @@ export default function FilterSummary({ stats }) {
         className="flex items-center gap-2 mb-6"
       >
         <TrendingUp className="w-5 h-5 text-indigo-600" />
-        <h2 className="text-xl font-semibold text-slate-900">Analysis Results</h2>
-        <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Analysis Results</h2>
+        <span className="ml-2 px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium">
           {successRate}% qualified
         </span>
       </motion.div>
@@ -85,17 +85,17 @@ export default function FilterSummary({ stats }) {
         transition={{ delay: 0.5 }}
         className="mt-4 flex flex-wrap gap-3"
       >
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full text-sm">
-          <span className="text-slate-500">Short keywords:</span>
-          <span className="font-medium text-slate-700">{stats.excludedShort}</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full text-sm">
+          <span className="text-slate-500 dark:text-slate-400">Short keywords:</span>
+          <span className="font-medium text-slate-700 dark:text-slate-300">{stats.excludedShort}</span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full text-sm">
-          <span className="text-slate-500">Branded:</span>
-          <span className="font-medium text-slate-700">{stats.excludedBranded}</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full text-sm">
+          <span className="text-slate-500 dark:text-slate-400">Branded:</span>
+          <span className="font-medium text-slate-700 dark:text-slate-300">{stats.excludedBranded}</span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full text-sm">
-          <span className="text-slate-500">Unclear intent:</span>
-          <span className="font-medium text-slate-700">{stats.excludedUnclear}</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full text-sm">
+          <span className="text-slate-500 dark:text-slate-400">Unclear intent:</span>
+          <span className="font-medium text-slate-700 dark:text-slate-300">{stats.excludedUnclear}</span>
         </div>
       </motion.div>
     </div>

@@ -24,9 +24,9 @@ export default function FeedbackSection() {
   };
 
   return (
-    <Card className="border-slate-200">
+    <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-900">
       <CardHeader className="pb-4">
-        <CardTitle className="text-base font-semibold flex items-center gap-2">
+        <CardTitle className="text-base font-semibold flex items-center gap-2 dark:text-white">
           <MessageSquare className="w-4 h-4 text-indigo-600" />
           Send Suggestions
         </CardTitle>
@@ -56,7 +56,7 @@ export default function FeedbackSection() {
                 placeholder="Share your suggestions, ideas, or report issues..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="min-h-[100px] border-slate-200 focus:border-indigo-300 focus:ring-indigo-200 resize-none"
+                className="min-h-[100px] border-slate-200 focus:border-indigo-300 focus:ring-indigo-200 resize-none dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
               />
               <div className="flex justify-end">
                 <Button
