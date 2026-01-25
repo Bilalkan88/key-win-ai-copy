@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { 
   Upload, Search, Download, ExternalLink, Loader2, 
@@ -54,6 +55,7 @@ export default function Home() {
   const [filterSettings, setFilterSettings] = useState(DEFAULT_FILTERS);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [selectedKeywords, setSelectedKeywords] = useState(new Set());
+  const [showOnlyProfitable, setShowOnlyProfitable] = useState(false);
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -273,6 +275,10 @@ Return JSON:
       );
     }
 
+    if (showOnlyProfitable) {
+      data = data.filter(row => isProfitableKeyword(row));
+    }
+
     switch (sortBy) {
       case 'search_volume_desc':
         data.sort((a, b) => b.searchVolume - a.searchVolume);
@@ -297,7 +303,7 @@ Return JSON:
     }
 
     return data;
-  }, [processedData, searchTerm, sortBy]);
+  }, [processedData, searchTerm, sortBy, showOnlyProfitable]);
 
   const handleDeleteSelected = () => {
     const newProcessedData = processedData.filter(
@@ -460,14 +466,30 @@ Return JSON:
 
               {/* Controls */}
               <div className="mt-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
-                <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <Input
-                    placeholder="Search keywords..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
-                  />
+                <div className="flex flex-col sm:flex-row gap-4 flex-1">
+                  <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <Input
+                      placeholder="Search keywords..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 px-4 h-11 border border-slate-200 rounded-lg bg-white">
+                    <Checkbox
+                      id="profitable-only"
+                      checked={showOnlyProfitable}
+                      onCheckedChange={setShowOnlyProfitable}
+                    />
+                    <label 
+                      htmlFor="profitable-only" 
+                      className="text-sm font-medium text-slate-700 cursor-pointer whitespace-nowrap"
+                    >
+                      ⭐ Top Picks Only
+                    </label>
+                  </div>
                 </div>
                 
                 <div className="flex gap-3">
