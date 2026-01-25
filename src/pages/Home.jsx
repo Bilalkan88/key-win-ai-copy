@@ -11,6 +11,7 @@ import {
   FileSpreadsheet, Sparkles, ArrowUpDown, Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 import FileUploader from '@/components/FileUploader';
 import FilterSettings from '@/components/FilterSettings';
