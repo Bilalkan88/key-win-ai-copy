@@ -266,10 +266,13 @@ Return JSON:
         results.forEach(({ response, batch }) => {
           const resultMap = new Map();
           response.results?.forEach(r => {
-            resultMap.set(r.keyword.toLowerCase().trim(), r);
+            if (r.keyword) {
+              resultMap.set(r.keyword.toLowerCase().trim(), r);
+            }
           });
 
           batch.forEach(row => {
+            if (!row['Keyword Phrase']) return;
             const analysis = resultMap.get(row['Keyword Phrase'].toLowerCase().trim());
             if (analysis?.include) {
               finalKeywords.push({
