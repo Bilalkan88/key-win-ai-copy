@@ -47,13 +47,29 @@ const CategorySection = ({ title, icon: Icon, color, count, keywords, isOpen, on
           >
             <CardContent className="border-t border-slate-100 pt-4 pb-4">
               {keywords.length > 0 ? (
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {keywords.map((keyword, index) => (
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {keywords.map((item, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
+                      className="flex items-start justify-between gap-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
                     >
-                      <span className="text-sm text-slate-700">{keyword}</span>
+                      <span className="text-sm text-slate-700 font-medium flex-1">
+                        {item.keyword}
+                      </span>
+                      <div className="flex gap-3 text-xs text-slate-600 flex-shrink-0">
+                        <div className="flex flex-col items-end">
+                          <span className="text-slate-400">Volume</span>
+                          <span className="font-semibold">{item.searchVolume?.toLocaleString() || 'N/A'}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="text-slate-400">Competition</span>
+                          <span className="font-semibold">{item.competingProducts?.toLocaleString() || 'N/A'}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="text-slate-400">Density</span>
+                          <span className="font-semibold">{item.titleDensity?.toLocaleString() || 'N/A'}</span>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
