@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search } from 'lucide-react';
+import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from 'framer-motion';
@@ -31,7 +31,7 @@ const isProfitableKeyword = (row) => {
   return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
 };
 
-export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange }) {
+export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange, sortBy, onSortChange }) {
   const toggleSelection = (keyword) => {
     const newSelected = new Set(selectedKeywords);
     if (newSelected.has(keyword)) {
@@ -52,6 +52,20 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
 
   const allSelected = data.length > 0 && selectedKeywords.size === data.length;
   const someSelected = selectedKeywords.size > 0 && selectedKeywords.size < data.length;
+
+  const getSortIcon = (columnKey) => {
+    if (sortBy === `${columnKey}_desc`) return <ArrowDown className="w-3.5 h-3.5" />;
+    if (sortBy === `${columnKey}_asc`) return <ArrowUp className="w-3.5 h-3.5" />;
+    return <ArrowUpDown className="w-3.5 h-3.5 opacity-0 group-hover:opacity-50" />;
+  };
+
+  const handleSort = (columnKey) => {
+    if (sortBy === `${columnKey}_desc`) {
+      onSortChange(`${columnKey}_asc`);
+    } else {
+      onSortChange(`${columnKey}_desc`);
+    }
+  };
 
   if (data.length === 0) {
     return (
@@ -88,28 +102,44 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700">Keyword</TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
+                  <button 
+                    onClick={() => handleSort('search_volume')}
+                    className="group flex items-center justify-end gap-1.5 w-full hover:text-indigo-600 transition-colors"
+                  >
                     <TrendingUp className="w-4 h-4" />
                     Volume
-                  </div>
+                    {getSortIcon('search_volume')}
+                  </button>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
+                  <button 
+                    onClick={() => handleSort('competing')}
+                    className="group flex items-center justify-end gap-1.5 w-full hover:text-indigo-600 transition-colors"
+                  >
                     <Users className="w-4 h-4" />
                     Competition
-                  </div>
+                    {getSortIcon('competing')}
+                  </button>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
+                  <button 
+                    onClick={() => handleSort('title_density')}
+                    className="group flex items-center justify-end gap-1.5 w-full hover:text-indigo-600 transition-colors"
+                  >
                     <Hash className="w-4 h-4" />
                     Title Density
-                  </div>
+                    {getSortIcon('title_density')}
+                  </button>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
+                  <button 
+                    onClick={() => handleSort('keyword_sales')}
+                    className="group flex items-center justify-end gap-1.5 w-full hover:text-indigo-600 transition-colors"
+                  >
                     <ShoppingCart className="w-4 h-4" />
                     Sales
-                  </div>
+                    {getSortIcon('keyword_sales')}
+                  </button>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700">Reason</TableHead>
                 <TableHead className="font-semibold text-slate-700 text-center">SERP</TableHead>

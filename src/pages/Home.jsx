@@ -532,6 +532,8 @@ Return JSON:
                 data={sortedAndFilteredData} 
                 selectedKeywords={selectedKeywords}
                 onSelectionChange={setSelectedKeywords}
+                sortBy={sortBy}
+                onSortChange={setSortBy}
               />
             </motion.div>
           )}
