@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -30,7 +31,7 @@ const isProfitableKeyword = (row) => {
   return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
 };
 
-export default function KeywordTable({ data }) {
+export default function KeywordTable({ data, selectedKeywords = new Set(), onToggleKeyword }) {
   if (data.length === 0) {
     return (
       <Card className="mt-6 dark:bg-slate-900 dark:border-slate-700">
@@ -51,39 +52,40 @@ export default function KeywordTable({ data }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
     >
-      <Card className="mt-6 overflow-hidden dark:bg-slate-900 dark:border-slate-700">
+      <Card className="mt-8 overflow-hidden border-slate-200 dark:border-slate-800 dark:bg-black">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50 hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-800">
-                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Keyword</TableHead>
-                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+              <TableRow className="border-b border-slate-200 dark:border-slate-800">
+                <TableHead className="font-medium text-slate-600 dark:text-slate-400 h-14 w-12"></TableHead>
+                <TableHead className="font-medium text-slate-600 dark:text-slate-400 h-14">Keyword</TableHead>
+                <TableHead className="font-medium text-slate-600 dark:text-slate-400 h-14 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     <TrendingUp className="w-4 h-4" />
                     Volume
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                <TableHead className="font-medium text-slate-600 dark:text-slate-400 h-14 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     <Users className="w-4 h-4" />
                     Competition
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                <TableHead className="font-medium text-slate-600 dark:text-slate-400 h-14 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     <Hash className="w-4 h-4" />
                     Title Density
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                <TableHead className="font-medium text-slate-600 dark:text-slate-400 h-14 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     <ShoppingCart className="w-4 h-4" />
                     Sales
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Reason</TableHead>
-                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-center">SERP</TableHead>
-                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-center">Amazon</TableHead>
+                <TableHead className="font-medium text-slate-600 dark:text-slate-400 h-14">Reason</TableHead>
+                <TableHead className="font-medium text-slate-600 dark:text-slate-400 h-14 text-center">SERP</TableHead>
+                <TableHead className="font-medium text-slate-600 dark:text-slate-400 h-14 text-center">Amazon</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -92,9 +94,16 @@ export default function KeywordTable({ data }) {
                 return (
                 <TableRow 
                   key={index} 
-                  className={`group hover:bg-indigo-50/50 dark:hover:bg-indigo-950/50 transition-colors ${isProfitable ? 'bg-emerald-50/40 dark:bg-emerald-950/30' : ''}`}
+                  className={`group hover:bg-slate-50 dark:hover:bg-slate-950 transition-colors border-b border-slate-100 dark:border-slate-900 ${isProfitable ? 'bg-[#F9B700]/10 dark:bg-[#F9B700]/5' : ''} ${selectedKeywords.has(row['Keyword Phrase']) ? 'bg-slate-100 dark:bg-slate-900' : ''}`}
                 >
-                  <TableCell className={`max-w-xs ${isProfitable ? 'font-bold text-emerald-800 dark:text-emerald-400' : 'font-medium text-slate-900 dark:text-slate-100'}`}>
+                  <TableCell className="py-5">
+                    <Checkbox 
+                      checked={selectedKeywords.has(row['Keyword Phrase'])}
+                      onCheckedChange={() => onToggleKeyword(row['Keyword Phrase'])}
+                      className="border-slate-300 dark:border-slate-700"
+                    />
+                  </TableCell>
+                  <TableCell className={`max-w-xs py-5 ${isProfitable ? 'font-semibold text-[#F9B700] dark:text-[#F9B700]' : 'font-medium text-slate-900 dark:text-slate-100'}`}>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -103,9 +112,9 @@ export default function KeywordTable({ data }) {
                               navigator.clipboard.writeText(row['Keyword Phrase']);
                               toast.success('Keyword copied to clipboard');
                             }}
-                            className="text-left cursor-pointer hover:text-indigo-600 transition-colors flex items-center gap-2 group/kw"
-                          >
-                            {isProfitable && <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />}
+                            className="text-left cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 transition-colors flex items-center gap-2 group/kw"
+                            >
+                            {isProfitable && <span className="w-2 h-2 rounded-full bg-[#F9B700] flex-shrink-0" />}
                             <span className="line-clamp-2">{row['Keyword Phrase']}</span>
                             <Copy className="w-3.5 h-3.5 opacity-0 group-hover/kw:opacity-50 transition-opacity flex-shrink-0" />
                           </button>
@@ -116,29 +125,29 @@ export default function KeywordTable({ data }) {
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 font-semibold">
+                  <TableCell className="text-right py-5">
+                    <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium border-0">
                       {formatNumber(row.searchVolume)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <span className={`font-medium ${row.competingProducts <= 500 ? 'text-emerald-600 dark:text-emerald-400' : row.competingProducts <= 1000 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                  <TableCell className="text-right py-5">
+                    <span className={`font-medium ${row.competingProducts <= 500 ? 'text-[#F9B700] dark:text-[#F9B700]' : row.competingProducts <= 1000 ? 'text-slate-600 dark:text-slate-400' : 'text-slate-500 dark:text-slate-500'}`}>
                       {formatNumber(row.competingProducts)}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <span className={`font-medium ${row.titleDensity <= 10 ? 'text-emerald-600 dark:text-emerald-400' : row.titleDensity <= 20 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                  <TableCell className="text-right py-5">
+                    <span className={`font-medium ${row.titleDensity <= 10 ? 'text-[#F9B700] dark:text-[#F9B700]' : row.titleDensity <= 20 ? 'text-slate-600 dark:text-slate-400' : 'text-slate-500 dark:text-slate-500'}`}>
                       {formatNumber(row.titleDensity)}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right text-slate-600 dark:text-slate-400">
+                  <TableCell className="text-right text-slate-500 dark:text-slate-500 py-5">
                     {row.keywordSales ? formatNumber(row.keywordSales) : '-'}
                   </TableCell>
-                  <TableCell className="max-w-xs">
+                  <TableCell className="max-w-xs py-5">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="text-sm text-slate-500 dark:text-slate-400 cursor-default line-clamp-2">
+                          <span className="text-sm text-slate-500 dark:text-slate-500 cursor-default line-clamp-2">
                             {row.selectionReason}
                           </span>
                         </TooltipTrigger>
@@ -148,7 +157,7 @@ export default function KeywordTable({ data }) {
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center py-5">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -156,7 +165,7 @@ export default function KeywordTable({ data }) {
                             variant="ghost"
                             size="sm"
                             asChild
-                            className="text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+                            className="text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900"
                           >
                             <a 
                               href={`https://www.google.com/search?q=${encodeURIComponent(row['Keyword Phrase'])}`} 
@@ -174,7 +183,7 @@ export default function KeywordTable({ data }) {
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center py-5">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -182,7 +191,7 @@ export default function KeywordTable({ data }) {
                             variant="ghost"
                             size="sm"
                             asChild
-                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100"
+                            className="text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900"
                           >
                             <a 
                               href={row.amazonLink} 
@@ -207,10 +216,15 @@ export default function KeywordTable({ data }) {
           </Table>
         </div>
         
-        <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+        <div className="px-6 py-4 bg-white dark:bg-black border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <p className="text-sm text-slate-500 dark:text-slate-500">
             Showing <span className="font-medium text-slate-700 dark:text-slate-300">{data.length}</span> profitable keywords
           </p>
+          {selectedKeywords.size > 0 && (
+            <p className="text-sm font-medium text-slate-900 dark:text-white">
+              {selectedKeywords.size} selected
+            </p>
+          )}
         </div>
       </Card>
     </motion.div>
