@@ -12,15 +12,15 @@ const StatCard = ({ icon: Icon, label, value, color, delay }) => (
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
   >
-    <Card className="border-slate-200 dark:border-slate-800 dark:bg-black hover:border-slate-300 dark:hover:border-slate-700 transition-colors duration-200">
-      <CardContent className="p-6">
-        <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center flex-shrink-0`}>
-            <Icon className="w-6 h-6" />
+    <Card className="border-slate-200 hover:shadow-md transition-shadow duration-300">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center flex-shrink-0`}>
+            <Icon className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{value.toLocaleString()}</p>
-            <p className="text-sm text-slate-500 dark:text-slate-500">{label}</p>
+            <p className="text-2xl font-bold text-slate-900">{value.toLocaleString()}</p>
+            <p className="text-sm text-slate-500">{label}</p>
           </div>
         </div>
       </CardContent>
@@ -34,19 +34,20 @@ export default function FilterSummary({ stats }) {
     : 0;
 
   return (
-    <div className="mt-12">
+    <div className="mt-10">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex items-center gap-3 mb-8"
+        className="flex items-center gap-2 mb-6"
       >
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Analysis Results</h2>
-        <span className="ml-2 px-3 py-1 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 rounded-full text-sm font-medium">
+        <TrendingUp className="w-5 h-5 text-indigo-600" />
+        <h2 className="text-xl font-semibold text-slate-900">Analysis Results</h2>
+        <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
           {successRate}% qualified
         </span>
       </motion.div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={FileSpreadsheet}
           label="Total Uploaded"
@@ -82,19 +83,19 @@ export default function FilterSummary({ stats }) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="mt-6 flex flex-wrap gap-3"
+        className="mt-4 flex flex-wrap gap-3"
       >
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm">
-          <span className="text-slate-500 dark:text-slate-500">Short keywords:</span>
-          <span className="font-semibold text-slate-900 dark:text-white">{stats.excludedShort}</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full text-sm">
+          <span className="text-slate-500">Short keywords:</span>
+          <span className="font-medium text-slate-700">{stats.excludedShort}</span>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm">
-          <span className="text-slate-500 dark:text-slate-500">Branded:</span>
-          <span className="font-semibold text-slate-900 dark:text-white">{stats.excludedBranded}</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full text-sm">
+          <span className="text-slate-500">Branded:</span>
+          <span className="font-medium text-slate-700">{stats.excludedBranded}</span>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm">
-          <span className="text-slate-500 dark:text-slate-500">Unclear intent:</span>
-          <span className="font-semibold text-slate-900 dark:text-white">{stats.excludedUnclear}</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full text-sm">
+          <span className="text-slate-500">Unclear intent:</span>
+          <span className="font-medium text-slate-700">{stats.excludedUnclear}</span>
         </div>
       </motion.div>
     </div>

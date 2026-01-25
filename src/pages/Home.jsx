@@ -18,7 +18,6 @@ import FilterSummary from '@/components/FilterSummary';
 import KeywordTable from '@/components/KeywordTable';
 import ExportButtons from '@/components/ExportButtons';
 import FeedbackSection from '@/components/FeedbackSection';
-import AppearanceSettings from '@/components/AppearanceSettings';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -52,7 +51,6 @@ export default function Home() {
   const [stats, setStats] = useState(null);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [filterSettings, setFilterSettings] = useState(DEFAULT_FILTERS);
-  const [selectedKeywords, setSelectedKeywords] = useState(new Set());
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -189,30 +187,18 @@ export default function Home() {
     });
     const uniqueKeywords = Array.from(keywordMap.values());
 
-    // Step 5: Semantic analysis with LLM (parallel batch processing)
+    // Step 5: Semantic analysis with LLM (batch processing)
     let finalKeywords = [];
     let excludedUnclear = 0;
 
     if (uniqueKeywords.length > 0) {
-      const batchSize = 100; // Increased from 30 for faster processing
-      const batches = [];
-      
+      const batchSize = 30;
       for (let i = 0; i < uniqueKeywords.length; i += batchSize) {
-        batches.push(uniqueKeywords.slice(i, i + batchSize));
-      }
+        const batch = uniqueKeywords.slice(i, i + batchSize);
+        const keywordList = batch.map(r => r['Keyword Phrase']).join('\n');
 
-      // Process batches in parallel (max 3 concurrent requests)
-      const maxConcurrent = 3;
-      const results = [];
-      
-      for (let i = 0; i < batches.length; i += maxConcurrent) {
-        const concurrentBatches = batches.slice(i, i + maxConcurrent);
-        
-        const batchPromises = concurrentBatches.map(async (batch) => {
-          const keywordList = batch.map(r => r['Keyword Phrase']).join('\n');
-
-          const response = await base44.integrations.Core.InvokeLLM({
-            prompt: `Analyze these Amazon product keywords for buyer intent and clarity. For each keyword, determine if it should be INCLUDED or EXCLUDED.
+        const response = await base44.integrations.Core.InvokeLLM({
+          prompt: `Analyze these Amazon product keywords for buyer intent and clarity. For each keyword, determine if it should be INCLUDED or EXCLUDED.
 
 INCLUDE a keyword ONLY if it:
 - Has clear, specific meaning
@@ -234,33 +220,24 @@ Return a JSON object with this format:
     {"keyword": "exact keyword", "include": true/false, "reason": "brief reason"}
   ]
 }`,
-            response_json_schema: {
-              type: "object",
-              properties: {
-                results: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      keyword: { type: "string" },
-                      include: { type: "boolean" },
-                      reason: { type: "string" }
-                    }
+          response_json_schema: {
+            type: "object",
+            properties: {
+              results: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    keyword: { type: "string" },
+                    include: { type: "boolean" },
+                    reason: { type: "string" }
                   }
                 }
               }
             }
-          });
-
-          return { batch, response };
+          }
         });
 
-        const batchResults = await Promise.all(batchPromises);
-        results.push(...batchResults);
-      }
-
-      // Process all results
-      results.forEach(({ batch, response }) => {
         const resultMap = new Map();
         response.results?.forEach(r => {
           resultMap.set(r.keyword.toLowerCase().trim(), r);
@@ -278,7 +255,7 @@ Return a JSON object with this format:
             excludedUnclear++;
           }
         });
-      });
+      }
     }
 
     setProcessedData(finalKeywords);
@@ -330,22 +307,22 @@ Return a JSON object with this format:
   }, [processedData, searchTerm, sortBy]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-900/5 dark:bg-white/5 rounded-full text-slate-700 dark:text-slate-300 text-sm font-medium mb-6">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-sm font-medium mb-4">
+            <Sparkles className="w-4 h-4" />
             AI-Powered Analysis
           </div>
-          <h1 className="text-5xl sm:text-6xl font-bold text-slate-900 dark:text-white tracking-tight mb-6 leading-tight">
+          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight mb-4">
             Keyword Winner Finder
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
             Upload your Helium 10 CSV and discover high-potential Amazon keywords with AI-powered semantic analysis
           </p>
         </motion.div>
@@ -364,7 +341,7 @@ Return a JSON object with this format:
           {(rawData.length > 0 || analysisComplete) && (
             <div className="mt-4 text-center">
               <Button
-                variant="ghost"
+                variant="outline"
                 onClick={() => {
                   setRawData([]);
                   setProcessedData([]);
@@ -373,9 +350,8 @@ Return a JSON object with this format:
                   setError(null);
                   setSearchTerm('');
                   setFilterSettings(DEFAULT_FILTERS);
-                  setSelectedKeywords(new Set());
                 }}
-                className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900"
+                className="text-slate-600 hover:text-slate-800"
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Upload New File
@@ -408,10 +384,10 @@ Return a JSON object with this format:
               exit={{ opacity: 0, scale: 0.95 }}
               className="mt-6"
             >
-              <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+              <Card className="border-red-200 bg-red-50">
                 <CardContent className="p-4 flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0" />
-                  <p className="text-red-700 dark:text-red-300">{error}</p>
+                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <p className="text-red-700">{error}</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -429,7 +405,7 @@ Return a JSON object with this format:
               size="lg"
               onClick={analyzeKeywords}
               disabled={isAnalyzing}
-              className="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 px-10 py-7 text-base rounded-2xl font-medium shadow-sm transition-all duration-200"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-200 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-300"
             >
               {isAnalyzing ? (
                 <>
@@ -443,7 +419,7 @@ Return a JSON object with this format:
                 </>
               )}
             </Button>
-            <p className="text-sm text-slate-500 dark:text-slate-500 mt-4">
+            <p className="text-sm text-slate-500 mt-3">
               This may take a moment for large files
             </p>
           </motion.div>
@@ -461,20 +437,20 @@ Return a JSON object with this format:
               <FilterSummary stats={stats} />
 
               {/* Controls */}
-              <div className="mt-10 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+              <div className="mt-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
                 <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input
                     placeholder="Search keywords..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 h-12 border-slate-200 dark:border-slate-800 focus:border-slate-900 dark:focus:border-white focus:ring-0 dark:bg-slate-950 dark:text-white dark:placeholder-slate-500 rounded-xl"
+                    className="pl-10 h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
                   />
                 </div>
                 
                 <div className="flex gap-3">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-48 h-12 rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-950">
+                    <SelectTrigger className="w-48 h-11">
                       <ArrowUpDown className="w-4 h-4 mr-2 text-slate-400" />
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
@@ -493,19 +469,7 @@ Return a JSON object with this format:
               </div>
 
               {/* Results Table */}
-              <KeywordTable 
-                data={sortedAndFilteredData} 
-                selectedKeywords={selectedKeywords}
-                onToggleKeyword={(keyword) => {
-                  const newSelected = new Set(selectedKeywords);
-                  if (newSelected.has(keyword)) {
-                    newSelected.delete(keyword);
-                  } else {
-                    newSelected.add(keyword);
-                  }
-                  setSelectedKeywords(newSelected);
-                }}
-              />
+              <KeywordTable data={sortedAndFilteredData} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -515,10 +479,9 @@ Return a JSON object with this format:
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mt-12 flex justify-between items-start gap-6"
+          className="mt-12"
         >
           <FeedbackSection />
-          <AppearanceSettings />
         </motion.div>
       </div>
     </div>

@@ -24,10 +24,10 @@ export default function FeedbackSection() {
   };
 
   return (
-    <Card className="border-slate-200 dark:border-slate-800 dark:bg-black">
-      <CardHeader className="pb-6">
-        <CardTitle className="text-lg font-semibold flex items-center gap-2 text-slate-900 dark:text-white">
-          <MessageSquare className="w-5 h-5 text-slate-400" />
+    <Card className="border-slate-200">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-base font-semibold flex items-center gap-2">
+          <MessageSquare className="w-4 h-4 text-indigo-600" />
           Send Suggestions
         </CardTitle>
       </CardHeader>
@@ -56,13 +56,13 @@ export default function FeedbackSection() {
                 placeholder="Share your suggestions, ideas, or report issues..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="min-h-[100px] border-slate-200 dark:border-slate-800 focus:border-slate-900 dark:focus:border-white focus:ring-0 resize-none dark:bg-slate-950 dark:text-white dark:placeholder-slate-500 rounded-xl"
+                className="min-h-[100px] border-slate-200 focus:border-indigo-300 focus:ring-indigo-200 resize-none"
               />
               <div className="flex justify-end">
                 <Button
                   onClick={handleSubmit}
                   disabled={!message.trim() || isSubmitting}
-                  className="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 h-10 rounded-xl"
+                  className="bg-indigo-600 hover:bg-indigo-700"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   {isSubmitting ? 'Sending...' : 'Send Feedback'}

@@ -14,10 +14,10 @@ export default function FilterSettings({ filters, onFilterChange }) {
   };
 
   return (
-    <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-white/5 shadow-sm">
-      <CardHeader className="pb-6">
-        <CardTitle className="text-lg font-semibold flex items-center gap-2 text-slate-900 dark:text-white">
-          <Sliders className="w-5 h-5 text-slate-400" />
+    <Card className="border-slate-200">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-base font-semibold flex items-center gap-2">
+          <Sliders className="w-4 h-4 text-indigo-600" />
           Filter Settings
         </CardTitle>
       </CardHeader>
@@ -25,7 +25,7 @@ export default function FilterSettings({ filters, onFilterChange }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Minimum Search Volume */}
           <div className="space-y-2">
-            <Label htmlFor="minVolume" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+            <Label htmlFor="minVolume" className="flex items-center gap-2 text-sm font-medium text-slate-700">
               <TrendingUp className="w-4 h-4 text-emerald-500" />
               Min Search Volume
             </Label>
@@ -36,14 +36,14 @@ export default function FilterSettings({ filters, onFilterChange }) {
               value={filters.minSearchVolume}
               onChange={(e) => handleChange('minSearchVolume', e.target.value)}
               placeholder="900"
-              className="h-11 bg-white dark:bg-white/10 border-slate-200 dark:border-slate-700 focus:border-slate-900 dark:focus:border-white focus:ring-0 dark:text-white rounded-xl"
+              className="h-10 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
             />
-            <p className="text-xs text-slate-500 dark:text-slate-400">Keywords with volume ≥ this value</p>
+            <p className="text-xs text-slate-500">Keywords with volume ≥ this value</p>
           </div>
 
           {/* Maximum Competing Products */}
           <div className="space-y-2">
-            <Label htmlFor="maxCompeting" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+            <Label htmlFor="maxCompeting" className="flex items-center gap-2 text-sm font-medium text-slate-700">
               <Users className="w-4 h-4 text-blue-500" />
               Max Competition
             </Label>
@@ -54,14 +54,14 @@ export default function FilterSettings({ filters, onFilterChange }) {
               value={filters.maxCompetingProducts}
               onChange={(e) => handleChange('maxCompetingProducts', e.target.value)}
               placeholder="2000"
-              className="h-11 bg-white dark:bg-white/10 border-slate-200 dark:border-slate-700 focus:border-slate-900 dark:focus:border-white focus:ring-0 dark:text-white rounded-xl"
+              className="h-10 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
             />
-            <p className="text-xs text-slate-500 dark:text-slate-400">Keywords with competition ≤ this value</p>
+            <p className="text-xs text-slate-500">Keywords with competition ≤ this value</p>
           </div>
 
           {/* Maximum Title Density */}
           <div className="space-y-2">
-            <Label htmlFor="maxTitleDensity" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+            <Label htmlFor="maxTitleDensity" className="flex items-center gap-2 text-sm font-medium text-slate-700">
               <Hash className="w-4 h-4 text-amber-500" />
               Max Title Density
             </Label>
@@ -72,14 +72,14 @@ export default function FilterSettings({ filters, onFilterChange }) {
               value={filters.maxTitleDensity}
               onChange={(e) => handleChange('maxTitleDensity', e.target.value)}
               placeholder="30"
-              className="h-11 bg-white dark:bg-white/10 border-slate-200 dark:border-slate-700 focus:border-slate-900 dark:focus:border-white focus:ring-0 dark:text-white rounded-xl"
+              className="h-10 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
             />
-            <p className="text-xs text-slate-500 dark:text-slate-400">Keywords with title density ≤ this value</p>
+            <p className="text-xs text-slate-500">Keywords with title density ≤ this value</p>
           </div>
 
           {/* Minimum Word Count */}
           <div className="space-y-2">
-            <Label htmlFor="minWordCount" className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+            <Label htmlFor="minWordCount" className="flex items-center gap-2 text-sm font-medium text-slate-700">
               <Text className="w-4 h-4 text-purple-500" />
               Min Word Count
             </Label>
@@ -90,9 +90,9 @@ export default function FilterSettings({ filters, onFilterChange }) {
               value={filters.minWordCount}
               onChange={(e) => handleChange('minWordCount', e.target.value)}
               placeholder="4"
-              className="h-11 bg-white dark:bg-white/10 border-slate-200 dark:border-slate-700 focus:border-slate-900 dark:focus:border-white focus:ring-0 dark:text-white rounded-xl"
+              className="h-10 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
             />
-            <p className="text-xs text-slate-500 dark:text-slate-400">Keywords with at least this many words</p>
+            <p className="text-xs text-slate-500">Keywords with at least this many words</p>
           </div>
         </div>
       </CardContent>

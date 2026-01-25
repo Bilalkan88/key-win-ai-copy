@@ -37,16 +37,16 @@ export default function FileUploader({ onFileUpload, hasFile, fileName }) {
   return (
     <Card 
       className={`
-        relative overflow-hidden transition-all duration-200 cursor-pointer group
-        ${isDragging ? 'border-slate-900 dark:border-white bg-slate-50 dark:bg-slate-950' : 'border-slate-200 dark:border-slate-800 dark:bg-black hover:border-slate-300 dark:hover:border-slate-700'}
-        ${hasFile ? 'border-slate-900 dark:border-white bg-slate-50 dark:bg-slate-950' : ''}
+        relative overflow-hidden transition-all duration-300 cursor-pointer group
+        ${isDragging ? 'border-indigo-400 bg-indigo-50 shadow-lg shadow-indigo-100' : 'border-slate-200 hover:border-indigo-300 hover:shadow-md'}
+        ${hasFile ? 'border-emerald-300 bg-emerald-50/50' : ''}
       `}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={() => fileInputRef.current?.click()}
     >
-      <CardContent className="p-10 sm:p-16">
+      <CardContent className="p-8 sm:p-12">
         <input
           ref={fileInputRef}
           type="file"
@@ -74,27 +74,27 @@ export default function FileUploader({ onFileUpload, hasFile, fileName }) {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}
                 className={`
-                  w-20 h-20 rounded-3xl flex items-center justify-center mb-6 transition-colors duration-200
-                  ${isDragging ? 'bg-slate-900 dark:bg-white' : 'bg-slate-100 dark:bg-slate-900 group-hover:bg-slate-900 dark:group-hover:bg-white'}
+                  w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-colors duration-300
+                  ${isDragging ? 'bg-indigo-100' : 'bg-slate-100 group-hover:bg-indigo-100'}
                 `}
               >
-                <Upload className={`w-9 h-9 transition-colors duration-200 ${isDragging ? 'text-white dark:text-slate-900' : 'text-slate-400 group-hover:text-white dark:group-hover:text-slate-900'}`} />
+                <Upload className={`w-8 h-8 transition-colors duration-300 ${isDragging ? 'text-indigo-600' : 'text-slate-400 group-hover:text-indigo-600'}`} />
               </motion.div>
             )}
           </AnimatePresence>
 
-          <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-1">
             {hasFile ? 'File Loaded Successfully' : 'Upload Helium 10 CSV'}
           </h3>
           
           {hasFile ? (
-            <p className="text-emerald-600 dark:text-emerald-400 font-medium">{fileName}</p>
-                            ) : (
-                              <>
-                                <p className="text-slate-500 dark:text-slate-400 mb-4">
+            <p className="text-emerald-600 font-medium">{fileName}</p>
+          ) : (
+            <>
+              <p className="text-slate-500 mb-4">
                 Drag and drop your file here, or click to browse
               </p>
-              <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+              <div className="flex items-center gap-2 text-xs text-slate-400">
                 <FileSpreadsheet className="w-4 h-4" />
                 <span>Required: Keyword Phrase, Search Volume, Competing Products, Title Density</span>
               </div>
