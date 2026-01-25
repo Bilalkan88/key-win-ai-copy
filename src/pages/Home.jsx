@@ -52,6 +52,7 @@ export default function Home() {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [filterSettings, setFilterSettings] = useState(DEFAULT_FILTERS);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [selectedKeywords, setSelectedKeywords] = useState(new Set());
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -341,6 +342,7 @@ Return JSON:
                   setError(null);
                   setSearchTerm('');
                   setFilterSettings(DEFAULT_FILTERS);
+                  setSelectedKeywords(new Set());
                 }}
                 className="text-slate-600 hover:text-slate-800"
               >
@@ -474,7 +476,11 @@ Return JSON:
               </div>
 
               {/* Results Table */}
-              <KeywordTable data={sortedAndFilteredData} />
+              <KeywordTable 
+                data={sortedAndFilteredData} 
+                selectedKeywords={selectedKeywords}
+                onSelectionChange={setSelectedKeywords}
+              />
             </motion.div>
           )}
         </AnimatePresence>

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search } from 'lucide-react';
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from 'framer-motion';
 import {
   Tooltip,
@@ -30,7 +31,28 @@ const isProfitableKeyword = (row) => {
   return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
 };
 
-export default function KeywordTable({ data }) {
+export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange }) {
+  const toggleSelection = (keyword) => {
+    const newSelected = new Set(selectedKeywords);
+    if (newSelected.has(keyword)) {
+      newSelected.delete(keyword);
+    } else {
+      newSelected.add(keyword);
+    }
+    onSelectionChange(newSelected);
+  };
+
+  const toggleAll = () => {
+    if (selectedKeywords.size === data.length) {
+      onSelectionChange(new Set());
+    } else {
+      onSelectionChange(new Set(data.map(row => row['Keyword Phrase'])));
+    }
+  };
+
+  const allSelected = data.length > 0 && selectedKeywords.size === data.length;
+  const someSelected = selectedKeywords.size > 0 && selectedKeywords.size < data.length;
+
   if (data.length === 0) {
     return (
       <Card className="mt-6">
@@ -56,6 +78,14 @@ export default function KeywordTable({ data }) {
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-50 hover:bg-slate-50">
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={toggleAll}
+                    aria-label="Select all"
+                    className={someSelected ? "data-[state=checked]:bg-indigo-600" : ""}
+                  />
+                </TableHead>
                 <TableHead className="font-semibold text-slate-700">Keyword</TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
                   <div className="flex items-center justify-end gap-1.5">
@@ -89,11 +119,19 @@ export default function KeywordTable({ data }) {
             <TableBody>
               {data.map((row, index) => {
                 const isProfitable = isProfitableKeyword(row);
+                const isSelected = selectedKeywords.has(row['Keyword Phrase']);
                 return (
                 <TableRow 
                   key={index} 
-                  className={`group hover:bg-indigo-50/50 transition-colors ${isProfitable ? 'bg-emerald-50/40' : ''}`}
+                  className={`group hover:bg-indigo-50/50 transition-colors ${isProfitable ? 'bg-emerald-50/40' : ''} ${isSelected ? 'bg-indigo-50' : ''}`}
                 >
+                  <TableCell className="w-12">
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => toggleSelection(row['Keyword Phrase'])}
+                      aria-label={`Select ${row['Keyword Phrase']}`}
+                    />
+                  </TableCell>
                   <TableCell className={`max-w-xs ${isProfitable ? 'font-bold text-emerald-800' : 'font-medium text-slate-900'}`}>
                     <TooltipProvider>
                       <Tooltip>
@@ -207,10 +245,15 @@ export default function KeywordTable({ data }) {
           </Table>
         </div>
         
-        <div className="px-4 py-3 bg-slate-50 border-t border-slate-100">
+        <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
           <p className="text-sm text-slate-500">
             Showing <span className="font-medium text-slate-700">{data.length}</span> profitable keywords
           </p>
+          {selectedKeywords.size > 0 && (
+            <p className="text-sm font-medium text-indigo-600">
+              {selectedKeywords.size} selected
+            </p>
+          )}
         </div>
       </Card>
     </motion.div>
