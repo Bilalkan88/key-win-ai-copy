@@ -164,23 +164,13 @@ export default function Home() {
       const wordCount = row['Keyword Phrase'].trim().split(/\s+/).length;
       if (wordCount < minWords) {
         excludedShort++;
-        excluded.short.push({
-          keyword: row['Keyword Phrase'],
-          searchVolume,
-          competingProducts,
-          titleDensity
-        });
+        excluded.short.push(row['Keyword Phrase']);
         return;
       }
       
       if (containsBrand(row['Keyword Phrase'])) {
         excludedBranded++;
-        excluded.branded.push({
-          keyword: row['Keyword Phrase'],
-          searchVolume,
-          competingProducts,
-          titleDensity
-        });
+        excluded.branded.push(row['Keyword Phrase']);
         return;
       }
       
@@ -279,12 +269,7 @@ Return JSON:
               });
             } else {
               excludedUnclear++;
-              excluded.unclear.push({
-                keyword: row['Keyword Phrase'],
-                searchVolume: row.searchVolume,
-                competingProducts: row.competingProducts,
-                titleDensity: row.titleDensity
-              });
+              excluded.unclear.push(row['Keyword Phrase']);
             }
           });
         });

@@ -47,26 +47,13 @@ const CategorySection = ({ title, icon: Icon, color, count, keywords, isOpen, on
           >
             <CardContent className="border-t border-slate-100 pt-4 pb-4">
               {keywords.length > 0 ? (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {keywords.map((item, index) => (
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {keywords.map((keyword, index) => (
                     <div
                       key={index}
-                      className="flex items-start justify-between gap-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
+                      className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
                     >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-900 mb-2">{item.keyword}</p>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            Vol: {item.searchVolume?.toLocaleString() || 'N/A'}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            Comp: {item.competingProducts?.toLocaleString() || 'N/A'}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            TD: {item.titleDensity?.toLocaleString() || 'N/A'}
-                          </Badge>
-                        </div>
-                      </div>
+                      <span className="text-sm text-slate-700">{keyword}</span>
                     </div>
                   ))}
                 </div>
