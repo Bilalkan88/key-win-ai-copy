@@ -308,22 +308,22 @@ Return a JSON object with this format:
   }, [processedData, searchTerm, sortBy]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-black dark:via-black dark:to-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div className="min-h-screen bg-white dark:bg-black">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 dark:bg-indigo-950 rounded-full text-indigo-600 dark:text-indigo-400 text-sm font-medium mb-4">
-            <Sparkles className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-900/5 dark:bg-white/5 rounded-full text-slate-700 dark:text-slate-300 text-sm font-medium mb-6">
+            <Sparkles className="w-3.5 h-3.5" />
             AI-Powered Analysis
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-4">
+          <h1 className="text-5xl sm:text-6xl font-bold text-slate-900 dark:text-white tracking-tight mb-6 leading-tight">
             Keyword Winner Finder
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
             Upload your Helium 10 CSV and discover high-potential Amazon keywords with AI-powered semantic analysis
           </p>
         </motion.div>
@@ -342,7 +342,7 @@ Return a JSON object with this format:
           {(rawData.length > 0 || analysisComplete) && (
             <div className="mt-4 text-center">
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={() => {
                   setRawData([]);
                   setProcessedData([]);
@@ -352,7 +352,7 @@ Return a JSON object with this format:
                   setSearchTerm('');
                   setFilterSettings(DEFAULT_FILTERS);
                 }}
-                className="text-slate-600 hover:text-slate-800"
+                className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900"
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Upload New File
@@ -406,7 +406,7 @@ Return a JSON object with this format:
               size="lg"
               onClick={analyzeKeywords}
               disabled={isAnalyzing}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-200 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-300"
+              className="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 px-10 py-7 text-base rounded-2xl font-medium shadow-sm transition-all duration-200"
             >
               {isAnalyzing ? (
                 <>
@@ -420,7 +420,7 @@ Return a JSON object with this format:
                 </>
               )}
             </Button>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-3">
+            <p className="text-sm text-slate-500 dark:text-slate-500 mt-4">
               This may take a moment for large files
             </p>
           </motion.div>
@@ -438,20 +438,20 @@ Return a JSON object with this format:
               <FilterSummary stats={stats} />
 
               {/* Controls */}
-              <div className="mt-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+              <div className="mt-10 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
                 <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input
                     placeholder="Search keywords..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200 dark:bg-slate-900 dark:border-slate-700 dark:text-white dark:placeholder-slate-500"
+                    className="pl-10 h-12 border-slate-200 dark:border-slate-800 focus:border-slate-900 dark:focus:border-white focus:ring-0 dark:bg-slate-950 dark:text-white dark:placeholder-slate-500 rounded-xl"
                   />
                 </div>
                 
                 <div className="flex gap-3">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-48 h-11">
+                    <SelectTrigger className="w-48 h-12 rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-950">
                       <ArrowUpDown className="w-4 h-4 mr-2 text-slate-400" />
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>

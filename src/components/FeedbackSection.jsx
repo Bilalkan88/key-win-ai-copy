@@ -24,10 +24,10 @@ export default function FeedbackSection() {
   };
 
   return (
-    <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-900">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-base font-semibold flex items-center gap-2 dark:text-white">
-          <MessageSquare className="w-4 h-4 text-indigo-600" />
+    <Card className="border-slate-200 dark:border-slate-800 dark:bg-black">
+      <CardHeader className="pb-6">
+        <CardTitle className="text-lg font-semibold flex items-center gap-2 text-slate-900 dark:text-white">
+          <MessageSquare className="w-5 h-5 text-slate-400" />
           Send Suggestions
         </CardTitle>
       </CardHeader>
@@ -56,7 +56,7 @@ export default function FeedbackSection() {
                 placeholder="Share your suggestions, ideas, or report issues..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="min-h-[100px] border-slate-200 focus:border-indigo-300 focus:ring-indigo-200 resize-none dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
+                className="min-h-[100px] border-slate-200 dark:border-slate-800 focus:border-slate-900 dark:focus:border-white focus:ring-0 resize-none dark:bg-slate-950 dark:text-white dark:placeholder-slate-500 rounded-xl"
               />
               <div className="flex justify-end">
                 <Button

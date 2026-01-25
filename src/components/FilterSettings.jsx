@@ -14,10 +14,10 @@ export default function FilterSettings({ filters, onFilterChange }) {
   };
 
   return (
-    <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-900">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-base font-semibold flex items-center gap-2 dark:text-white">
-          <Sliders className="w-4 h-4 text-indigo-600" />
+    <Card className="border-slate-200 dark:border-slate-800 dark:bg-black">
+      <CardHeader className="pb-6">
+        <CardTitle className="text-lg font-semibold flex items-center gap-2 text-slate-900 dark:text-white">
+          <Sliders className="w-5 h-5 text-slate-400" />
           Filter Settings
         </CardTitle>
       </CardHeader>
@@ -36,7 +36,7 @@ export default function FilterSettings({ filters, onFilterChange }) {
               value={filters.minSearchVolume}
               onChange={(e) => handleChange('minSearchVolume', e.target.value)}
               placeholder="900"
-              className="h-10 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200 dark:bg-slate-800 dark:border-slate-600 dark:text-white"
+              className="h-11 border-slate-200 dark:border-slate-800 focus:border-slate-900 dark:focus:border-white focus:ring-0 dark:bg-slate-950 dark:text-white rounded-xl"
             />
             <p className="text-xs text-slate-500 dark:text-slate-400">Keywords with volume ≥ this value</p>
           </div>
@@ -54,7 +54,7 @@ export default function FilterSettings({ filters, onFilterChange }) {
               value={filters.maxCompetingProducts}
               onChange={(e) => handleChange('maxCompetingProducts', e.target.value)}
               placeholder="2000"
-              className="h-10 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200 dark:bg-slate-800 dark:border-slate-600 dark:text-white"
+              className="h-11 border-slate-200 dark:border-slate-800 focus:border-slate-900 dark:focus:border-white focus:ring-0 dark:bg-slate-950 dark:text-white rounded-xl"
             />
             <p className="text-xs text-slate-500 dark:text-slate-400">Keywords with competition ≤ this value</p>
           </div>
@@ -72,7 +72,7 @@ export default function FilterSettings({ filters, onFilterChange }) {
               value={filters.maxTitleDensity}
               onChange={(e) => handleChange('maxTitleDensity', e.target.value)}
               placeholder="30"
-              className="h-10 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200 dark:bg-slate-800 dark:border-slate-600 dark:text-white"
+              className="h-11 border-slate-200 dark:border-slate-800 focus:border-slate-900 dark:focus:border-white focus:ring-0 dark:bg-slate-950 dark:text-white rounded-xl"
             />
             <p className="text-xs text-slate-500 dark:text-slate-400">Keywords with title density ≤ this value</p>
           </div>
@@ -90,7 +90,7 @@ export default function FilterSettings({ filters, onFilterChange }) {
               value={filters.minWordCount}
               onChange={(e) => handleChange('minWordCount', e.target.value)}
               placeholder="4"
-              className="h-10 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200 dark:bg-slate-800 dark:border-slate-600 dark:text-white"
+              className="h-11 border-slate-200 dark:border-slate-800 focus:border-slate-900 dark:focus:border-white focus:ring-0 dark:bg-slate-950 dark:text-white rounded-xl"
             />
             <p className="text-xs text-slate-500 dark:text-slate-400">Keywords with at least this many words</p>
           </div>
