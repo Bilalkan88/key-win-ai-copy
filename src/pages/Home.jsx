@@ -475,15 +475,15 @@ Return a JSON object with this format:
           )}
         </AnimatePresence>
 
-        {/* Settings Section */}
+        {/* Feedback Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mt-12 grid gap-6 md:grid-cols-2"
+          className="mt-12 flex justify-between items-start gap-6"
         >
-          <AppearanceSettings />
           <FeedbackSection />
+          <AppearanceSettings />
         </motion.div>
       </div>
     </div>
