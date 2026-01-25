@@ -22,6 +22,7 @@ import ExportButtons from '@/components/ExportButtons';
 import FeedbackSection from '@/components/FeedbackSection';
 import DashboardMetrics from '@/components/DashboardMetrics';
 import KeywordCharts from '@/components/KeywordCharts';
+import ExcludedKeywords from '@/components/ExcludedKeywords';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -63,6 +64,7 @@ export default function Home() {
   const [selectedKeywords, setSelectedKeywords] = useState(new Set());
   const [showOnlyProfitable, setShowOnlyProfitable] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
+  const [excludedKeywords, setExcludedKeywords] = useState({ unclear: [], short: [], branded: [] });
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -145,6 +147,9 @@ export default function Home() {
     const maxComp = filterSettings.maxCompetingProducts === '' ? Infinity : filterSettings.maxCompetingProducts;
     const minWords = filterSettings.minWordCount === '' ? 1 : filterSettings.minWordCount;
 
+    // Track excluded keywords by category
+    const excluded = { unclear: [], short: [], branded: [] };
+
     // Step 1: Combined filtering - single pass with deduplication
     const keywordMap = new Map();
     
@@ -159,11 +164,13 @@ export default function Home() {
       const wordCount = row['Keyword Phrase'].trim().split(/\s+/).length;
       if (wordCount < minWords) {
         excludedShort++;
+        excluded.short.push(row['Keyword Phrase']);
         return;
       }
       
       if (containsBrand(row['Keyword Phrase'])) {
         excludedBranded++;
+        excluded.branded.push(row['Keyword Phrase']);
         return;
       }
       
@@ -251,6 +258,7 @@ Return JSON:
               });
             } else {
               excludedUnclear++;
+              excluded.unclear.push(row['Keyword Phrase']);
             }
           });
         });
@@ -260,6 +268,7 @@ Return JSON:
     }
 
     setProcessedData(finalKeywords);
+    setExcludedKeywords(excluded);
     setStats({
       totalUploaded,
       afterNumericFilter,
@@ -570,6 +579,11 @@ Return JSON:
                 sortBy={sortBy}
                 onSortChange={setSortBy}
               />
+
+              {/* Excluded Keywords Section */}
+              <div className="mt-8">
+                <ExcludedKeywords excludedData={excludedKeywords} />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
