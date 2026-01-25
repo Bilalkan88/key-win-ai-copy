@@ -65,6 +65,7 @@ export default function Home() {
   const [showOnlyProfitable, setShowOnlyProfitable] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
   const [excludedKeywords, setExcludedKeywords] = useState({ unclear: [], short: [], branded: [] });
+  const [productCategory, setProductCategory] = useState('');
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -224,24 +225,31 @@ export default function Home() {
         
         const batchPromises = currentBatches.map(batch => 
           base44.integrations.Core.InvokeLLM({
-            prompt: `Analyze Amazon keywords for buyer intent. 
+            prompt: `Analyze Amazon keywords for buyer intent${productCategory ? ` in the "${productCategory}" category` : ''}. 
 
+${productCategory ? `Product Category Context: "${productCategory}"
+- Validate each keyword's relevance to this category
+- Auto-correct the category assignment if the keyword clearly belongs to a different product category
+- For ambiguous keywords, consider if they could reasonably apply to ${productCategory}
+` : ''}
 INCLUDE keywords that:
 - Describe specific products or product features (e.g., "wireless earbuds", "cutting board set", "yoga mat")
 - Contain product types, categories, or specific items
 - Show buying intent or product search
 - Are product-focused even if unusual combinations
+${productCategory ? `- Are relevant to or could be sold in the "${productCategory}" category` : ''}
 
 EXCLUDE ONLY if:
 - Purely informational ("how to", "what is", "why does")
 - Extremely vague with no product context ("best things", "good stuff")
 - Questions without product focus
+${productCategory ? `- Completely unrelated to "${productCategory}" with no possible connection` : ''}
 
 Keywords:
 ${batch.map(r => r['Keyword Phrase']).join('\n')}
 
 Return JSON:
-{"results": [{"keyword": "exact", "include": true/false, "reason": "brief"}]}`,
+{"results": [{"keyword": "exact", "include": true/false, "reason": "brief"${productCategory ? ', "category": "corrected category if different, else original"' : ''}}]}`,
             response_json_schema: {
               type: "object",
               properties: {
@@ -252,7 +260,8 @@ Return JSON:
                     properties: {
                       keyword: { type: "string" },
                       include: { type: "boolean" },
-                      reason: { type: "string" }
+                      reason: { type: "string" },
+                      ...(productCategory ? { category: { type: "string" } } : {})
                     }
                   }
                 }
@@ -275,6 +284,7 @@ Return JSON:
               finalKeywords.push({
                 ...row,
                 selectionReason: analysis.reason,
+                category: analysis.category || productCategory || 'General',
                 amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(row['Keyword Phrase']).replace(/%20/g, '+')}`
               });
             } else {
@@ -423,12 +433,34 @@ Return JSON:
           />
         </motion.div>
 
+        {/* Category Input */}
+        {rawData.length > 0 && !analysisComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 max-w-md mx-auto"
+          >
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Product Category (Optional)
+            </label>
+            <Input
+              placeholder="e.g., Kitchen & Dining, Electronics, Home & Garden"
+              value={productCategory}
+              onChange={(e) => setProductCategory(e.target.value)}
+              className="h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
+            />
+            <p className="text-xs text-slate-500 mt-2">
+              Helps validate and auto-correct category assignments for better accuracy
+            </p>
+          </motion.div>
+        )}
+
         {/* Analyze Button */}
         {rawData.length > 0 && !analysisComplete && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-6 text-center"
+            className="mt-4 text-center"
           >
             <Button
               size="lg"
@@ -600,7 +632,7 @@ Return JSON:
                     </SelectContent>
                   </Select>
                   
-                  <ExportButtons data={sortedAndFilteredData} />
+                  <ExportButtons data={sortedAndFilteredData} category={productCategory || 'All'} />
                 </div>
               </div>
 
