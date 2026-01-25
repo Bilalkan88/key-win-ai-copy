@@ -51,6 +51,7 @@ export default function Home() {
   const [stats, setStats] = useState(null);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [filterSettings, setFilterSettings] = useState(DEFAULT_FILTERS);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -123,28 +124,44 @@ export default function Home() {
   const analyzeKeywords = async () => {
     setIsAnalyzing(true);
     setError(null);
+    setProgress({ current: 0, total: 0 });
 
     const totalUploaded = rawData.length;
-    let afterNumericFilter = [];
     let excludedShort = 0;
     let excludedBranded = 0;
+    const minVol = filterSettings.minSearchVolume === '' ? 0 : filterSettings.minSearchVolume;
+    const maxTD = filterSettings.maxTitleDensity === '' ? 100 : filterSettings.maxTitleDensity;
+    const maxComp = filterSettings.maxCompetingProducts === '' ? Infinity : filterSettings.maxCompetingProducts;
+    const minWords = filterSettings.minWordCount === '' ? 1 : filterSettings.minWordCount;
 
-    // Step 1: Numeric filtering
+    // Step 1: Combined filtering - single pass with deduplication
+    const keywordMap = new Map();
+    
     rawData.forEach(row => {
       const searchVolume = parseNumber(row['Search Volume']);
       const titleDensity = parseNumber(row['Title Density']);
       const competingProducts = parseNumber(row['Competing Products']);
-
+      
       if (searchVolume === null || titleDensity === null || competingProducts === null) return;
+      if (searchVolume < minVol || titleDensity > maxTD || competingProducts > maxComp) return;
       
-      const minVol = filterSettings.minSearchVolume === '' ? 0 : filterSettings.minSearchVolume;
-      const maxTD = filterSettings.maxTitleDensity === '' ? 100 : filterSettings.maxTitleDensity;
-      const maxComp = filterSettings.maxCompetingProducts === '' ? Infinity : filterSettings.maxCompetingProducts;
+      const wordCount = row['Keyword Phrase'].trim().split(/\s+/).length;
+      if (wordCount < minWords) {
+        excludedShort++;
+        return;
+      }
       
-      if (searchVolume >= minVol &&
-          titleDensity <= maxTD &&
-          competingProducts <= maxComp) {
-        afterNumericFilter.push({
+      if (containsBrand(row['Keyword Phrase'])) {
+        excludedBranded++;
+        return;
+      }
+      
+      // Deduplicate: keep best version
+      const keyword = row['Keyword Phrase'].toLowerCase().trim();
+      const existing = keywordMap.get(keyword);
+      if (!existing || searchVolume > existing.searchVolume || 
+          (searchVolume === existing.searchVolume && competingProducts < existing.competingProducts)) {
+        keywordMap.set(keyword, {
           ...row,
           searchVolume,
           titleDensity,
@@ -154,114 +171,87 @@ export default function Home() {
         });
       }
     });
-
-    // Step 2: Word count filter
-    const minWords = filterSettings.minWordCount === '' ? 1 : filterSettings.minWordCount;
-    let afterWordFilter = afterNumericFilter.filter(row => {
-      const wordCount = row['Keyword Phrase'].trim().split(/\s+/).length;
-      if (wordCount < minWords) {
-        excludedShort++;
-        return false;
-      }
-      return true;
-    });
-
-    // Step 3: Brand filter
-    let afterBrandFilter = afterWordFilter.filter(row => {
-      if (containsBrand(row['Keyword Phrase'])) {
-        excludedBranded++;
-        return false;
-      }
-      return true;
-    });
-
-    // Step 4: Remove duplicates (keep best)
-    const keywordMap = new Map();
-    afterBrandFilter.forEach(row => {
-      const keyword = row['Keyword Phrase'].toLowerCase().trim();
-      const existing = keywordMap.get(keyword);
-      if (!existing || row.searchVolume > existing.searchVolume || 
-          (row.searchVolume === existing.searchVolume && row.competingProducts < existing.competingProducts)) {
-        keywordMap.set(keyword, row);
-      }
-    });
+    
     const uniqueKeywords = Array.from(keywordMap.values());
+    const afterNumericFilter = uniqueKeywords.length + excludedShort + excludedBranded;
 
-    // Step 5: Semantic analysis with LLM (batch processing)
+    // Step 2: Parallel semantic analysis with larger batches
     let finalKeywords = [];
     let excludedUnclear = 0;
 
     if (uniqueKeywords.length > 0) {
-      const batchSize = 30;
+      const batchSize = 80;
+      const batches = [];
+      
       for (let i = 0; i < uniqueKeywords.length; i += batchSize) {
-        const batch = uniqueKeywords.slice(i, i + batchSize);
-        const keywordList = batch.map(r => r['Keyword Phrase']).join('\n');
+        batches.push(uniqueKeywords.slice(i, i + batchSize));
+      }
+      
+      setProgress({ current: 0, total: batches.length });
 
-        const response = await base44.integrations.Core.InvokeLLM({
-          prompt: `Analyze these Amazon product keywords for buyer intent and clarity. For each keyword, determine if it should be INCLUDED or EXCLUDED.
+      // Process 3 batches in parallel
+      const parallelBatches = 3;
+      for (let i = 0; i < batches.length; i += parallelBatches) {
+        const currentBatches = batches.slice(i, i + parallelBatches);
+        
+        const batchPromises = currentBatches.map(batch => 
+          base44.integrations.Core.InvokeLLM({
+            prompt: `Analyze Amazon keywords for buyer intent. INCLUDE if: clear product/feature, buying intent. EXCLUDE if: vague, informational, generic.
 
-INCLUDE a keyword ONLY if it:
-- Has clear, specific meaning
-- Describes a physical product OR a specific use/problem/feature
-- Shows buyer intent (someone wanting to purchase)
+Keywords:
+${batch.map(r => r['Keyword Phrase']).join('\n')}
 
-EXCLUDE a keyword if it:
-- Is vague or unclear
-- Is informational only (how to, what is, etc.)
-- Does not describe a product
-- Is too generic
-
-Keywords to analyze:
-${keywordList}
-
-Return a JSON object with this format:
-{
-  "results": [
-    {"keyword": "exact keyword", "include": true/false, "reason": "brief reason"}
-  ]
-}`,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              results: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    keyword: { type: "string" },
-                    include: { type: "boolean" },
-                    reason: { type: "string" }
+Return JSON:
+{"results": [{"keyword": "exact", "include": true/false, "reason": "brief"}]}`,
+            response_json_schema: {
+              type: "object",
+              properties: {
+                results: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      keyword: { type: "string" },
+                      include: { type: "boolean" },
+                      reason: { type: "string" }
+                    }
                   }
                 }
               }
             }
-          }
-        });
+          }).then(response => ({ response, batch }))
+        );
 
-        const resultMap = new Map();
-        response.results?.forEach(r => {
-          resultMap.set(r.keyword.toLowerCase().trim(), r);
-        });
+        const results = await Promise.all(batchPromises);
+        
+        results.forEach(({ response, batch }) => {
+          const resultMap = new Map();
+          response.results?.forEach(r => {
+            resultMap.set(r.keyword.toLowerCase().trim(), r);
+          });
 
-        batch.forEach(row => {
-          const analysis = resultMap.get(row['Keyword Phrase'].toLowerCase().trim());
-          if (analysis?.include) {
-            finalKeywords.push({
-              ...row,
-              selectionReason: analysis.reason,
-              amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(row['Keyword Phrase']).replace(/%20/g, '+')}`
-            });
-          } else {
-            excludedUnclear++;
-          }
+          batch.forEach(row => {
+            const analysis = resultMap.get(row['Keyword Phrase'].toLowerCase().trim());
+            if (analysis?.include) {
+              finalKeywords.push({
+                ...row,
+                selectionReason: analysis.reason,
+                amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(row['Keyword Phrase']).replace(/%20/g, '+')}`
+              });
+            } else {
+              excludedUnclear++;
+            }
+          });
         });
+        
+        setProgress({ current: Math.min(i + parallelBatches, batches.length), total: batches.length });
       }
     }
 
     setProcessedData(finalKeywords);
     setStats({
       totalUploaded,
-      afterNumericFilter: afterNumericFilter.length,
+      afterNumericFilter,
       excludedShort,
       excludedBranded,
       excludedUnclear,
@@ -269,6 +259,7 @@ Return a JSON object with this format:
     });
     setAnalysisComplete(true);
     setIsAnalyzing(false);
+    setProgress({ current: 0, total: 0 });
   };
 
   const sortedAndFilteredData = useMemo(() => {
@@ -401,7 +392,7 @@ Return a JSON object with this format:
             animate={{ opacity: 1, y: 0 }}
             className="mt-8 text-center"
           >
-            <Button
+<Button
               size="lg"
               onClick={analyzeKeywords}
               disabled={isAnalyzing}
@@ -419,8 +410,22 @@ Return a JSON object with this format:
                 </>
               )}
             </Button>
+            {isAnalyzing && progress.total > 0 && (
+              <div className="mt-4 max-w-md mx-auto">
+                <div className="flex justify-between text-sm text-slate-600 mb-2">
+                  <span>Processing batches...</span>
+                  <span>{progress.current} / {progress.total}</span>
+                </div>
+                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-300"
+                    style={{ width: `${(progress.current / progress.total) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
             <p className="text-sm text-slate-500 mt-3">
-              This may take a moment for large files
+              Optimized for fast processing
             </p>
           </motion.div>
         )}
