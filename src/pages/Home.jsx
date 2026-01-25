@@ -18,6 +18,7 @@ import FilterSummary from '@/components/FilterSummary';
 import KeywordTable from '@/components/KeywordTable';
 import ExportButtons from '@/components/ExportButtons';
 import FeedbackSection from '@/components/FeedbackSection';
+import AppearanceSettings from '@/components/AppearanceSettings';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -474,13 +475,14 @@ Return a JSON object with this format:
           )}
         </AnimatePresence>
 
-        {/* Feedback Section */}
+        {/* Settings Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mt-12"
+          className="mt-12 grid gap-6 md:grid-cols-2"
         >
+          <AppearanceSettings />
           <FeedbackSection />
         </motion.div>
       </div>
