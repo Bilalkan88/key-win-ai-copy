@@ -43,6 +43,10 @@ const BRAND_KEYWORDS = [
   'oxo', 'lodge', 'le creuset', 'staub', 'all clad', 'calphalon', 't-fal', 'farberware'
 ];
 
+const isProfitableKeyword = (row) => {
+  return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
+};
+
 export default function Home() {
   const [rawData, setRawData] = useState([]);
   const [processedData, setProcessedData] = useState([]);
