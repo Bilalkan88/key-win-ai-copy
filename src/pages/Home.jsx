@@ -382,6 +382,34 @@ Return JSON:
           </p>
         </motion.div>
 
+        {/* Upload New File Button */}
+        {(rawData.length > 0 || analysisComplete) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-6 text-center"
+          >
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRawData([]);
+                setProcessedData([]);
+                setStats(null);
+                setAnalysisComplete(false);
+                setError(null);
+                setSearchTerm('');
+                setFilterSettings(DEFAULT_FILTERS);
+                setSelectedKeywords(new Set());
+              }}
+              className="text-slate-600 hover:text-slate-800"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload New File
+            </Button>
+          </motion.div>
+        )}
+
         {/* Upload Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -393,27 +421,6 @@ Return JSON:
             hasFile={rawData.length > 0}
             fileName={rawData.length > 0 ? `${rawData.length} keywords loaded` : null}
           />
-          {(rawData.length > 0 || analysisComplete) && (
-            <div className="mt-4 text-center">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setRawData([]);
-                  setProcessedData([]);
-                  setStats(null);
-                  setAnalysisComplete(false);
-                  setError(null);
-                  setSearchTerm('');
-                  setFilterSettings(DEFAULT_FILTERS);
-                  setSelectedKeywords(new Set());
-                }}
-                className="text-slate-600 hover:text-slate-800"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Upload New File
-              </Button>
-            </div>
-          )}
         </motion.div>
 
         {/* Filter Settings */}
@@ -451,6 +458,23 @@ Return JSON:
         </AnimatePresence>
 
         {/* Analyze Button */}
+        {(rawData.length > 0 || analysisComplete) && !isAnalyzing && analysisComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 text-center"
+          >
+            <Button
+              size="lg"
+              onClick={analyzeKeywords}
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-200 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-300"
+            >
+              <Sparkles className="w-5 h-5 mr-2" />
+              Analyze New Keywords
+            </Button>
+          </motion.div>
+        )}
+
         {rawData.length > 0 && !analysisComplete && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
