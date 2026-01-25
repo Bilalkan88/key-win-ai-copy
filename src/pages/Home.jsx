@@ -20,6 +20,8 @@ import FilterSummary from '@/components/FilterSummary';
 import KeywordTable from '@/components/KeywordTable';
 import ExportButtons from '@/components/ExportButtons';
 import FeedbackSection from '@/components/FeedbackSection';
+import DashboardMetrics from '@/components/DashboardMetrics';
+import KeywordCharts from '@/components/KeywordCharts';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -60,6 +62,7 @@ export default function Home() {
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [selectedKeywords, setSelectedKeywords] = useState(new Set());
   const [showOnlyProfitable, setShowOnlyProfitable] = useState(false);
+  const [showCharts, setShowCharts] = useState(false);
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -467,6 +470,38 @@ Return JSON:
             >
               {/* Summary Stats */}
               <FilterSummary stats={stats} />
+
+              {/* Dashboard Metrics */}
+              <div className="mt-8">
+                <DashboardMetrics data={processedData} />
+              </div>
+
+              {/* Charts Section */}
+              <div className="mt-8">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle>Data Visualizations</CardTitle>
+                        <p className="text-sm text-slate-500 mt-1">
+                          Interactive charts to analyze keyword trends and patterns
+                        </p>
+                      </div>
+                      <Button
+                        variant={showCharts ? "default" : "outline"}
+                        onClick={() => setShowCharts(!showCharts)}
+                      >
+                        {showCharts ? "Hide Charts" : "Show Charts"}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  {showCharts && (
+                    <CardContent>
+                      <KeywordCharts data={processedData} />
+                    </CardContent>
+                  )}
+                </Card>
+              </div>
 
               {/* Controls */}
               <div className="mt-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
