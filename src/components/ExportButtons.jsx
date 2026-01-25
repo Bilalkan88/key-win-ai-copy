@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Download, FileSpreadsheet, Table } from 'lucide-react';
 
-export default function ExportButtons({ data }) {
+export default function ExportButtons({ data, category = 'All' }) {
   const exportToCSV = () => {
     if (data.length === 0) return;
 
@@ -41,7 +41,8 @@ export default function ExportButtons({ data }) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `profitable-keywords-${new Date().toISOString().split('T')[0]}.csv`;
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.download = `Winner_Keywords_${category}_${dateStr}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -93,7 +94,8 @@ export default function ExportButtons({ data }) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `profitable-keywords-${new Date().toISOString().split('T')[0]}.xls`;
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.download = `Winner_Keywords_${category}_${dateStr}.xls`;
     link.click();
     URL.revokeObjectURL(url);
   };
