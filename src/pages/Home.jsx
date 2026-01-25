@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Upload, Search, Download, ExternalLink, Loader2, 
   TrendingUp, ShieldCheck, Filter, AlertCircle, CheckCircle2,
-  FileSpreadsheet, Sparkles, ArrowUpDown
+  FileSpreadsheet, Sparkles, ArrowUpDown, Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -298,6 +298,20 @@ Return JSON:
     return data;
   }, [processedData, searchTerm, sortBy]);
 
+  const handleDeleteSelected = () => {
+    const newProcessedData = processedData.filter(
+      row => !selectedKeywords.has(row['Keyword Phrase'])
+    );
+    
+    setProcessedData(newProcessedData);
+    setStats(prev => ({
+      ...prev,
+      finalCount: newProcessedData.length
+    }));
+    setSelectedKeywords(new Set());
+    toast.success(`Deleted ${selectedKeywords.size} keyword${selectedKeywords.size > 1 ? 's' : ''}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -456,6 +470,17 @@ Return JSON:
                 </div>
                 
                 <div className="flex gap-3">
+                  {selectedKeywords.size > 0 && (
+                    <Button
+                      variant="destructive"
+                      onClick={handleDeleteSelected}
+                      className="h-11"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete ({selectedKeywords.size})
+                    </Button>
+                  )}
+                  
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="w-48 h-11">
                       <ArrowUpDown className="w-4 h-4 mr-2 text-slate-400" />
