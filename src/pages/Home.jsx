@@ -147,7 +147,7 @@ export default function Home() {
     const maxComp = filterSettings.maxCompetingProducts === '' ? Infinity : filterSettings.maxCompetingProducts;
     const minWords = filterSettings.minWordCount === '' ? 1 : filterSettings.minWordCount;
 
-    // Track excluded keywords by category with full data
+    // Track excluded keywords by category
     const excluded = { unclear: [], short: [], branded: [] };
 
     // Step 1: Combined filtering - single pass with deduplication
@@ -164,23 +164,13 @@ export default function Home() {
       const wordCount = row['Keyword Phrase'].trim().split(/\s+/).length;
       if (wordCount < minWords) {
         excludedShort++;
-        excluded.short.push({
-          keyword: row['Keyword Phrase'],
-          searchVolume,
-          competingProducts,
-          titleDensity
-        });
+        excluded.short.push(row['Keyword Phrase']);
         return;
       }
       
       if (containsBrand(row['Keyword Phrase'])) {
         excludedBranded++;
-        excluded.branded.push({
-          keyword: row['Keyword Phrase'],
-          searchVolume,
-          competingProducts,
-          titleDensity
-        });
+        excluded.branded.push(row['Keyword Phrase']);
         return;
       }
       
@@ -266,13 +256,10 @@ Return JSON:
         results.forEach(({ response, batch }) => {
           const resultMap = new Map();
           response.results?.forEach(r => {
-            if (r.keyword) {
-              resultMap.set(r.keyword.toLowerCase().trim(), r);
-            }
+            resultMap.set(r.keyword.toLowerCase().trim(), r);
           });
 
           batch.forEach(row => {
-            if (!row['Keyword Phrase']) return;
             const analysis = resultMap.get(row['Keyword Phrase'].toLowerCase().trim());
             if (analysis?.include) {
               finalKeywords.push({
@@ -282,12 +269,7 @@ Return JSON:
               });
             } else {
               excludedUnclear++;
-              excluded.unclear.push({
-                keyword: row['Keyword Phrase'],
-                searchVolume: row.searchVolume,
-                competingProducts: row.competingProducts,
-                titleDensity: row.titleDensity
-              });
+              excluded.unclear.push(row['Keyword Phrase']);
             }
           });
         });

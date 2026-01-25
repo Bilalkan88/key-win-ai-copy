@@ -47,39 +47,13 @@ const CategorySection = ({ title, icon: Icon, color, count, keywords, isOpen, on
           >
             <CardContent className="border-t border-slate-100 pt-4 pb-4">
               {keywords.length > 0 ? (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {keywords.map((item, index) => (
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {keywords.map((keyword, index) => (
                     <div
                       key={index}
-                      className="p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
+                      className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <span className="text-sm font-medium text-slate-900 flex-1">
-                          {typeof item === 'string' ? item : item.keyword}
-                        </span>
-                        {typeof item === 'object' && (
-                          <div className="flex gap-3 text-xs">
-                            <div className="text-right">
-                              <div className="text-slate-500">Volume</div>
-                              <div className="font-semibold text-slate-700">
-                                {item.searchVolume?.toLocaleString() || '-'}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-slate-500">Competition</div>
-                              <div className="font-semibold text-slate-700">
-                                {item.competingProducts?.toLocaleString() || '-'}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-slate-500">Density</div>
-                              <div className="font-semibold text-slate-700">
-                                {item.titleDensity?.toLocaleString() || '-'}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                      <span className="text-sm text-slate-700">{keyword}</span>
                     </div>
                   ))}
                 </div>
