@@ -147,7 +147,7 @@ export default function Home() {
     const maxComp = filterSettings.maxCompetingProducts === '' ? Infinity : filterSettings.maxCompetingProducts;
     const minWords = filterSettings.minWordCount === '' ? 1 : filterSettings.minWordCount;
 
-    // Track excluded keywords by category
+    // Track excluded keywords by category with full data
     const excluded = { unclear: [], short: [], branded: [] };
 
     // Step 1: Combined filtering - single pass with deduplication
@@ -164,13 +164,23 @@ export default function Home() {
       const wordCount = row['Keyword Phrase'].trim().split(/\s+/).length;
       if (wordCount < minWords) {
         excludedShort++;
-        excluded.short.push(row['Keyword Phrase']);
+        excluded.short.push({
+          keyword: row['Keyword Phrase'],
+          searchVolume,
+          competingProducts,
+          titleDensity
+        });
         return;
       }
       
       if (containsBrand(row['Keyword Phrase'])) {
         excludedBranded++;
-        excluded.branded.push(row['Keyword Phrase']);
+        excluded.branded.push({
+          keyword: row['Keyword Phrase'],
+          searchVolume,
+          competingProducts,
+          titleDensity
+        });
         return;
       }
       
@@ -269,7 +279,12 @@ Return JSON:
               });
             } else {
               excludedUnclear++;
-              excluded.unclear.push(row['Keyword Phrase']);
+              excluded.unclear.push({
+                keyword: row['Keyword Phrase'],
+                searchVolume: row.searchVolume,
+                competingProducts: row.competingProducts,
+                titleDensity: row.titleDensity
+              });
             }
           });
         });
