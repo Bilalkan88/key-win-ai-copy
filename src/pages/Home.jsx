@@ -214,7 +214,18 @@ export default function Home() {
         
         const batchPromises = currentBatches.map(batch => 
           base44.integrations.Core.InvokeLLM({
-            prompt: `Analyze Amazon keywords for buyer intent. INCLUDE if: clear product/feature, buying intent. EXCLUDE if: vague, informational, generic.
+            prompt: `Analyze Amazon keywords for buyer intent. 
+
+INCLUDE keywords that:
+- Describe specific products or product features (e.g., "wireless earbuds", "cutting board set", "yoga mat")
+- Contain product types, categories, or specific items
+- Show buying intent or product search
+- Are product-focused even if unusual combinations
+
+EXCLUDE ONLY if:
+- Purely informational ("how to", "what is", "why does")
+- Extremely vague with no product context ("best things", "good stuff")
+- Questions without product focus
 
 Keywords:
 ${batch.map(r => r['Keyword Phrase']).join('\n')}
