@@ -33,13 +33,13 @@ const isProfitableKeyword = (row) => {
 export default function KeywordTable({ data }) {
   if (data.length === 0) {
     return (
-      <Card className="mt-6">
+      <Card className="mt-6 dark:bg-slate-900 dark:border-slate-700">
         <CardContent className="p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
             <BarChart3 className="w-8 h-8 text-slate-400" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">No keywords found</h3>
-          <p className="text-slate-500">Try adjusting your search or uploading a different file</p>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No keywords found</h3>
+          <p className="text-slate-500 dark:text-slate-400">Try adjusting your search or uploading a different file</p>
         </CardContent>
       </Card>
     );
@@ -51,39 +51,39 @@ export default function KeywordTable({ data }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
     >
-      <Card className="mt-6 overflow-hidden">
+      <Card className="mt-6 overflow-hidden dark:bg-slate-900 dark:border-slate-700">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50 hover:bg-slate-50">
-                <TableHead className="font-semibold text-slate-700">Keyword</TableHead>
-                <TableHead className="font-semibold text-slate-700 text-right">
+              <TableRow className="bg-slate-50 hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-800">
+                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Keyword</TableHead>
+                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     <TrendingUp className="w-4 h-4" />
                     Volume
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 text-right">
+                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     <Users className="w-4 h-4" />
                     Competition
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 text-right">
+                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     <Hash className="w-4 h-4" />
                     Title Density
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 text-right">
+                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     <ShoppingCart className="w-4 h-4" />
                     Sales
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700">Reason</TableHead>
-                <TableHead className="font-semibold text-slate-700 text-center">SERP</TableHead>
-                <TableHead className="font-semibold text-slate-700 text-center">Amazon</TableHead>
+                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Reason</TableHead>
+                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-center">SERP</TableHead>
+                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-center">Amazon</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -92,9 +92,9 @@ export default function KeywordTable({ data }) {
                 return (
                 <TableRow 
                   key={index} 
-                  className={`group hover:bg-indigo-50/50 transition-colors ${isProfitable ? 'bg-emerald-50/40' : ''}`}
+                  className={`group hover:bg-indigo-50/50 dark:hover:bg-indigo-950/50 transition-colors ${isProfitable ? 'bg-emerald-50/40 dark:bg-emerald-950/30' : ''}`}
                 >
-                  <TableCell className={`max-w-xs ${isProfitable ? 'font-bold text-emerald-800' : 'font-medium text-slate-900'}`}>
+                  <TableCell className={`max-w-xs ${isProfitable ? 'font-bold text-emerald-800 dark:text-emerald-400' : 'font-medium text-slate-900 dark:text-slate-100'}`}>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -122,23 +122,23 @@ export default function KeywordTable({ data }) {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <span className={`font-medium ${row.competingProducts <= 500 ? 'text-emerald-600' : row.competingProducts <= 1000 ? 'text-amber-600' : 'text-slate-600'}`}>
+                    <span className={`font-medium ${row.competingProducts <= 500 ? 'text-emerald-600 dark:text-emerald-400' : row.competingProducts <= 1000 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'}`}>
                       {formatNumber(row.competingProducts)}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <span className={`font-medium ${row.titleDensity <= 10 ? 'text-emerald-600' : row.titleDensity <= 20 ? 'text-amber-600' : 'text-slate-600'}`}>
+                    <span className={`font-medium ${row.titleDensity <= 10 ? 'text-emerald-600 dark:text-emerald-400' : row.titleDensity <= 20 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'}`}>
                       {formatNumber(row.titleDensity)}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right text-slate-600">
+                  <TableCell className="text-right text-slate-600 dark:text-slate-400">
                     {row.keywordSales ? formatNumber(row.keywordSales) : '-'}
                   </TableCell>
                   <TableCell className="max-w-xs">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="text-sm text-slate-500 cursor-default line-clamp-2">
+                          <span className="text-sm text-slate-500 dark:text-slate-400 cursor-default line-clamp-2">
                             {row.selectionReason}
                           </span>
                         </TooltipTrigger>
@@ -207,9 +207,9 @@ export default function KeywordTable({ data }) {
           </Table>
         </div>
         
-        <div className="px-4 py-3 bg-slate-50 border-t border-slate-100">
-          <p className="text-sm text-slate-500">
-            Showing <span className="font-medium text-slate-700">{data.length}</span> profitable keywords
+        <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Showing <span className="font-medium text-slate-700 dark:text-slate-300">{data.length}</span> profitable keywords
           </p>
         </div>
       </Card>

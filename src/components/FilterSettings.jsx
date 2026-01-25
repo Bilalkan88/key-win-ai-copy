@@ -14,9 +14,9 @@ export default function FilterSettings({ filters, onFilterChange }) {
   };
 
   return (
-    <Card className="border-slate-200">
+    <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-900">
       <CardHeader className="pb-4">
-        <CardTitle className="text-base font-semibold flex items-center gap-2">
+        <CardTitle className="text-base font-semibold flex items-center gap-2 dark:text-white">
           <Sliders className="w-4 h-4 text-indigo-600" />
           Filter Settings
         </CardTitle>

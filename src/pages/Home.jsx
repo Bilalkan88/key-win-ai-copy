@@ -308,7 +308,7 @@ Return a JSON object with this format:
   }, [processedData, searchTerm, sortBy]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-black dark:via-black dark:to-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Header */}
         <motion.div 
@@ -316,14 +316,14 @@ Return a JSON object with this format:
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-sm font-medium mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 dark:bg-indigo-950 rounded-full text-indigo-600 dark:text-indigo-400 text-sm font-medium mb-4">
             <Sparkles className="w-4 h-4" />
             AI-Powered Analysis
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight mb-4">
+          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-4">
             Keyword Winner Finder
           </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
             Upload your Helium 10 CSV and discover high-potential Amazon keywords with AI-powered semantic analysis
           </p>
         </motion.div>
@@ -385,10 +385,10 @@ Return a JSON object with this format:
               exit={{ opacity: 0, scale: 0.95 }}
               className="mt-6"
             >
-              <Card className="border-red-200 bg-red-50">
+              <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
                 <CardContent className="p-4 flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                  <p className="text-red-700">{error}</p>
+                  <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0" />
+                  <p className="text-red-700 dark:text-red-300">{error}</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -420,7 +420,7 @@ Return a JSON object with this format:
                 </>
               )}
             </Button>
-            <p className="text-sm text-slate-500 mt-3">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-3">
               This may take a moment for large files
             </p>
           </motion.div>
@@ -445,7 +445,7 @@ Return a JSON object with this format:
                     placeholder="Search keywords..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
+                    className="pl-10 h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200 dark:bg-slate-900 dark:border-slate-700 dark:text-white dark:placeholder-slate-500"
                   />
                 </div>
                 
