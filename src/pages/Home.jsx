@@ -423,65 +423,14 @@ Return JSON:
           />
         </motion.div>
 
-        {/* Filter Settings */}
-        {rawData.length > 0 && !analysisComplete && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mt-6"
-          >
-            <FilterSettings 
-              filters={filterSettings} 
-              onFilterChange={setFilterSettings} 
-            />
-          </motion.div>
-        )}
-
-        {/* Error Display */}
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="mt-6"
-            >
-              <Card className="border-red-200 bg-red-50">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                  <p className="text-red-700">{error}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Analyze Button */}
-        {(rawData.length > 0 || analysisComplete) && !isAnalyzing && analysisComplete && (
+        {rawData.length > 0 && !analysisComplete && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mt-6 text-center"
           >
             <Button
-              size="lg"
-              onClick={analyzeKeywords}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-200 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-300"
-            >
-              <Sparkles className="w-5 h-5 mr-2" />
-              Analyze New Keywords
-            </Button>
-          </motion.div>
-        )}
-
-        {rawData.length > 0 && !analysisComplete && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-8 text-center"
-          >
-<Button
               size="lg"
               onClick={analyzeKeywords}
               disabled={isAnalyzing}
@@ -518,6 +467,40 @@ Return JSON:
             </p>
           </motion.div>
         )}
+
+        {/* Filter Settings */}
+        {rawData.length > 0 && !analysisComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mt-6"
+          >
+            <FilterSettings 
+              filters={filterSettings} 
+              onFilterChange={setFilterSettings} 
+            />
+          </motion.div>
+        )}
+
+        {/* Error Display */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="mt-6"
+            >
+              <Card className="border-red-200 bg-red-50">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <p className="text-red-700">{error}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Results Section */}
         <AnimatePresence>
