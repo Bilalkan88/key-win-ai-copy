@@ -62,7 +62,7 @@ export default function FeedbackSection() {
                 <Button
                   onClick={handleSubmit}
                   disabled={!message.trim() || isSubmitting}
-                  className="bg-indigo-600 hover:bg-indigo-700"
+                  className="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 h-10 rounded-xl"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   {isSubmitting ? 'Sending...' : 'Send Feedback'}

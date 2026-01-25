@@ -44,26 +44,28 @@ export default function AppearanceSettings() {
   ];
 
   return (
-    <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-800">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-base font-semibold flex items-center gap-2 dark:text-slate-100">
-          <Sun className="w-4 h-4 text-amber-500" />
+    <Card className="border-slate-200 dark:border-slate-800 dark:bg-black">
+      <CardHeader className="pb-6">
+        <CardTitle className="text-lg font-semibold flex items-center gap-2 text-slate-900 dark:text-white">
+          <Sun className="w-5 h-5 text-slate-400" />
           Appearance
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex gap-2">
+        <div className="space-y-3">
           {options.map(({ value, label, icon: Icon }) => (
-            <Button
+            <button
               key={value}
-              variant={theme === value ? 'default' : 'outline'}
-              size="sm"
               onClick={() => setTheme(value)}
-              className={`flex-1 ${theme === value ? 'bg-indigo-600 hover:bg-indigo-700' : 'dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+              className={`w-full flex items-center gap-3 p-4 rounded-xl border transition-all ${
+                theme === value 
+                  ? 'border-slate-900 dark:border-white bg-slate-50 dark:bg-slate-950' 
+                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+              }`}
             >
-              <Icon className="w-4 h-4 mr-2" />
-              {label}
-            </Button>
+              <Icon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              <span className="font-medium text-slate-900 dark:text-white">{label}</span>
+            </button>
           ))}
         </div>
       </CardContent>
