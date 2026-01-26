@@ -23,6 +23,7 @@ import FeedbackSection from '@/components/FeedbackSection';
 import DashboardMetrics from '@/components/DashboardMetrics';
 import KeywordCharts from '@/components/KeywordCharts';
 import ExcludedKeywords from '@/components/ExcludedKeywords';
+import KeywordGroups from '@/components/KeywordGroups';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -66,6 +67,9 @@ export default function Home() {
   const [showCharts, setShowCharts] = useState(false);
   const [excludedKeywords, setExcludedKeywords] = useState({ unclear: [], short: [], branded: [] });
   const [productCategory, setProductCategory] = useState('');
+  const [keywordGroups, setKeywordGroups] = useState([]);
+  const [isGrouping, setIsGrouping] = useState(false);
+  const [groupingCriteria, setGroupingCriteria] = useState('');
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -371,6 +375,82 @@ Return JSON:
     toast.success(`Deleted ${selectedKeywords.size} keyword${selectedKeywords.size > 1 ? 's' : ''}`);
   };
 
+  const groupKeywords = async () => {
+    if (processedData.length === 0) return;
+    
+    setIsGrouping(true);
+    
+    try {
+      const dataToGroup = selectedKeywords.size > 0
+        ? processedData.filter(row => selectedKeywords.has(row['Keyword Phrase']))
+        : processedData;
+
+      const criteriaPrompt = groupingCriteria 
+        ? `Group keywords based on: ${groupingCriteria}`
+        : `Analyze and group these keywords intelligently. Consider:
+- Product features or attributes (e.g., material, size, color, functionality)
+- Customer intent (e.g., gift-buying, professional use, home use, outdoor)
+- Product categories or subcategories
+- Use cases or applications
+- Price points or quality tiers
+
+Create 5-12 meaningful groups that would help with campaign management.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `${criteriaPrompt}
+
+Keywords with metrics:
+${dataToGroup.map(k => `${k['Keyword Phrase']} (Vol: ${k.searchVolume}, Comp: ${k.competingProducts})`).join('\n')}
+
+Create logical groups. Each group should:
+- Have a clear, descriptive name
+- Include a brief description of what unifies the keywords
+- Specify the grouping type (e.g., "Product Feature", "Customer Intent", "Category", "Use Case")
+- Contain at least 2 keywords
+
+Return JSON:`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            groups: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  description: { type: "string" },
+                  groupType: { type: "string" },
+                  keywords: {
+                    type: "array",
+                    items: { type: "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Map keywords back to full data
+      const groups = response.groups.map(group => ({
+        ...group,
+        keywords: group.keywords
+          .map(kw => dataToGroup.find(d => 
+            d['Keyword Phrase'].toLowerCase().trim() === kw.toLowerCase().trim()
+          ))
+          .filter(Boolean)
+      })).filter(g => g.keywords.length > 0);
+
+      setKeywordGroups(groups);
+      toast.success(`Created ${groups.length} keyword groups`);
+    } catch (error) {
+      toast.error('Failed to group keywords');
+      console.error(error);
+    } finally {
+      setIsGrouping(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -576,6 +656,57 @@ Return JSON:
                   )}
                 </Card>
               </div>
+
+              {/* Grouping Section */}
+              <div className="mt-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>AI Keyword Grouping</CardTitle>
+                    <p className="text-sm text-slate-500 mt-1">
+                      Organize keywords into logical groups for better campaign management
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Input
+                        placeholder="e.g., By material type, By customer intent, By price range (optional)"
+                        value={groupingCriteria}
+                        onChange={(e) => setGroupingCriteria(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        onClick={groupKeywords}
+                        disabled={isGrouping}
+                        className="bg-indigo-600 hover:bg-indigo-700"
+                      >
+                        {isGrouping ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Grouping...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            {selectedKeywords.size > 0 
+                              ? `Group Selected (${selectedKeywords.size})` 
+                              : `Group All Keywords`}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2">
+                      Leave criteria blank for AI to suggest optimal groupings, or specify your own criteria
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Grouped Keywords Display */}
+              {keywordGroups.length > 0 && (
+                <div className="mt-6">
+                  <KeywordGroups groups={keywordGroups} />
+                </div>
+              )}
 
               {/* Controls */}
               <div className="mt-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
