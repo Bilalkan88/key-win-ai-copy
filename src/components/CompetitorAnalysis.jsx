@@ -24,18 +24,27 @@ export default function CompetitorAnalysis({ userKeywords }) {
 
     try {
       // Fetch competitor data from Amazon
+      const isASIN = /^B[A-Z0-9]{9}$/.test(competitorInput.trim());
+      const searchQuery = isASIN 
+        ? `Amazon ASIN ${competitorInput} product details site:amazon.com`
+        : `${competitorInput} site:amazon.com`;
+
       const competitorData = await base44.integrations.Core.InvokeLLM({
-        prompt: `Search Amazon for product: "${competitorInput}" (ASIN or product name).
+        prompt: `Search for this exact Amazon product: ${searchQuery}
 
-Extract and analyze:
-1. Product title and main features
-2. Current price and pricing strategy
-3. Top keywords being targeted (from title, bullets, description)
-4. Product category and subcategory
-5. Key selling points and differentiators
-6. Review count and rating (if available)
+${isASIN ? `IMPORTANT: Look for ASIN "${competitorInput}" on Amazon. This is a unique product identifier.` : ''}
 
-Return comprehensive product analysis.`,
+Extract and analyze from the Amazon product page:
+1. Exact product title
+2. ASIN (product code starting with B)
+3. Current price
+4. Top keywords being targeted (from title, bullet points, description)
+5. Product category
+6. Key features from bullet points
+7. Review count and rating
+8. Full Amazon product URL
+
+Return comprehensive product analysis with accurate data from Amazon.`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
