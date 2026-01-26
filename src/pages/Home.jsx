@@ -24,6 +24,7 @@ import DashboardMetrics from '@/components/DashboardMetrics';
 import KeywordCharts from '@/components/KeywordCharts';
 import ExcludedKeywords from '@/components/ExcludedKeywords';
 import KeywordGroups from '@/components/KeywordGroups';
+import CompetitorAnalysis from '@/components/CompetitorAnalysis';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -775,6 +776,11 @@ Return JSON:`,
                 sortBy={sortBy}
                 onSortChange={setSortBy}
               />
+
+              {/* Competitor Analysis Section */}
+              <div className="mt-8">
+                <CompetitorAnalysis userKeywords={processedData} />
+              </div>
 
               {/* Excluded Keywords Section */}
               <div className="mt-8">
