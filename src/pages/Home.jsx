@@ -24,6 +24,7 @@ import DashboardMetrics from '@/components/DashboardMetrics';
 import KeywordCharts from '@/components/KeywordCharts';
 import ExcludedKeywords from '@/components/ExcludedKeywords';
 import KeywordGroups from '@/components/KeywordGroups';
+import ReportGenerator from '@/components/ReportGenerator';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -779,6 +780,17 @@ Return JSON:`,
               {/* Excluded Keywords Section */}
               <div className="mt-8">
                 <ExcludedKeywords excludedData={excludedKeywords} />
+              </div>
+
+              {/* Report Generator */}
+              <div className="mt-8">
+                <ReportGenerator 
+                  data={processedData}
+                  stats={stats}
+                  excludedKeywords={excludedKeywords}
+                  keywordGroups={keywordGroups}
+                  category={productCategory}
+                />
               </div>
             </motion.div>
           )}
