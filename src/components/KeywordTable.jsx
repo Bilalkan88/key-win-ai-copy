@@ -171,10 +171,12 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                               navigator.clipboard.writeText(row['Keyword Phrase']);
                               toast.success('Keyword copied to clipboard');
                             }}
-                            className="text-left cursor-pointer hover:text-indigo-600 transition-colors flex items-center gap-2 group/kw"
+                            className="text-left cursor-pointer hover:text-indigo-600 transition-all duration-200 flex items-center gap-2 group/kw"
                           >
                             {isProfitable && <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />}
-                            <span className="line-clamp-2">{row['Keyword Phrase']}</span>
+                            <span className="line-clamp-2 group-hover/kw:scale-110 group-hover/kw:font-semibold transition-all duration-200 origin-left">
+                              {row['Keyword Phrase']}
+                            </span>
                             <Copy className="w-3.5 h-3.5 opacity-0 group-hover/kw:opacity-50 transition-opacity flex-shrink-0" />
                           </button>
                         </TooltipTrigger>
