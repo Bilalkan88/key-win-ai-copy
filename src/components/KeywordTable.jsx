@@ -169,7 +169,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(row['Keyword Phrase']);
-                              toast.success('Keyword copied to clipboard');
+                              toast.success('Copied');
                             }}
                             className="text-left cursor-pointer hover:text-indigo-600 transition-all duration-200 flex items-center gap-2 group/kw"
                           >
