@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,7 +62,6 @@ export default function Home() {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [filterSettings, setFilterSettings] = useState(DEFAULT_FILTERS);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
-  const [smoothProgress, setSmoothProgress] = useState(0);
   const [selectedKeywords, setSelectedKeywords] = useState(new Set());
   const [showOnlyProfitable, setShowOnlyProfitable] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
@@ -71,27 +70,6 @@ export default function Home() {
   const [keywordGroups, setKeywordGroups] = useState([]);
   const [isGrouping, setIsGrouping] = useState(false);
   const [groupingCriteria, setGroupingCriteria] = useState('');
-
-  // Smooth progress animation
-  useEffect(() => {
-    if (!isAnalyzing || progress.total === 0) return;
-
-    const targetProgress = (progress.current / progress.total) * 100;
-    const estimatedTimePerBatch = 3000; // 3 seconds per batch estimate
-    const updateInterval = 50; // Update every 50ms for smooth animation
-    
-    const incrementPerUpdate = (100 / progress.total) / (estimatedTimePerBatch / updateInterval);
-    
-    const interval = setInterval(() => {
-      setSmoothProgress(prev => {
-        const next = prev + incrementPerUpdate;
-        // Don't let smooth progress exceed actual progress
-        return Math.min(next, targetProgress);
-      });
-    }, updateInterval);
-
-    return () => clearInterval(interval);
-  }, [progress.current, progress.total, isAnalyzing]);
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -165,7 +143,6 @@ export default function Home() {
     setIsAnalyzing(true);
     setError(null);
     setProgress({ current: 0, total: 0 });
-    setSmoothProgress(0);
 
     const totalUploaded = rawData.length;
     let excludedShort = 0;
@@ -342,11 +319,7 @@ Return JSON:
     });
     setAnalysisComplete(true);
     setIsAnalyzing(false);
-    setSmoothProgress(100);
-    setTimeout(() => {
-      setProgress({ current: 0, total: 0 });
-      setSmoothProgress(0);
-    }, 500);
+    setProgress({ current: 0, total: 0 });
   };
 
   const sortedAndFilteredData = useMemo(() => {
@@ -592,13 +565,13 @@ Return JSON:`,
                 <div className="flex justify-between text-sm text-slate-600 mb-2">
                   <span>Analyzing keywords...</span>
                   <span className="font-semibold text-orange-600">
-                    {Math.round(smoothProgress)}%
+                    {Math.round((progress.current / progress.total) * 100)}%
                   </span>
                 </div>
                 <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-100 ease-out shadow-sm"
-                    style={{ width: `${smoothProgress}%` }}
+                    className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-300 shadow-sm"
+                    style={{ width: `${(progress.current / progress.total) * 100}%` }}
                   />
                 </div>
               </div>
