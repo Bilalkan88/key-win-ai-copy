@@ -61,7 +61,7 @@ export default function Home() {
   const [stats, setStats] = useState(null);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [filterSettings, setFilterSettings] = useState(DEFAULT_FILTERS);
-  const [progress, setProgress] = useState({ current: 0, total: 0, stage: '', percentage: 0 });
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [selectedKeywords, setSelectedKeywords] = useState(new Set());
   const [showOnlyProfitable, setShowOnlyProfitable] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
@@ -142,7 +142,7 @@ export default function Home() {
   const analyzeKeywords = async () => {
     setIsAnalyzing(true);
     setError(null);
-    setProgress({ current: 0, total: 0, stage: 'Preparing analysis...', percentage: 0 });
+    setProgress({ current: 0, total: 0 });
 
     const totalUploaded = rawData.length;
     let excludedShort = 0;
@@ -154,8 +154,6 @@ export default function Home() {
 
     // Track excluded keywords by category
     const excluded = { unclear: [], short: [], branded: [] };
-
-    setProgress({ current: 0, total: 100, stage: 'Filtering keywords...', percentage: 5 });
 
     // Step 1: Combined filtering - single pass with deduplication
     const keywordMap = new Map();
@@ -210,8 +208,6 @@ export default function Home() {
     const uniqueKeywords = Array.from(keywordMap.values());
     const afterNumericFilter = uniqueKeywords.length + excludedShort + excludedBranded;
 
-    setProgress({ current: 0, total: 100, stage: 'Preparing AI analysis...', percentage: 15 });
-
     // Step 2: Parallel semantic analysis with larger batches
     let finalKeywords = [];
     let excludedUnclear = 0;
@@ -224,7 +220,7 @@ export default function Home() {
         batches.push(uniqueKeywords.slice(i, i + batchSize));
       }
       
-      setProgress({ current: 0, total: batches.length, stage: 'Analyzing with AI...', percentage: 20 });
+      setProgress({ current: 0, total: batches.length });
 
       // Process 3 batches in parallel
       const parallelBatches = 3;
@@ -564,45 +560,21 @@ Return JSON:`,
                 </>
               )}
             </Button>
-            {isAnalyzing && progress.percentage > 0 && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mt-6 max-w-2xl mx-auto"
-              >
-                <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50">
-                  <CardContent className="p-6">
-                    <div className="text-center mb-4">
-                      <motion.div
-                        key={progress.percentage}
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        className="text-6xl font-bold text-orange-600 mb-2"
-                      >
-                        {progress.percentage}%
-                      </motion.div>
-                      <p className="text-sm text-slate-600 font-medium">{progress.stage}</p>
-                    </div>
-
-                    <div className="relative h-4 bg-white rounded-full overflow-hidden shadow-inner">
-                      <motion.div 
-                        className="h-full bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 rounded-full shadow-lg"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progress.percentage}%` }}
-                        transition={{ duration: 0.5, ease: "easeOut" }}
-                      >
-                        <div className="h-full w-full bg-gradient-to-r from-transparent to-white/20 animate-pulse" />
-                      </motion.div>
-                    </div>
-
-                    <div className="mt-3 flex justify-between text-xs text-slate-500">
-                      <span>Started</span>
-                      <span className="font-medium text-orange-600">Processing...</span>
-                      <span>Complete</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+            {isAnalyzing && progress.total > 0 && (
+              <div className="mt-4 max-w-md mx-auto">
+                <div className="flex justify-between text-sm text-slate-600 mb-2">
+                  <span>Analyzing keywords...</span>
+                  <span className="font-semibold text-orange-600">
+                    {Math.round((progress.current / progress.total) * 100)}%
+                  </span>
+                </div>
+                <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-300 shadow-sm"
+                    style={{ width: `${(progress.current / progress.total) * 100}%` }}
+                  />
+                </div>
+              </div>
             )}
             <p className="text-sm text-slate-500 mt-3">
               Optimized for fast processing
