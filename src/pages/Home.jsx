@@ -563,12 +563,14 @@ Return JSON:`,
             {isAnalyzing && progress.total > 0 && (
               <div className="mt-4 max-w-md mx-auto">
                 <div className="flex justify-between text-sm text-slate-600 mb-2">
-                  <span>Processing batches...</span>
-                  <span>{progress.current} / {progress.total}</span>
+                  <span>Analyzing keywords...</span>
+                  <span className="font-semibold text-orange-600">
+                    {Math.round((progress.current / progress.total) * 100)}%
+                  </span>
                 </div>
-                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-300 shadow-sm"
                     style={{ width: `${(progress.current / progress.total) * 100}%` }}
                   />
                 </div>
