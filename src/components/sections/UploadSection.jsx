@@ -75,20 +75,6 @@ export default function UploadSection({
         </motion.div>
       )}
 
-      {/* Filter Settings */}
-      {rawData.length > 0 && !analysisComplete && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
-          <FilterSettings 
-            filters={filterSettings} 
-            onFilterChange={onFilterChange} 
-          />
-        </motion.div>
-      )}
-
       {/* Analyze Button */}
       {rawData.length > 0 && !analysisComplete && (
         <motion.div
@@ -133,6 +119,20 @@ export default function UploadSection({
           <p className="text-sm text-slate-500 mt-3">
             Optimized for fast processing
           </p>
+        </motion.div>
+      )}
+
+      {/* Filter Settings */}
+      {rawData.length > 0 && !analysisComplete && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <FilterSettings 
+            filters={filterSettings} 
+            onFilterChange={onFilterChange} 
+          />
         </motion.div>
       )}
     </div>
