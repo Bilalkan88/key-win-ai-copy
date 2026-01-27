@@ -1,29 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Upload, Search, Download, ExternalLink, Loader2, 
-  TrendingUp, ShieldCheck, Filter, AlertCircle, CheckCircle2,
-  FileSpreadsheet, Sparkles, ArrowUpDown, Trash2
-} from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { TabsContent } from "@/components/ui/tabs";
 
-import FileUploader from '@/components/FileUploader';
-import FilterSettings from '@/components/FilterSettings';
-import FilterSummary from '@/components/FilterSummary';
-import KeywordTable from '@/components/KeywordTable';
-import ExportButtons from '@/components/ExportButtons';
-import FeedbackSection from '@/components/FeedbackSection';
-import DashboardMetrics from '@/components/DashboardMetrics';
-import KeywordCharts from '@/components/KeywordCharts';
-import ExcludedKeywords from '@/components/ExcludedKeywords';
-import KeywordGroups from '@/components/KeywordGroups';
+import NavigationTabs from '@/components/NavigationTabs';
+import UploadSection from '@/components/sections/UploadSection';
+import ResultsSection from '@/components/sections/ResultsSection';
+import FeedbackTab from '@/components/sections/FeedbackTab';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -52,19 +38,15 @@ const isProfitableKeyword = (row) => {
 };
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState('upload');
   const [rawData, setRawData] = useState([]);
   const [processedData, setProcessedData] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('search_volume_desc');
   const [stats, setStats] = useState(null);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [filterSettings, setFilterSettings] = useState(DEFAULT_FILTERS);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
-  const [selectedKeywords, setSelectedKeywords] = useState(new Set());
-  const [showOnlyProfitable, setShowOnlyProfitable] = useState(false);
-  const [showCharts, setShowCharts] = useState(false);
   const [excludedKeywords, setExcludedKeywords] = useState({ unclear: [], short: [], branded: [] });
   const [productCategory, setProductCategory] = useState('');
   const [keywordGroups, setKeywordGroups] = useState([]);
@@ -320,48 +302,21 @@ Return JSON:
     setAnalysisComplete(true);
     setIsAnalyzing(false);
     setProgress({ current: 0, total: 0 });
+    setActiveTab('results');
   };
 
-  const sortedAndFilteredData = useMemo(() => {
-    let data = [...processedData];
-    
-    if (searchTerm) {
-      data = data.filter(row => 
-        row['Keyword Phrase'].toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+  const handleReset = () => {
+    setRawData([]);
+    setProcessedData([]);
+    setStats(null);
+    setAnalysisComplete(false);
+    setError(null);
+    setFilterSettings(DEFAULT_FILTERS);
+    setKeywordGroups([]);
+    setActiveTab('upload');
+  };
 
-    if (showOnlyProfitable) {
-      data = data.filter(row => isProfitableKeyword(row));
-    }
-
-    switch (sortBy) {
-      case 'search_volume_desc':
-        data.sort((a, b) => b.searchVolume - a.searchVolume);
-        break;
-      case 'search_volume_asc':
-        data.sort((a, b) => a.searchVolume - b.searchVolume);
-        break;
-      case 'competing_asc':
-        data.sort((a, b) => a.competingProducts - b.competingProducts);
-        break;
-      case 'competing_desc':
-        data.sort((a, b) => b.competingProducts - a.competingProducts);
-        break;
-      case 'title_density_asc':
-        data.sort((a, b) => a.titleDensity - b.titleDensity);
-        break;
-      case 'keyword_sales_desc':
-        data.sort((a, b) => (b.keywordSales || 0) - (a.keywordSales || 0));
-        break;
-      default:
-        break;
-    }
-
-    return data;
-  }, [processedData, searchTerm, sortBy, showOnlyProfitable]);
-
-  const handleDeleteSelected = () => {
+  const handleDeleteKeywords = (selectedKeywords) => {
     const newProcessedData = processedData.filter(
       row => !selectedKeywords.has(row['Keyword Phrase'])
     );
@@ -371,11 +326,12 @@ Return JSON:
       ...prev,
       finalCount: newProcessedData.length
     }));
-    setSelectedKeywords(new Set());
     toast.success(`Deleted ${selectedKeywords.size} keyword${selectedKeywords.size > 1 ? 's' : ''}`);
   };
 
-  const groupKeywords = async () => {
+
+
+  const groupKeywords = async (selectedKeywords) => {
     if (processedData.length === 0) return;
     
     setIsGrouping(true);
@@ -458,7 +414,7 @@ Return JSON:`,
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-sm font-medium mb-4">
             <Sparkles className="w-4 h-4" />
@@ -472,130 +428,19 @@ Return JSON:`,
           </p>
         </motion.div>
 
-        {/* Upload New File Button */}
-        {(rawData.length > 0 || analysisComplete) && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-6 text-center"
-          >
-            <Button
-              variant="outline"
-              onClick={() => {
-                setRawData([]);
-                setProcessedData([]);
-                setStats(null);
-                setAnalysisComplete(false);
-                setError(null);
-                setSearchTerm('');
-                setFilterSettings(DEFAULT_FILTERS);
-                setSelectedKeywords(new Set());
-              }}
-              className="text-slate-600 hover:text-slate-800"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Upload New File
-            </Button>
-          </motion.div>
-        )}
-
-        {/* Upload Section */}
+        {/* Navigation Tabs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
+          className="mb-8"
         >
-          <FileUploader 
-            onFileUpload={handleFileUpload} 
-            hasFile={rawData.length > 0}
-            fileName={rawData.length > 0 ? `${rawData.length} keywords loaded` : null}
+          <NavigationTabs 
+            activeTab={activeTab} 
+            onTabChange={setActiveTab}
+            showAnalysis={analysisComplete}
           />
         </motion.div>
-
-        {/* Category Input */}
-        {rawData.length > 0 && !analysisComplete && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-6 max-w-md mx-auto"
-          >
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Product Category (Optional)
-            </label>
-            <Input
-              placeholder="e.g., Kitchen & Dining, Electronics, Home & Garden"
-              value={productCategory}
-              onChange={(e) => setProductCategory(e.target.value)}
-              className="h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
-            />
-            <p className="text-xs text-slate-500 mt-2">
-              Helps validate and auto-correct category assignments for better accuracy
-            </p>
-          </motion.div>
-        )}
-
-        {/* Analyze Button */}
-        {rawData.length > 0 && !analysisComplete && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-4 text-center"
-          >
-            <Button
-              size="lg"
-              onClick={analyzeKeywords}
-              disabled={isAnalyzing}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-200 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-300"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Analyzing Keywords...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Analyze {rawData.length.toLocaleString()} Keywords
-                </>
-              )}
-            </Button>
-            {isAnalyzing && progress.total > 0 && (
-              <div className="mt-4 max-w-md mx-auto">
-                <div className="flex justify-between text-sm text-slate-600 mb-2">
-                  <span>Analyzing keywords...</span>
-                  <span className="font-semibold text-orange-600">
-                    {Math.round((progress.current / progress.total) * 100)}%
-                  </span>
-                </div>
-                <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-300 shadow-sm"
-                    style={{ width: `${(progress.current / progress.total) * 100}%` }}
-                  />
-                </div>
-              </div>
-            )}
-            <p className="text-sm text-slate-500 mt-3">
-              Optimized for fast processing
-            </p>
-          </motion.div>
-        )}
-
-        {/* Filter Settings */}
-        {rawData.length > 0 && !analysisComplete && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mt-6"
-          >
-            <FilterSettings 
-              filters={filterSettings} 
-              onFilterChange={setFilterSettings} 
-            />
-          </motion.div>
-        )}
 
         {/* Error Display */}
         <AnimatePresence>
@@ -604,7 +449,7 @@ Return JSON:`,
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="mt-6"
+              className="mb-6"
             >
               <Card className="border-red-200 bg-red-50">
                 <CardContent className="p-4 flex items-center gap-3">
@@ -616,185 +461,43 @@ Return JSON:`,
           )}
         </AnimatePresence>
 
-        {/* Results Section */}
-        <AnimatePresence>
-          {analysisComplete && stats && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              {/* Summary Stats */}
-              <FilterSummary stats={stats} />
-
-              {/* Dashboard Metrics */}
-              <div className="mt-8">
-                <DashboardMetrics data={processedData} />
-              </div>
-
-              {/* Charts Section */}
-              <div className="mt-8">
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle>Data Visualizations</CardTitle>
-                        <p className="text-sm text-slate-500 mt-1">
-                          Interactive charts to analyze keyword trends and patterns
-                        </p>
-                      </div>
-                      <Button
-                        variant={showCharts ? "default" : "outline"}
-                        onClick={() => setShowCharts(!showCharts)}
-                      >
-                        {showCharts ? "Hide Charts" : "Show Charts"}
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  {showCharts && (
-                    <CardContent>
-                      <KeywordCharts data={processedData} />
-                    </CardContent>
-                  )}
-                </Card>
-              </div>
-
-              {/* Grouping Section */}
-              <div className="mt-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>AI Keyword Grouping</CardTitle>
-                    <p className="text-sm text-slate-500 mt-1">
-                      Organize keywords into logical groups for better campaign management
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <Input
-                        placeholder="e.g., By material type, By customer intent, By price range (optional)"
-                        value={groupingCriteria}
-                        onChange={(e) => setGroupingCriteria(e.target.value)}
-                        className="flex-1"
-                      />
-                      <Button
-                        onClick={groupKeywords}
-                        disabled={isGrouping}
-                        className="bg-indigo-600 hover:bg-indigo-700"
-                      >
-                        {isGrouping ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Grouping...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-4 h-4 mr-2" />
-                            {selectedKeywords.size > 0 
-                              ? `Group Selected (${selectedKeywords.size})` 
-                              : `Group All Keywords`}
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-2">
-                      Leave criteria blank for AI to suggest optimal groupings, or specify your own criteria
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Grouped Keywords Display */}
-              {keywordGroups.length > 0 && (
-                <div className="mt-6">
-                  <KeywordGroups groups={keywordGroups} />
-                </div>
-              )}
-
-              {/* Controls */}
-              <div className="mt-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
-                <div className="flex flex-col sm:flex-row gap-4 flex-1">
-                  <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                    <Input
-                      placeholder="Search keywords..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2 px-4 h-11 border border-slate-200 rounded-lg bg-white">
-                    <Checkbox
-                      id="profitable-only"
-                      checked={showOnlyProfitable}
-                      onCheckedChange={setShowOnlyProfitable}
-                    />
-                    <label 
-                      htmlFor="profitable-only" 
-                      className="text-sm font-medium text-slate-700 cursor-pointer whitespace-nowrap"
-                    >
-                      ⭐ Top Picks Only
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="flex gap-3">
-                  {selectedKeywords.size > 0 && (
-                    <Button
-                      variant="destructive"
-                      onClick={handleDeleteSelected}
-                      className="h-11"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete ({selectedKeywords.size})
-                    </Button>
-                  )}
-                  
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-48 h-11">
-                      <ArrowUpDown className="w-4 h-4 mr-2 text-slate-400" />
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="search_volume_desc">Search Volume (High)</SelectItem>
-                      <SelectItem value="search_volume_asc">Search Volume (Low)</SelectItem>
-                      <SelectItem value="competing_asc">Competition (Low)</SelectItem>
-                      <SelectItem value="competing_desc">Competition (High)</SelectItem>
-                      <SelectItem value="title_density_asc">Title Density (Low)</SelectItem>
-                      <SelectItem value="keyword_sales_desc">Keyword Sales (High)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  <ExportButtons data={sortedAndFilteredData} category={productCategory || 'All'} />
-                </div>
-              </div>
-
-              {/* Results Table */}
-              <KeywordTable 
-                data={sortedAndFilteredData} 
-                selectedKeywords={selectedKeywords}
-                onSelectionChange={setSelectedKeywords}
-                sortBy={sortBy}
-                onSortChange={setSortBy}
-              />
-
-              {/* Excluded Keywords Section */}
-              <div className="mt-8">
-                <ExcludedKeywords excludedData={excludedKeywords} />
-              </div>
-            </motion.div>
+        {/* Tab Content */}
+        <div className="mt-6">
+          {activeTab === 'upload' && (
+            <UploadSection
+              rawData={rawData}
+              analysisComplete={analysisComplete}
+              filterSettings={filterSettings}
+              productCategory={productCategory}
+              isAnalyzing={isAnalyzing}
+              progress={progress}
+              onFileUpload={handleFileUpload}
+              onReset={handleReset}
+              onFilterChange={setFilterSettings}
+              onCategoryChange={setProductCategory}
+              onAnalyze={analyzeKeywords}
+            />
           )}
-        </AnimatePresence>
 
-        {/* Feedback Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mt-12"
-        >
-          <FeedbackSection />
-        </motion.div>
+          {activeTab === 'results' && analysisComplete && (
+            <ResultsSection
+              processedData={processedData}
+              stats={stats}
+              excludedKeywords={excludedKeywords}
+              keywordGroups={keywordGroups}
+              productCategory={productCategory}
+              onDeleteKeywords={handleDeleteKeywords}
+              onGroupKeywords={groupKeywords}
+              isGrouping={isGrouping}
+              groupingCriteria={groupingCriteria}
+              onGroupingCriteriaChange={setGroupingCriteria}
+            />
+          )}
+
+          {activeTab === 'feedback' && (
+            <FeedbackTab />
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,236 @@
+import React, { useMemo, useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Search, ArrowUpDown, Trash2, Sparkles, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { toast } from 'sonner';
+import FilterSummary from '@/components/FilterSummary';
+import DashboardMetrics from '@/components/DashboardMetrics';
+import KeywordTable from '@/components/KeywordTable';
+import ExportButtons from '@/components/ExportButtons';
+import KeywordCharts from '@/components/KeywordCharts';
+import ExcludedKeywords from '@/components/ExcludedKeywords';
+import KeywordGroups from '@/components/KeywordGroups';
+
+const isProfitableKeyword = (row) => {
+  return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
+};
+
+export default function ResultsSection({ 
+  processedData,
+  stats,
+  excludedKeywords,
+  keywordGroups,
+  productCategory,
+  onDeleteKeywords,
+  onGroupKeywords,
+  isGrouping,
+  groupingCriteria,
+  onGroupingCriteriaChange
+}) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('search_volume_desc');
+  const [selectedKeywords, setSelectedKeywords] = useState(new Set());
+  const [showOnlyProfitable, setShowOnlyProfitable] = useState(false);
+  const [showCharts, setShowCharts] = useState(false);
+
+  const sortedAndFilteredData = useMemo(() => {
+    let data = [...processedData];
+    
+    if (searchTerm) {
+      data = data.filter(row => 
+        row['Keyword Phrase'].toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (showOnlyProfitable) {
+      data = data.filter(row => isProfitableKeyword(row));
+    }
+
+    switch (sortBy) {
+      case 'search_volume_desc':
+        data.sort((a, b) => b.searchVolume - a.searchVolume);
+        break;
+      case 'search_volume_asc':
+        data.sort((a, b) => a.searchVolume - b.searchVolume);
+        break;
+      case 'competing_asc':
+        data.sort((a, b) => a.competingProducts - b.competingProducts);
+        break;
+      case 'competing_desc':
+        data.sort((a, b) => b.competingProducts - a.competingProducts);
+        break;
+      case 'title_density_asc':
+        data.sort((a, b) => a.titleDensity - b.titleDensity);
+        break;
+      case 'keyword_sales_desc':
+        data.sort((a, b) => (b.keywordSales || 0) - (a.keywordSales || 0));
+        break;
+      default:
+        break;
+    }
+
+    return data;
+  }, [processedData, searchTerm, sortBy, showOnlyProfitable]);
+
+  const handleDeleteSelected = () => {
+    onDeleteKeywords(selectedKeywords);
+    setSelectedKeywords(new Set());
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Summary Stats */}
+      <FilterSummary stats={stats} />
+
+      {/* Dashboard Metrics */}
+      <DashboardMetrics data={processedData} />
+
+      {/* Charts Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Data Visualizations</CardTitle>
+              <p className="text-sm text-slate-500 mt-1">
+                Interactive charts to analyze keyword trends and patterns
+              </p>
+            </div>
+            <Button
+              variant={showCharts ? "default" : "outline"}
+              onClick={() => setShowCharts(!showCharts)}
+            >
+              {showCharts ? "Hide Charts" : "Show Charts"}
+            </Button>
+          </div>
+        </CardHeader>
+        {showCharts && (
+          <CardContent>
+            <KeywordCharts data={processedData} />
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Grouping Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>AI Keyword Grouping</CardTitle>
+          <p className="text-sm text-slate-500 mt-1">
+            Organize keywords into logical groups for better campaign management
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Input
+              placeholder="e.g., By material type, By customer intent, By price range (optional)"
+              value={groupingCriteria}
+              onChange={(e) => onGroupingCriteriaChange(e.target.value)}
+              className="flex-1"
+            />
+            <Button
+              onClick={() => onGroupKeywords(selectedKeywords)}
+              disabled={isGrouping}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
+              {isGrouping ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Grouping...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {selectedKeywords.size > 0 
+                    ? `Group Selected (${selectedKeywords.size})` 
+                    : `Group All Keywords`}
+                </>
+              )}
+            </Button>
+          </div>
+          <p className="text-xs text-slate-500 mt-2">
+            Leave criteria blank for AI to suggest optimal groupings, or specify your own criteria
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Grouped Keywords Display */}
+      {keywordGroups.length > 0 && (
+        <KeywordGroups groups={keywordGroups} />
+      )}
+
+      {/* Controls */}
+      <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-4 flex-1">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Input
+              placeholder="Search keywords..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 px-4 h-11 border border-slate-200 rounded-lg bg-white">
+            <Checkbox
+              id="profitable-only"
+              checked={showOnlyProfitable}
+              onCheckedChange={setShowOnlyProfitable}
+            />
+            <label 
+              htmlFor="profitable-only" 
+              className="text-sm font-medium text-slate-700 cursor-pointer whitespace-nowrap"
+            >
+              ⭐ Top Picks Only
+            </label>
+          </div>
+        </div>
+        
+        <div className="flex gap-3">
+          {selectedKeywords.size > 0 && (
+            <Button
+              variant="destructive"
+              onClick={handleDeleteSelected}
+              className="h-11"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete ({selectedKeywords.size})
+            </Button>
+          )}
+          
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-48 h-11">
+              <ArrowUpDown className="w-4 h-4 mr-2 text-slate-400" />
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="search_volume_desc">Search Volume (High)</SelectItem>
+              <SelectItem value="search_volume_asc">Search Volume (Low)</SelectItem>
+              <SelectItem value="competing_asc">Competition (Low)</SelectItem>
+              <SelectItem value="competing_desc">Competition (High)</SelectItem>
+              <SelectItem value="title_density_asc">Title Density (Low)</SelectItem>
+              <SelectItem value="keyword_sales_desc">Keyword Sales (High)</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <ExportButtons data={sortedAndFilteredData} category={productCategory || 'All'} />
+        </div>
+      </div>
+
+      {/* Results Table */}
+      <KeywordTable 
+        data={sortedAndFilteredData} 
+        selectedKeywords={selectedKeywords}
+        onSelectionChange={setSelectedKeywords}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+      />
+
+      {/* Excluded Keywords Section */}
+      <ExcludedKeywords excludedData={excludedKeywords} />
+    </div>
+  );
+}
