@@ -10,6 +10,7 @@ import NavigationTabs from '@/components/NavigationTabs';
 import UploadSection from '@/components/sections/UploadSection';
 import ResultsSection from '@/components/sections/ResultsSection';
 import FeedbackTab from '@/components/sections/FeedbackTab';
+import WinningKeywordsSection from '@/components/sections/WinningKeywordsSection';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -302,7 +303,7 @@ Return JSON:
     setAnalysisComplete(true);
     setIsAnalyzing(false);
     setProgress({ current: 0, total: 0 });
-    setActiveTab('results');
+    setActiveTab('winners');
   };
 
   const handleReset = () => {
@@ -476,6 +477,13 @@ Return JSON:`,
               onFilterChange={setFilterSettings}
               onCategoryChange={setProductCategory}
               onAnalyze={analyzeKeywords}
+            />
+          )}
+
+          {activeTab === 'winners' && analysisComplete && (
+            <WinningKeywordsSection
+              processedData={processedData}
+              onViewAll={() => setActiveTab('results')}
             />
           )}
 
