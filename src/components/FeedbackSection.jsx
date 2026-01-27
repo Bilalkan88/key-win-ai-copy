@@ -53,7 +53,7 @@ export default function FeedbackSection() {
               className="space-y-3"
             >
               <Textarea
-                placeholder="Share your suggestions, ideas, or report issues..."
+                placeholder="Share your suggestions, ideas, or report issues, or any feature requests..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="min-h-[100px] border-slate-200 focus:border-indigo-300 focus:ring-indigo-200 resize-none"
