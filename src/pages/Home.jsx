@@ -306,7 +306,7 @@ Return JSON:
 
     // Send results to n8n webhook
     try {
-      await base44.functions.invoke('sendToN8nWebhook', {
+      const webhookResponse = await base44.functions.invoke('sendToN8nWebhook', {
         product_category: productCategory,
         total_keywords: totalUploaded,
         profitable_keywords: finalKeywords.length,
@@ -316,9 +316,13 @@ Return JSON:
         results_data: finalKeywords,
         excluded_data: excluded
       });
+      
+      if (webhookResponse.data?.success) {
+        console.log('✅ Analysis sent to n8n successfully');
+      }
     } catch (webhookError) {
       console.error('Failed to send to webhook:', webhookError);
-      // Don't block the UI if webhook fails
+      toast.error('Warning: Failed to send results to n8n webhook. Analysis completed but external sync failed.');
     }
   };
 
