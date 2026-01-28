@@ -303,6 +303,23 @@ Return JSON:
     setIsAnalyzing(false);
     setProgress({ current: 0, total: 0 });
     setActiveTab('results');
+
+    // Send results to n8n webhook
+    try {
+      await base44.functions.invoke('sendToN8nWebhook', {
+        product_category: productCategory,
+        total_keywords: totalUploaded,
+        profitable_keywords: finalKeywords.length,
+        excluded_keywords: excludedShort + excludedBranded + excludedUnclear,
+        status: 'completed',
+        filter_settings: filterSettings,
+        results_data: finalKeywords,
+        excluded_data: excluded
+      });
+    } catch (webhookError) {
+      console.error('Failed to send to webhook:', webhookError);
+      // Don't block the UI if webhook fails
+    }
   };
 
   const handleReset = () => {
