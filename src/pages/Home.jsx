@@ -308,27 +308,22 @@ Return JSON:
     setProgress({ current: 0, total: 0 });
     setActiveTab('results');
 
-    // Send results to n8n webhook
-    try {
-      const webhookResponse = await base44.functions.invoke('sendToN8nWebhook', {
-        analysis_id: analysisId,
-        product_category: productCategory,
-        total_keywords: totalUploaded,
-        profitable_keywords: finalKeywords.length,
-        excluded_keywords: excludedShort + excludedBranded + excludedUnclear,
-        status: 'completed',
-        filter_settings: filterSettings,
-        results_data: finalKeywords,
-        excluded_data: excluded
-      });
-      
-      if (webhookResponse.data?.success) {
-        console.log('✅ Analysis sent to n8n successfully');
-      }
-    } catch (webhookError) {
-      console.error('Failed to send to webhook:', webhookError);
-      toast.error('Warning: Failed to send results to n8n webhook. Analysis completed but external sync failed.');
-    }
+    // Send results to n8n webhook (fire and forget - async)
+    base44.functions.invoke('sendToN8nWebhook', {
+      analysis_id: analysisId,
+      product_category: productCategory,
+      total_keywords: totalUploaded,
+      profitable_keywords: finalKeywords.length,
+      excluded_keywords: excludedShort + excludedBranded + excludedUnclear,
+      status: 'completed',
+      filter_settings: filterSettings,
+      results_data: finalKeywords,
+      excluded_data: excluded
+    }).then(() => {
+      console.log('✅ Analysis sent to n8n successfully');
+    }).catch((error) => {
+      console.error('Failed to send to webhook:', error);
+    });
   };
 
   const handleReset = () => {
