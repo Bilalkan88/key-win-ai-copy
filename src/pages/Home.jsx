@@ -188,107 +188,15 @@ export default function Home() {
       }
     });
     
-    const uniqueKeywords = Array.from(keywordMap.values());
-    const afterNumericFilter = uniqueKeywords.length + excludedShort + excludedBranded;
-
-    // Step 2: Parallel semantic analysis with larger batches
-    let finalKeywords = [];
-    let excludedUnclear = 0;
-
-    if (uniqueKeywords.length > 0) {
-      const batchSize = 80;
-      const batches = [];
-      
-      for (let i = 0; i < uniqueKeywords.length; i += batchSize) {
-        batches.push(uniqueKeywords.slice(i, i + batchSize));
-      }
-      
-      setProgress({ current: 0, total: batches.length });
-
-      // Process 3 batches in parallel
-      const parallelBatches = 3;
-      for (let i = 0; i < batches.length; i += parallelBatches) {
-        const currentBatches = batches.slice(i, i + parallelBatches);
-        
-        const batchPromises = currentBatches.map(batch => 
-          base44.integrations.Core.InvokeLLM({
-            prompt: `Analyze Amazon keywords for buyer intent${productCategory ? ` in the "${productCategory}" category` : ''}. 
-
-${productCategory ? `Product Category Context: "${productCategory}"
-- Validate each keyword's relevance to this category
-- Auto-correct the category assignment if the keyword clearly belongs to a different product category
-- For ambiguous keywords, consider if they could reasonably apply to ${productCategory}
-` : ''}
-INCLUDE keywords that:
-- Describe specific products or product features (e.g., "wireless earbuds", "cutting board set", "yoga mat")
-- Contain product types, categories, or specific items
-- Show buying intent or product search
-- Are product-focused even if unusual combinations
-${productCategory ? `- Are relevant to or could be sold in the "${productCategory}" category` : ''}
-
-EXCLUDE ONLY if:
-- Purely informational ("how to", "what is", "why does")
-- Extremely vague with no product context ("best things", "good stuff")
-- Questions without product focus
-${productCategory ? `- Completely unrelated to "${productCategory}" with no possible connection` : ''}
-
-Keywords:
-${batch.map(r => r['Keyword Phrase']).join('\n')}
-
-Return JSON:
-{"results": [{"keyword": "exact", "include": true/false, "reason": "brief"${productCategory ? ', "category": "corrected category if different, else original"' : ''}}]}`,
-            response_json_schema: {
-              type: "object",
-              properties: {
-                results: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      keyword: { type: "string" },
-                      include: { type: "boolean" },
-                      reason: { type: "string" },
-                      ...(productCategory ? { category: { type: "string" } } : {})
-                    }
-                  }
-                }
-              }
-            }
-          }).then(response => ({ response, batch }))
-        );
-
-        const results = await Promise.all(batchPromises);
-        
-        results.forEach(({ response, batch }) => {
-          const resultMap = new Map();
-          response.results?.forEach(r => {
-            resultMap.set(r.keyword.toLowerCase().trim(), r);
-          });
-
-          batch.forEach(row => {
-            const analysis = resultMap.get(row['Keyword Phrase'].toLowerCase().trim());
-            if (analysis?.include) {
-              finalKeywords.push({
-                ...row,
-                selectionReason: analysis.reason,
-                category: analysis.category || productCategory || 'General',
-                amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(row['Keyword Phrase']).replace(/%20/g, '+')}`
-              });
-            } else {
-              excludedUnclear++;
-              excluded.unclear.push({
-                keyword: row['Keyword Phrase'],
-                searchVolume: row.searchVolume,
-                titleDensity: row.titleDensity,
-                competingProducts: row.competingProducts
-              });
-            }
-          });
-        });
-        
-        setProgress({ current: Math.min(i + parallelBatches, batches.length), total: batches.length });
-      }
-    }
+    // Convert to final keywords array (single pass complete)
+    const finalKeywords = Array.from(keywordMap.values()).map(row => ({
+      ...row,
+      category: productCategory || 'General',
+      amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(row['Keyword Phrase']).replace(/%20/g, '+')}`
+    }));
+    
+    const afterNumericFilter = finalKeywords.length + excludedShort + excludedBranded;
+    const excludedUnclear = 0; // No semantic filtering
 
     setProcessedData(finalKeywords);
     setExcludedKeywords(excluded);
