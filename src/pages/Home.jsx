@@ -21,17 +21,8 @@ const DEFAULT_FILTERS = {
   minWordCount: 4
 };
 
-const BRAND_KEYWORDS = [
-  'nike', 'adidas', 'apple', 'samsung', 'sony', 'huawei', 'xiaomi', 'lg', 'dell', 
-  'hp', 'lenovo', 'asus', 'acer', 'microsoft', 'google', 'amazon', 'anker', 'jbl',
-  'bose', 'beats', 'fitbit', 'garmin', 'gopro', 'canon', 'nikon', 'panasonic',
-  'philips', 'braun', 'dyson', 'kitchenaid', 'ninja', 'instant pot', 'cuisinart',
-  'black decker', 'dewalt', 'makita', 'bosch', 'stanley', 'craftsman', 'milwaukee',
-  'ryobi', 'dewalt', 'puma', 'reebok', 'under armour', 'new balance', 'converse',
-  'vans', 'timberland', 'north face', 'patagonia', 'columbia', 'coleman', 'yeti',
-  'hydroflask', 'contigo', 'thermos', 'rubbermaid', 'tupperware', 'pyrex', 'corelle',
-  'oxo', 'lodge', 'le creuset', 'staub', 'all clad', 'calphalon', 't-fal', 'farberware'
-];
+// Precompiled regex for brand detection (case-insensitive, word boundaries)
+const BRAND_REGEX = /\b(nike|adidas|apple|samsung|sony|huawei|xiaomi|lg|dell|hp|lenovo|asus|acer|microsoft|google|amazon|anker|jbl|bose|beats|fitbit|garmin|gopro|canon|nikon|panasonic|philips|braun|dyson|kitchenaid|ninja|instant pot|cuisinart|black decker|dewalt|makita|bosch|stanley|craftsman|milwaukee|ryobi|puma|reebok|under armour|new balance|converse|vans|timberland|north face|patagonia|columbia|coleman|yeti|hydroflask|contigo|thermos|rubbermaid|tupperware|pyrex|corelle|oxo|lodge|le creuset|staub|all clad|calphalon|t-fal|farberware)\b/i;
 
 const isProfitableKeyword = (row) => {
   return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
@@ -99,8 +90,7 @@ export default function Home() {
   };
 
   const containsBrand = (keyword) => {
-    const lower = keyword.toLowerCase();
-    return BRAND_KEYWORDS.some(brand => lower.includes(brand));
+    return BRAND_REGEX.test(keyword);
   };
 
   const handleFileUpload = async (file) => {
@@ -141,46 +131,53 @@ export default function Home() {
     // Track excluded keywords by category
     const excluded = { unclear: [], short: [], branded: [] };
 
-    // Step 1: Combined filtering - single pass with deduplication
+    // Step 1: Single-pass filtering with deduplication and caching
     const keywordMap = new Map();
+    const normalizedCache = new Map(); // Cache normalized keywords
     
     rawData.forEach(row => {
+      const phrase = row['Keyword Phrase'];
+      if (!phrase) return;
+
+      // Parse metrics once
       const searchVolume = parseNumber(row['Search Volume']);
       const titleDensity = parseNumber(row['Title Density']);
       const competingProducts = parseNumber(row['Competing Products']);
       
+      // Skip invalid or filtered rows
       if (searchVolume === null || titleDensity === null || competingProducts === null) return;
       if (searchVolume < minVol || titleDensity > maxTD || competingProducts > maxComp) return;
       
-      const wordCount = row['Keyword Phrase'].trim().split(/\s+/).length;
-      if (wordCount < minWords) {
+      // Get or compute normalized keyword (cached)
+      let normalized = normalizedCache.get(phrase);
+      if (!normalized) {
+        normalized = {
+          lower: phrase.toLowerCase().trim(),
+          wordCount: phrase.trim().split(/\s+/).length,
+          isBranded: BRAND_REGEX.test(phrase)
+        };
+        normalizedCache.set(phrase, normalized);
+      }
+      
+      // Check word count
+      if (normalized.wordCount < minWords) {
         excludedShort++;
-        excluded.short.push({
-          keyword: row['Keyword Phrase'],
-          searchVolume,
-          titleDensity,
-          competingProducts
-        });
+        excluded.short.push({ keyword: phrase, searchVolume, titleDensity, competingProducts });
         return;
       }
       
-      if (containsBrand(row['Keyword Phrase'])) {
+      // Check brand
+      if (normalized.isBranded) {
         excludedBranded++;
-        excluded.branded.push({
-          keyword: row['Keyword Phrase'],
-          searchVolume,
-          titleDensity,
-          competingProducts
-        });
+        excluded.branded.push({ keyword: phrase, searchVolume, titleDensity, competingProducts });
         return;
       }
       
       // Deduplicate: keep best version
-      const keyword = row['Keyword Phrase'].toLowerCase().trim();
-      const existing = keywordMap.get(keyword);
+      const existing = keywordMap.get(normalized.lower);
       if (!existing || searchVolume > existing.searchVolume || 
           (searchVolume === existing.searchVolume && competingProducts < existing.competingProducts)) {
-        keywordMap.set(keyword, {
+        keywordMap.set(normalized.lower, {
           ...row,
           searchVolume,
           titleDensity,
@@ -308,7 +305,7 @@ Return JSON:
     setProgress({ current: 0, total: 0 });
     setActiveTab('results');
 
-    // Send results to n8n webhook (fire and forget - async)
+    // Fire-and-forget: Send to n8n webhook asynchronously (no await)
     base44.functions.invoke('sendToN8nWebhook', {
       analysis_id: analysisId,
       product_category: productCategory,
@@ -319,11 +316,8 @@ Return JSON:
       filter_settings: filterSettings,
       results_data: finalKeywords,
       excluded_data: excluded
-    }).then(() => {
-      console.log('✅ Analysis sent to n8n successfully');
-    }).catch((error) => {
-      console.error('Failed to send to webhook:', error);
-    });
+    }).then(() => console.log('✅ n8n webhook delivered'))
+      .catch((e) => console.error('⚠️ n8n webhook failed:', e.message));
   };
 
   const handleReset = () => {
