@@ -126,6 +126,10 @@ export default function Home() {
     setError(null);
     setProgress({ current: 0, total: 0 });
 
+    // Generate unique analysis ID for this run
+    const analysisId = crypto.randomUUID();
+    console.log('🆔 Analysis ID:', analysisId);
+
     const totalUploaded = rawData.length;
     let excludedShort = 0;
     let excludedBranded = 0;
@@ -307,6 +311,7 @@ Return JSON:
     // Send results to n8n webhook
     try {
       const webhookResponse = await base44.functions.invoke('sendToN8nWebhook', {
+        analysis_id: analysisId,
         product_category: productCategory,
         total_keywords: totalUploaded,
         profitable_keywords: finalKeywords.length,

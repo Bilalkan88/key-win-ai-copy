@@ -30,6 +30,7 @@ Deno.serve(async (req) => {
 
     // Prepare the complete payload
     const webhookPayload = {
+      analysis_id: payload.analysis_id,
       user_id: user.id,
       user_email: user.email,
       timestamp: new Date().toISOString(),
