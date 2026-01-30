@@ -103,6 +103,10 @@ export default function ResultsSection({
     setSelectedKeywords(new Set());
   };
 
+  const handleDeleteRow = (keyword) => {
+    onDeleteKeywords(new Set([keyword]));
+  };
+
   const handlePageSizeChange = (value) => {
     if (value === 'custom') {
       return;
@@ -410,6 +414,8 @@ export default function ResultsSection({
         onSelectionChange={setSelectedKeywords}
         sortBy={sortBy}
         onSortChange={setSortBy}
+        onDeleteRow={handleDeleteRow}
+        startIndex={startIndex}
       />
 
       {/* Excluded Keywords Section */}

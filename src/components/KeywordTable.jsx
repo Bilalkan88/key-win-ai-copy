@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown, Star, Sparkles } from 'lucide-react';
+import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown, Star, Sparkles, X } from 'lucide-react';
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -26,7 +26,7 @@ const isProfitableKeyword = (row) => {
   return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
 };
 
-export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange, sortBy, onSortChange }) {
+export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange, sortBy, onSortChange, onDeleteRow, startIndex = 0 }) {
   const [keywordColumnWidth, setKeywordColumnWidth] = React.useState(() => {
     const saved = localStorage.getItem('keywordColumnWidth');
     return saved ? parseInt(saved) : 300;
@@ -124,6 +124,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-50 hover:bg-slate-50">
+                <TableHead className="w-16 text-center font-semibold text-slate-700">#</TableHead>
                 <TableHead className="w-12">
                   <Checkbox
                     checked={allSelected}
@@ -204,11 +205,15 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
               {data.map((row, index) => {
                 const isProfitable = isProfitableKeyword(row);
                 const isSelected = selectedKeywords.has(row['Keyword Phrase']);
+                const globalIndex = startIndex + index + 1;
                 return (
                 <TableRow 
                   key={index} 
                   className={`group hover:bg-indigo-50/50 transition-colors ${isProfitable ? 'bg-emerald-50/40' : ''} ${isSelected ? 'bg-indigo-50' : ''}`}
                 >
+                  <TableCell className="w-16 text-center text-slate-500 font-medium">
+                    {globalIndex}
+                  </TableCell>
                   <TableCell className="w-12">
                     <Checkbox
                       checked={isSelected}
@@ -220,28 +225,52 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     className={`${isProfitable ? 'font-bold text-emerald-800' : 'font-medium text-slate-900'}`}
                     style={{ width: `${keywordColumnWidth}px`, minWidth: `${keywordColumnWidth}px`, maxWidth: `${keywordColumnWidth}px` }}
                   >
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(row['Keyword Phrase']);
-                              toast.success('Copied');
-                            }}
-                            className="text-left cursor-pointer hover:text-indigo-600 transition-all duration-200 flex items-center gap-2 group/kw"
-                          >
-                            {isProfitable && <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />}
-                            <span className="line-clamp-2 group-hover/kw:scale-110 group-hover/kw:font-semibold transition-all duration-200 origin-left">
-                              {row['Keyword Phrase']}
-                            </span>
-                            <Copy className="w-3.5 h-3.5 opacity-0 group-hover/kw:opacity-50 transition-opacity flex-shrink-0" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-sm">{isProfitable ? '⭐ Top Pick! ' : ''}Click to copy: {row['Keyword Phrase']}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <div className="flex items-center gap-2">
+                      {onDeleteRow && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDeleteRow(row['Keyword Phrase']);
+                                }}
+                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 transition-all"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Delete keyword</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(row['Keyword Phrase']);
+                                toast.success('Copied');
+                              }}
+                              className="text-left cursor-pointer hover:text-indigo-600 transition-all duration-200 flex items-center gap-2 group/kw flex-1"
+                            >
+                              {isProfitable && <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />}
+                              <span className="line-clamp-2 group-hover/kw:scale-110 group-hover/kw:font-semibold transition-all duration-200 origin-left">
+                                {row['Keyword Phrase']}
+                              </span>
+                              <Copy className="w-3.5 h-3.5 opacity-0 group-hover/kw:opacity-50 transition-opacity flex-shrink-0" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="max-w-sm">{isProfitable ? '⭐ Top Pick! ' : ''}Click to copy: {row['Keyword Phrase']}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <TooltipProvider>
