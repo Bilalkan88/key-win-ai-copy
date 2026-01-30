@@ -11,6 +11,7 @@ import NavigationTabs from '@/components/NavigationTabs';
 import UploadSection from '@/components/sections/UploadSection';
 import ResultsSection from '@/components/sections/ResultsSection';
 import FeedbackTab from '@/components/sections/FeedbackTab';
+import FilterSettings from '@/components/FilterSettings';
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -483,7 +484,22 @@ Return JSON:`,
           />
         </motion.div>
 
-        {/* Analyze Button - Below Tabs */}
+        {/* Filter Settings - Below Tabs */}
+        {rawData.length > 0 && !analysisComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mb-6"
+          >
+            <FilterSettings 
+              filters={filterSettings} 
+              onFilterChange={setFilterSettings} 
+            />
+          </motion.div>
+        )}
+
+        {/* Analyze Button - Below Filter Settings */}
         {rawData.length > 0 && !analysisComplete && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -548,13 +564,11 @@ Return JSON:`,
               rawData={rawData}
               uploadedFiles={uploadedFiles}
               analysisComplete={analysisComplete}
-              filterSettings={filterSettings}
               productCategory={productCategory}
               isAnalyzing={isAnalyzing}
               progress={progress}
               onFileUpload={handleFileUpload}
               onReset={handleReset}
-              onFilterChange={setFilterSettings}
               onCategoryChange={setProductCategory}
               onAnalyze={analyzeKeywords}
             />

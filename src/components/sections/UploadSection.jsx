@@ -1,22 +1,19 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload, Sparkles, Loader2 } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { motion } from 'framer-motion';
 import FileUploader from '@/components/FileUploader';
-import FilterSettings from '@/components/FilterSettings';
 
 export default function UploadSection({ 
   rawData,
   uploadedFiles = [],
   analysisComplete,
-  filterSettings,
   productCategory,
   isAnalyzing,
   progress,
   onFileUpload,
   onReset,
-  onFilterChange,
   onCategoryChange,
   onAnalyze
 }) {
@@ -79,19 +76,6 @@ export default function UploadSection({
 
 
 
-      {/* Filter Settings */}
-      {rawData.length > 0 && !analysisComplete && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
-          <FilterSettings 
-            filters={filterSettings} 
-            onFilterChange={onFilterChange} 
-          />
-        </motion.div>
-      )}
     </div>
   );
 }
