@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown, Star, Sparkles, X } from 'lucide-react';
+import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown, Star, Sparkles, Trash2 } from 'lucide-react';
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -237,9 +237,9 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                                   e.stopPropagation();
                                   onDeleteRow(row['Keyword Phrase']);
                                 }}
-                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 transition-all"
+                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-red-100 text-red-500 hover:text-red-600 transition-all"
                               >
-                                <X className="w-3.5 h-3.5" />
+                                <Trash2 className="w-3.5 h-3.5" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
