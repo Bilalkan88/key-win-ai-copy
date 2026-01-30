@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, Sparkles } from 'lucide-react';
+import { AlertCircle, Sparkles, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { TabsContent } from "@/components/ui/tabs";
@@ -481,6 +481,45 @@ Return JSON:`,
             showAnalysis={analysisComplete}
           />
         </motion.div>
+
+        {/* Analyze Button - Below Tabs */}
+        {rawData.length > 0 && !analysisComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-6"
+          >
+            <Button
+              size="lg"
+              onClick={analyzeKeywords}
+              disabled={isAnalyzing}
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-200 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-300"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Analyzing Keywords...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Analyze {rawData.length.toLocaleString()} Keywords
+                </>
+              )}
+            </Button>
+            {isAnalyzing && (
+              <div className="flex items-center justify-center gap-3 text-sm text-indigo-600 mt-4">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-indigo-600 border-t-transparent" />
+                <span>Processing {uploadedFiles.length > 1 ? `${uploadedFiles.length} files` : 'file'}...</span>
+              </div>
+            )}
+            {!isAnalyzing && (
+              <p className="text-sm text-slate-500 mt-3">
+                Optimized for fast processing
+              </p>
+            )}
+          </motion.div>
+        )}
 
         {/* Error Display */}
         <AnimatePresence>
