@@ -12,6 +12,7 @@ import UploadSection from '@/components/sections/UploadSection';
 import ResultsSection from '@/components/sections/ResultsSection';
 import FeedbackTab from '@/components/sections/FeedbackTab';
 import FilterSettings from '@/components/FilterSettings';
+import { Input } from "@/components/ui/input";
 
 const REQUIRED_COLUMNS = ['Keyword Phrase', 'Search Volume', 'Competing Products', 'Title Density'];
 const OPTIONAL_COLUMNS = ['Keyword Sales', 'Organic Rank'];
@@ -499,7 +500,33 @@ Return JSON:`,
           </motion.div>
         )}
 
-        {/* Analyze Button - Below Filter Settings */}
+        {/* Product Category - Below Filter Settings */}
+        {rawData.length > 0 && !analysisComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-2xl mx-auto mb-6"
+          >
+            <Card className="border-slate-200">
+              <CardContent className="p-6">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Product Category (Optional)
+                </label>
+                <Input
+                  placeholder="e.g., Kitchen & Dining, Electronics, Home & Garden"
+                  value={productCategory}
+                  onChange={(e) => setProductCategory(e.target.value)}
+                  className="h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
+                />
+                <p className="text-xs text-slate-500 mt-2">
+                  Helps validate and auto-correct category assignments for better accuracy
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Analyze Button - Below Product Category */}
         {rawData.length > 0 && !analysisComplete && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -564,13 +591,10 @@ Return JSON:`,
               rawData={rawData}
               uploadedFiles={uploadedFiles}
               analysisComplete={analysisComplete}
-              productCategory={productCategory}
               isAnalyzing={isAnalyzing}
               progress={progress}
               onFileUpload={handleFileUpload}
               onReset={handleReset}
-              onCategoryChange={setProductCategory}
-              onAnalyze={analyzeKeywords}
             />
           )}
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Upload } from 'lucide-react';
 import { motion } from 'framer-motion';
 import FileUploader from '@/components/FileUploader';
@@ -9,13 +8,10 @@ export default function UploadSection({
   rawData,
   uploadedFiles = [],
   analysisComplete,
-  productCategory,
   isAnalyzing,
   progress,
   onFileUpload,
-  onReset,
-  onCategoryChange,
-  onAnalyze
+  onReset
 }) {
   return (
     <div className="space-y-6">
