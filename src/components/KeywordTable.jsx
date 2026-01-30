@@ -101,7 +101,6 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   />
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700">Keyword</TableHead>
-                <TableHead className="font-semibold text-slate-700">Source File</TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
                   <button 
                     onClick={() => handleSort('search_volume')}
@@ -186,9 +185,6 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-                  </TableCell>
-                  <TableCell className="text-sm text-slate-500">
-                    {row.source_file || '-'}
                   </TableCell>
                   <TableCell className="text-right">
                     <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 font-semibold">
