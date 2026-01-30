@@ -13,6 +13,7 @@ import {
 import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { motion } from 'framer-motion';
 import {
   Tooltip,

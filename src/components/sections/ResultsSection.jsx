@@ -75,6 +75,12 @@ export default function ResultsSection({
       case 'keyword_sales_desc':
         data.sort((a, b) => (b.keywordSales || 0) - (a.keywordSales || 0));
         break;
+      case 'opportunity_desc':
+        data.sort((a, b) => (b.opportunityScore || 0) - (a.opportunityScore || 0));
+        break;
+      case 'opportunity_asc':
+        data.sort((a, b) => (a.opportunityScore || 0) - (b.opportunityScore || 0));
+        break;
       default:
         break;
     }
@@ -289,6 +295,8 @@ export default function ResultsSection({
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="opportunity_desc">⭐ Opportunity Score (High)</SelectItem>
+              <SelectItem value="opportunity_asc">Opportunity Score (Low)</SelectItem>
               <SelectItem value="search_volume_desc">Search Volume (High)</SelectItem>
               <SelectItem value="search_volume_asc">Search Volume (Low)</SelectItem>
               <SelectItem value="competing_asc">Competition (Low)</SelectItem>

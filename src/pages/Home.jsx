@@ -205,12 +205,39 @@ export default function Home() {
       }
     });
     
-    // Convert to final keywords array (single pass complete)
+    // Calculate opportunity score for each keyword
+    const calculateOpportunityScore = (keyword) => {
+      const volume = keyword.searchVolume || 0;
+      const competition = keyword.competingProducts || 1;
+      const density = keyword.titleDensity || 100;
+      const sales = keyword.keywordSales || 0;
+
+      // Normalize metrics (0-100 scale)
+      const volumeScore = Math.min(100, (volume / 10000) * 100); // Max at 10k volume
+      const competitionScore = Math.max(0, 100 - (competition / 5000) * 100); // Lower is better
+      const densityScore = Math.max(0, 100 - density); // Lower is better
+      const salesScore = Math.min(100, (sales / 1000) * 100); // Max at 1k sales
+
+      // Weighted average (volume and competition are most important)
+      const score = (
+        volumeScore * 0.35 +
+        competitionScore * 0.35 +
+        densityScore * 0.20 +
+        salesScore * 0.10
+      );
+
+      return Math.round(score);
+    };
+
+    // Convert to final keywords array with opportunity scores
     const finalKeywords = Array.from(keywordMap.values()).map(row => ({
       ...row,
       source_file: row._source_file,
       category: productCategory || 'General',
       amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(row['Keyword Phrase']).replace(/%20/g, '+')}`
+    })).map(keyword => ({
+      ...keyword,
+      opportunityScore: calculateOpportunityScore(keyword)
     }));
     
     const afterNumericFilter = finalKeywords.length + excludedShort + excludedBranded;
