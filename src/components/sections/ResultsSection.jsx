@@ -36,6 +36,9 @@ export default function ResultsSection({
   const [selectedKeywords, setSelectedKeywords] = useState(new Set());
   const [showOnlyProfitable, setShowOnlyProfitable] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(100);
+  const [customPageSize, setCustomPageSize] = useState('');
 
   const sortedAndFilteredData = useMemo(() => {
     let data = [...processedData];
@@ -76,9 +79,36 @@ export default function ResultsSection({
     return data;
   }, [processedData, searchTerm, sortBy, showOnlyProfitable]);
 
+  const totalPages = Math.ceil(sortedAndFilteredData.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedData = sortedAndFilteredData.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortBy, showOnlyProfitable, pageSize]);
+
   const handleDeleteSelected = () => {
     onDeleteKeywords(selectedKeywords);
     setSelectedKeywords(new Set());
+  };
+
+  const handlePageSizeChange = (value) => {
+    if (value === 'custom') {
+      return;
+    }
+    setPageSize(Number(value));
+    setCurrentPage(1);
+  };
+
+  const handleCustomPageSize = () => {
+    const size = parseInt(customPageSize);
+    if (size > 0 && size <= 10000) {
+      setPageSize(size);
+      setCurrentPage(1);
+      setCustomPageSize('');
+    }
   };
 
   return (
@@ -220,9 +250,102 @@ export default function ResultsSection({
         </div>
       </div>
 
+      {/* Pagination Controls */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-slate-600">
+                Showing <span className="font-semibold text-slate-900">{startIndex + 1}</span> to{' '}
+                <span className="font-semibold text-slate-900">{Math.min(endIndex, sortedAndFilteredData.length)}</span> of{' '}
+                <span className="font-semibold text-slate-900">{sortedAndFilteredData.length}</span> results
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-slate-600 whitespace-nowrap">Per page:</label>
+                <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+                  <SelectTrigger className="w-24 h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="200">200</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  placeholder="Custom"
+                  value={customPageSize}
+                  onChange={(e) => setCustomPageSize(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleCustomPageSize()}
+                  className="w-24 h-9"
+                  min="1"
+                  max="10000"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCustomPageSize}
+                  disabled={!customPageSize}
+                  className="h-9"
+                >
+                  Apply
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+              >
+                First
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              
+              <div className="text-sm text-slate-600 px-3">
+                Page <span className="font-semibold text-slate-900">{currentPage}</span> of{' '}
+                <span className="font-semibold text-slate-900">{totalPages || 1}</span>
+              </div>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+              >
+                Next
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage >= totalPages}
+              >
+                Last
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Results Table */}
       <KeywordTable 
-        data={sortedAndFilteredData} 
+        data={paginatedData} 
         selectedKeywords={selectedKeywords}
         onSelectionChange={setSelectedKeywords}
         sortBy={sortBy}
