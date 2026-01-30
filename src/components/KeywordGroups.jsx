@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, Package, TrendingUp, Tag, Zap, Copy } from 'lucide-react';
+import { ChevronDown, ChevronUp, Package, TrendingUp, Tag, Zap, Copy, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
-const GroupCard = ({ group, index }) => {
+const GroupCard = ({ group, index, onExport }) => {
   const [isOpen, setIsOpen] = useState(true);
   
   const avgVolume = group.keywords.length > 0 
@@ -95,15 +95,25 @@ const GroupCard = ({ group, index }) => {
               transition={{ duration: 0.2 }}
             >
               <CardContent className="border-t border-slate-100 pt-4 pb-4">
-                <div className="flex justify-end mb-3">
+                <div className="flex justify-end gap-2 mb-3">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={copyKeywords}
                   >
                     <Copy className="w-3 h-3 mr-2" />
-                    Copy Keywords
+                    Copy
                   </Button>
+                  {onExport && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onExport(group)}
+                    >
+                      <Download className="w-3 h-3 mr-2" />
+                      Export CSV
+                    </Button>
+                  )}
                 </div>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {group.keywords.map((keyword, idx) => (
@@ -163,7 +173,7 @@ export default function KeywordGroups({ groups, onExport }) {
         </CardHeader>
         <CardContent className="space-y-3">
           {groups.map((group, index) => (
-            <GroupCard key={index} group={group} index={index} />
+            <GroupCard key={index} group={group} index={index} onExport={onExport} />
           ))}
         </CardContent>
       </Card>
