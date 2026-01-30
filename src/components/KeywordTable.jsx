@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown, Star, Sparkles } from 'lucide-react';
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -153,6 +153,16 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
                   <button 
+                    onClick={() => handleSort('opportunity')}
+                    className="group flex items-center justify-end gap-1.5 w-full hover:text-indigo-600 transition-colors"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Score
+                    {getSortIcon('opportunity')}
+                  </button>
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 text-right">
+                  <button 
                     onClick={() => handleSort('search_volume')}
                     className="group flex items-center justify-end gap-1.5 w-full hover:text-indigo-600 transition-colors"
                   >
@@ -235,6 +245,27 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                         </TooltipTrigger>
                         <TooltipContent>
                           <p className="max-w-sm">{isProfitable ? '⭐ Top Pick! ' : ''}Click to copy: {row['Keyword Phrase']}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
+                            row.opportunityScore >= 75 ? 'bg-emerald-100 text-emerald-800' :
+                            row.opportunityScore >= 50 ? 'bg-blue-100 text-blue-800' :
+                            row.opportunityScore >= 25 ? 'bg-amber-100 text-amber-800' :
+                            'bg-slate-100 text-slate-600'
+                          }`}>
+                            {row.opportunityScore || 0}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-xs max-w-xs">
+                            AI-driven opportunity score (0-100) based on search volume (35%), competition (35%), title density (20%), and sales potential (10%)
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
