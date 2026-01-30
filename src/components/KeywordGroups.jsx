@@ -140,7 +140,7 @@ const GroupCard = ({ group, index }) => {
   );
 };
 
-export default function KeywordGroups({ groups }) {
+export default function KeywordGroups({ groups, onExport }) {
   if (!groups || groups.length === 0) {
     return null;
   }

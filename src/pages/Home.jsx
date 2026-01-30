@@ -44,6 +44,7 @@ export default function Home() {
   const [keywordGroups, setKeywordGroups] = useState([]);
   const [isGrouping, setIsGrouping] = useState(false);
   const [groupingCriteria, setGroupingCriteria] = useState('');
+  const [autoCluster, setAutoCluster] = useState(true);
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -231,6 +232,11 @@ export default function Home() {
     setProgress({ current: 0, total: 0 });
     setActiveTab('results');
 
+    // Auto-cluster keywords if enabled
+    if (autoCluster && finalKeywords.length > 0) {
+      performAutoClustering(finalKeywords);
+    }
+
     // Fire-and-forget: Send batch results to n8n webhook asynchronously (no await)
     base44.functions.invoke('sendToN8nWebhook', {
       analysis_id: batchId,
@@ -275,6 +281,69 @@ export default function Home() {
   };
 
 
+
+  const performAutoClustering = async (keywords) => {
+    setIsGrouping(true);
+    try {
+      const sampleSize = Math.min(keywords.length, 100);
+      const dataToCluster = keywords.slice(0, sampleSize);
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze these Amazon keywords and create semantic clusters based on search intent, product features, and customer needs.
+
+Keywords:
+${dataToCluster.map(k => k['Keyword Phrase']).join('\n')}
+
+Create 6-15 distinct clusters that group semantically similar keywords. Each cluster should:
+- Have a clear, descriptive name (2-4 words)
+- Include a summary explaining the common theme
+- Specify the cluster type (e.g., "Product Feature", "Customer Intent", "Product Type", "Use Case")
+- Contain at least 2 keywords
+
+Focus on semantic similarity, not just word matching. Group by meaning and intent.
+
+Return JSON:`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            clusters: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  summary: { type: "string" },
+                  clusterType: { type: "string" },
+                  keywords: {
+                    type: "array",
+                    items: { type: "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const clusters = response.clusters.map(cluster => ({
+        name: cluster.name,
+        description: cluster.summary,
+        groupType: cluster.clusterType,
+        keywords: cluster.keywords
+          .map(kw => keywords.find(d => 
+            d['Keyword Phrase'].toLowerCase().trim() === kw.toLowerCase().trim()
+          ))
+          .filter(Boolean)
+      })).filter(g => g.keywords.length > 0);
+
+      setKeywordGroups(clusters);
+      toast.success(`Auto-clustered into ${clusters.length} semantic groups`);
+    } catch (error) {
+      console.error('Auto-clustering failed:', error);
+    } finally {
+      setIsGrouping(false);
+    }
+  };
 
   const groupKeywords = async (selectedKeywords) => {
     if (processedData.length === 0) return;
@@ -437,6 +506,8 @@ Return JSON:`,
               isGrouping={isGrouping}
               groupingCriteria={groupingCriteria}
               onGroupingCriteriaChange={setGroupingCriteria}
+              autoCluster={autoCluster}
+              onAutoClusterChange={setAutoCluster}
             />
           )}
 

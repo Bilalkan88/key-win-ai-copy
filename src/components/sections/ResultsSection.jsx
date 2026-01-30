@@ -29,7 +29,9 @@ export default function ResultsSection({
   onGroupKeywords,
   isGrouping,
   groupingCriteria,
-  onGroupingCriteriaChange
+  onGroupingCriteriaChange,
+  autoCluster,
+  onAutoClusterChange
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('search_volume_desc');
@@ -144,12 +146,56 @@ export default function ResultsSection({
         )}
       </Card>
 
-      {/* Grouping Section */}
+      {/* AI Clustering Section */}
+      {keywordGroups.length > 0 && (
+        <Card className="border-2 border-indigo-100 bg-gradient-to-br from-indigo-50/50 to-purple-50/30">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-indigo-600" />
+                  AI Semantic Clusters
+                </CardTitle>
+                <p className="text-sm text-slate-500 mt-1">
+                  {keywordGroups.length} keyword groups identified by AI based on semantic similarity
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="auto-cluster"
+                  checked={autoCluster}
+                  onCheckedChange={onAutoClusterChange}
+                />
+                <label htmlFor="auto-cluster" className="text-sm text-slate-600 cursor-pointer">
+                  Auto-cluster
+                </label>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <KeywordGroups groups={keywordGroups} onExport={(group) => {
+              const csv = 'Keyword,Search Volume,Competition,Title Density\n' + 
+                group.keywords.map(k => 
+                  `"${k['Keyword Phrase']}",${k.searchVolume},${k.competingProducts},${k.titleDensity}`
+                ).join('\n');
+              const blob = new Blob([csv], { type: 'text/csv' });
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `${group.name.replace(/\s+/g, '_')}_keywords.csv`;
+              a.click();
+              window.URL.revokeObjectURL(url);
+            }} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Manual Grouping Section */}
       <Card>
         <CardHeader>
-          <CardTitle>AI Keyword Grouping</CardTitle>
+          <CardTitle>Manual Keyword Grouping</CardTitle>
           <p className="text-sm text-slate-500 mt-1">
-            Organize keywords into logical groups for better campaign management
+            Create custom groups with specific criteria
           </p>
         </CardHeader>
         <CardContent>
@@ -175,7 +221,7 @@ export default function ResultsSection({
                   <Sparkles className="w-4 h-4 mr-2" />
                   {selectedKeywords.size > 0 
                     ? `Group Selected (${selectedKeywords.size})` 
-                    : `Group All Keywords`}
+                    : `Regroup All`}
                 </>
               )}
             </Button>
@@ -185,11 +231,6 @@ export default function ResultsSection({
           </p>
         </CardContent>
       </Card>
-
-      {/* Grouped Keywords Display */}
-      {keywordGroups.length > 0 && (
-        <KeywordGroups groups={keywordGroups} />
-      )}
 
       {/* Controls */}
       <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
