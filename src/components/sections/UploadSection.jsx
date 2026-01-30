@@ -8,6 +8,7 @@ import FilterSettings from '@/components/FilterSettings';
 
 export default function UploadSection({ 
   rawData,
+  uploadedFiles = [],
   analysisComplete,
   filterSettings,
   productCategory,
@@ -35,7 +36,7 @@ export default function UploadSection({
             className="text-slate-600 hover:text-slate-800"
           >
             <Upload className="w-4 h-4 mr-2" />
-            Upload New File
+            Upload New Files
           </Button>
         </motion.div>
       )}
@@ -49,7 +50,8 @@ export default function UploadSection({
         <FileUploader 
           onFileUpload={onFileUpload} 
           hasFile={rawData.length > 0}
-          fileName={rawData.length > 0 ? `${rawData.length} keywords loaded` : null}
+          fileName={uploadedFiles.length > 0 ? uploadedFiles.map(f => f.name).join(', ') : `${rawData.length} keywords loaded`}
+          fileCount={uploadedFiles.length || 1}
         />
       </motion.div>
 
@@ -100,25 +102,17 @@ export default function UploadSection({
               </>
             )}
           </Button>
-          {isAnalyzing && progress.total > 0 && (
-            <div className="mt-4 max-w-md mx-auto">
-              <div className="flex justify-between text-sm text-slate-600 mb-2">
-                <span>Analyzing keywords...</span>
-                <span className="font-semibold text-orange-600">
-                  {Math.round((progress.current / progress.total) * 100)}%
-                </span>
-              </div>
-              <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-300 shadow-sm"
-                  style={{ width: `${(progress.current / progress.total) * 100}%` }}
-                />
-              </div>
+          {isAnalyzing && (
+            <div className="flex items-center gap-3 text-sm text-indigo-600 mt-4">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-indigo-600 border-t-transparent" />
+              <span>Processing {uploadedFiles.length > 1 ? `${uploadedFiles.length} files` : 'file'}...</span>
             </div>
           )}
-          <p className="text-sm text-slate-500 mt-3">
-            Optimized for fast processing
-          </p>
+          {!isAnalyzing && (
+            <p className="text-sm text-slate-500 mt-3">
+              Optimized for fast processing
+            </p>
+          )}
         </motion.div>
       )}
 
