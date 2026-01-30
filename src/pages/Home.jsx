@@ -30,6 +30,7 @@ const isProfitableKeyword = (row) => {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('upload');
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [rawData, setRawData] = useState([]);
   const [processedData, setProcessedData] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -93,32 +94,47 @@ export default function Home() {
     return BRAND_REGEX.test(keyword);
   };
 
-  const handleFileUpload = async (file) => {
+  const handleFileUpload = async (files) => {
     setError(null);
     setAnalysisComplete(false);
     setProcessedData([]);
     setStats(null);
 
-    const text = await file.text();
-    const data = parseCSV(text);
-    
-    const validation = validateColumns(data);
-    if (!validation.valid) {
-      setError(`Invalid CSV file. Missing required columns: ${validation.missing.join(', ')}`);
-      return;
+    const filesArray = Array.isArray(files) ? files : [files];
+    const allData = [];
+    const fileMetadata = [];
+
+    for (const file of filesArray) {
+      const text = await file.text();
+      const data = parseCSV(text);
+      
+      const validation = validateColumns(data);
+      if (!validation.valid) {
+        setError(`Invalid CSV file (${file.name}). Missing required columns: ${validation.missing.join(', ')}`);
+        return;
+      }
+
+      // Tag each row with source file
+      data.forEach(row => {
+        row._source_file = file.name;
+      });
+
+      allData.push(...data);
+      fileMetadata.push({ name: file.name, rowCount: data.length });
     }
 
-    setRawData(data);
+    setUploadedFiles(fileMetadata);
+    setRawData(allData);
   };
 
   const analyzeKeywords = async () => {
     setIsAnalyzing(true);
     setError(null);
-    setProgress({ current: 0, total: 0 });
+    setProgress({ current: 0, total: uploadedFiles.length });
 
-    // Generate unique analysis ID for this run
-    const analysisId = crypto.randomUUID();
-    console.log('🆔 Analysis ID:', analysisId);
+    // Generate unique analysis ID for this batch
+    const batchId = crypto.randomUUID();
+    console.log('🆔 Batch Analysis ID:', batchId);
 
     const totalUploaded = rawData.length;
     let excludedShort = 0;
@@ -191,6 +207,7 @@ export default function Home() {
     // Convert to final keywords array (single pass complete)
     const finalKeywords = Array.from(keywordMap.values()).map(row => ({
       ...row,
+      source_file: row._source_file,
       category: productCategory || 'General',
       amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(row['Keyword Phrase']).replace(/%20/g, '+')}`
     }));
@@ -206,16 +223,20 @@ export default function Home() {
       excludedShort,
       excludedBranded,
       excludedUnclear,
-      finalCount: finalKeywords.length
+      finalCount: finalKeywords.length,
+      filesProcessed: uploadedFiles.length
     });
     setAnalysisComplete(true);
     setIsAnalyzing(false);
     setProgress({ current: 0, total: 0 });
     setActiveTab('results');
 
-    // Fire-and-forget: Send to n8n webhook asynchronously (no await)
+    // Fire-and-forget: Send batch results to n8n webhook asynchronously (no await)
     base44.functions.invoke('sendToN8nWebhook', {
-      analysis_id: analysisId,
+      analysis_id: batchId,
+      batch_mode: true,
+      files_count: uploadedFiles.length,
+      files: uploadedFiles,
       product_category: productCategory,
       total_keywords: totalUploaded,
       profitable_keywords: finalKeywords.length,
@@ -224,11 +245,12 @@ export default function Home() {
       filter_settings: filterSettings,
       results_data: finalKeywords,
       excluded_data: excluded
-    }).then(() => console.log('✅ n8n webhook delivered'))
+    }).then(() => console.log('✅ n8n batch webhook delivered'))
       .catch((e) => console.error('⚠️ n8n webhook failed:', e.message));
   };
 
   const handleReset = () => {
+    setUploadedFiles([]);
     setRawData([]);
     setProcessedData([]);
     setStats(null);
@@ -389,6 +411,7 @@ Return JSON:`,
           {activeTab === 'upload' && (
             <UploadSection
               rawData={rawData}
+              uploadedFiles={uploadedFiles}
               analysisComplete={analysisComplete}
               filterSettings={filterSettings}
               productCategory={productCategory}

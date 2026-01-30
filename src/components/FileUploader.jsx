@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, FileSpreadsheet, CheckCircle2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function FileUploader({ onFileUpload, hasFile, fileName }) {
+export default function FileUploader({ onFileUpload, hasFile, fileName, fileCount }) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -21,16 +21,16 @@ export default function FileUploader({ onFileUpload, hasFile, fileName }) {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.name.endsWith('.csv')) {
-      onFileUpload(file);
+    const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.csv'));
+    if (files.length > 0) {
+      onFileUpload(files);
     }
   };
 
   const handleFileSelect = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      onFileUpload(file);
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      onFileUpload(files);
     }
   };
 
@@ -53,6 +53,7 @@ export default function FileUploader({ onFileUpload, hasFile, fileName }) {
           accept=".csv"
           onChange={handleFileSelect}
           className="hidden"
+          multiple
         />
         
         <div className="flex flex-col items-center text-center">
@@ -84,7 +85,7 @@ export default function FileUploader({ onFileUpload, hasFile, fileName }) {
           </AnimatePresence>
 
           <h3 className="text-lg font-semibold text-slate-900 mb-1">
-            {hasFile ? 'File Loaded Successfully' : 'Upload Helium 10 CSV'}
+            {hasFile ? `${fileCount} File${fileCount > 1 ? 's' : ''} Loaded Successfully` : 'Upload Helium 10 CSV Files'}
           </h3>
           
           {hasFile ? (
@@ -92,7 +93,7 @@ export default function FileUploader({ onFileUpload, hasFile, fileName }) {
           ) : (
             <>
               <p className="text-slate-500 mb-4">
-                Drag and drop your file here, or click to browse
+                Drag and drop files here, or click to browse (supports multiple files)
               </p>
               <div className="flex items-center gap-2 text-xs text-slate-400">
                 <FileSpreadsheet className="w-4 h-4" />
