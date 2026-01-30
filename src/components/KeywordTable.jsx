@@ -32,6 +32,43 @@ const isProfitableKeyword = (row) => {
 };
 
 export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange, sortBy, onSortChange }) {
+  const [keywordColumnWidth, setKeywordColumnWidth] = React.useState(() => {
+    const saved = localStorage.getItem('keywordColumnWidth');
+    return saved ? parseInt(saved) : 300;
+  });
+  const [isResizing, setIsResizing] = React.useState(false);
+  const startXRef = React.useRef(0);
+  const startWidthRef = React.useRef(0);
+
+  const handleMouseDown = (e) => {
+    setIsResizing(true);
+    startXRef.current = e.clientX;
+    startWidthRef.current = keywordColumnWidth;
+  };
+
+  React.useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e) => {
+      const diff = e.clientX - startXRef.current;
+      const newWidth = Math.max(150, Math.min(800, startWidthRef.current + diff));
+      setKeywordColumnWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      localStorage.setItem('keywordColumnWidth', keywordColumnWidth.toString());
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, keywordColumnWidth]);
+
   const toggleSelection = (keyword) => {
     const newSelected = new Set(selectedKeywords);
     if (newSelected.has(keyword)) {
@@ -100,7 +137,19 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     className={someSelected ? "data-[state=checked]:bg-indigo-600" : ""}
                   />
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700">Keyword</TableHead>
+                <TableHead 
+                  className="font-semibold text-slate-700 relative group"
+                  style={{ width: `${keywordColumnWidth}px`, minWidth: `${keywordColumnWidth}px`, maxWidth: `${keywordColumnWidth}px` }}
+                >
+                  <div className="flex items-center justify-between">
+                    <span>Keyword</span>
+                    <div
+                      onMouseDown={handleMouseDown}
+                      className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-indigo-400 bg-slate-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ cursor: isResizing ? 'col-resize' : 'col-resize' }}
+                    />
+                  </div>
+                </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
                   <button 
                     onClick={() => handleSort('search_volume')}
@@ -162,7 +211,10 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                       aria-label={`Select ${row['Keyword Phrase']}`}
                     />
                   </TableCell>
-                  <TableCell className={`max-w-xs ${isProfitable ? 'font-bold text-emerald-800' : 'font-medium text-slate-900'}`}>
+                  <TableCell 
+                    className={`${isProfitable ? 'font-bold text-emerald-800' : 'font-medium text-slate-900'}`}
+                    style={{ width: `${keywordColumnWidth}px`, minWidth: `${keywordColumnWidth}px`, maxWidth: `${keywordColumnWidth}px` }}
+                  >
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
