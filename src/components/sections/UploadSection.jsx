@@ -48,30 +48,6 @@ export default function UploadSection({
         />
       </motion.div>
 
-      {/* Category Input */}
-      {rawData.length > 0 && !analysisComplete && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-md mx-auto"
-        >
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Product Category (Optional)
-          </label>
-          <Input
-            placeholder="e.g., Kitchen & Dining, Electronics, Home & Garden"
-            value={productCategory}
-            onChange={(e) => onCategoryChange(e.target.value)}
-            className="h-11 border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
-          />
-          <p className="text-xs text-slate-500 mt-2">
-            Helps validate and auto-correct category assignments for better accuracy
-          </p>
-        </motion.div>
-      )}
-
-
-
     </div>
   );
 }
