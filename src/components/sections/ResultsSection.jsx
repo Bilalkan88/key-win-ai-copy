@@ -41,6 +41,7 @@ export default function ResultsSection({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   const [customPageSize, setCustomPageSize] = useState('');
+  const [showGroups, setShowGroups] = useState(false);
 
   const sortedAndFilteredData = useMemo(() => {
     let data = [...processedData];
@@ -160,33 +161,43 @@ export default function ResultsSection({
                   {keywordGroups.length} keyword groups identified by AI based on semantic similarity
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="auto-cluster"
-                  checked={autoCluster}
-                  onCheckedChange={onAutoClusterChange}
-                />
-                <label htmlFor="auto-cluster" className="text-sm text-slate-600 cursor-pointer">
-                  Auto-cluster
-                </label>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="auto-cluster"
+                    checked={autoCluster}
+                    onCheckedChange={onAutoClusterChange}
+                  />
+                  <label htmlFor="auto-cluster" className="text-sm text-slate-600 cursor-pointer">
+                    Auto-cluster
+                  </label>
+                </div>
+                <Button
+                  variant={showGroups ? "default" : "outline"}
+                  onClick={() => setShowGroups(!showGroups)}
+                >
+                  {showGroups ? "Hide Groups" : "Show Keyword Groups"}
+                </Button>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <KeywordGroups groups={keywordGroups} onExport={(group) => {
-              const csv = 'Keyword,Search Volume,Competition,Title Density\n' + 
-                group.keywords.map(k => 
-                  `"${k['Keyword Phrase']}",${k.searchVolume},${k.competingProducts},${k.titleDensity}`
-                ).join('\n');
-              const blob = new Blob([csv], { type: 'text/csv' });
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `${group.name.replace(/\s+/g, '_')}_keywords.csv`;
-              a.click();
-              window.URL.revokeObjectURL(url);
-            }} />
-          </CardContent>
+          {showGroups && (
+            <CardContent>
+              <KeywordGroups groups={keywordGroups} onExport={(group) => {
+                const csv = 'Keyword,Search Volume,Competition,Title Density\n' + 
+                  group.keywords.map(k => 
+                    `"${k['Keyword Phrase']}",${k.searchVolume},${k.competingProducts},${k.titleDensity}`
+                  ).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${group.name.replace(/\s+/g, '_')}_keywords.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+              }} />
+            </CardContent>
+          )}
         </Card>
       )}
 
