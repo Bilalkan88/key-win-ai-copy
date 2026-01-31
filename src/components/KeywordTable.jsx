@@ -262,7 +262,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                               <span className="line-clamp-2 group-hover/kw:scale-110 group-hover/kw:font-semibold transition-all duration-200 origin-left">
                                 {row['Keyword Phrase']}
                               </span>
-                              <Copy className="w-3.5 h-3.5 opacity-0 group-hover/kw:opacity-100 text-indigo-500 transition-opacity flex-shrink-0" />
+                              <Copy className="w-3.5 h-3.5 ml-3 opacity-0 group-hover/kw:opacity-100 text-blue-600 transition-opacity flex-shrink-0" />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent>
