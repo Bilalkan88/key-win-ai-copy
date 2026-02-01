@@ -149,6 +149,27 @@ export default function ResultsSection({
       {/* Dashboard Metrics */}
       <DashboardMetrics data={processedData} />
 
+      {/* Detailed Breakdown */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="flex flex-wrap gap-2"
+      >
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg text-sm">
+          <span className="text-slate-500">Short keywords:</span>
+          <span className="font-semibold text-slate-700">{stats.excludedShort}</span>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg text-sm">
+          <span className="text-slate-500">Branded:</span>
+          <span className="font-semibold text-slate-700">{stats.excludedBranded}</span>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg text-sm">
+          <span className="text-slate-500">Unclear intent:</span>
+          <span className="font-semibold text-slate-700">{stats.excludedUnclear}</span>
+        </div>
+      </motion.div>
+
       {/* Charts Section */}
       <Card>
         <CardHeader>
