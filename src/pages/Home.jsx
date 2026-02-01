@@ -11,7 +11,6 @@ import NavigationTabs from '@/components/NavigationTabs';
 import UploadSection from '@/components/sections/UploadSection';
 import ResultsSection from '@/components/sections/ResultsSection';
 import FeedbackTab from '@/components/sections/FeedbackTab';
-import SavedKeywordsSection from '@/components/sections/SavedKeywordsSection';
 import FilterSettings from '@/components/FilterSettings';
 import { Input } from "@/components/ui/input";
 
@@ -49,10 +48,6 @@ export default function Home() {
   const [isGrouping, setIsGrouping] = useState(false);
   const [groupingCriteria, setGroupingCriteria] = useState('');
   const [autoCluster, setAutoCluster] = useState(true);
-  const [savedKeywords, setSavedKeywords] = useState(() => {
-    const saved = localStorage.getItem('savedKeywords');
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -380,43 +375,6 @@ Return JSON:`,
     }
   };
 
-  const handleToggleSaveKeyword = (keyword) => {
-    setSavedKeywords(prev => {
-      const newSet = new Set(prev);
-      const keywordPhrase = keyword['Keyword Phrase'];
-      
-      if (newSet.has(keywordPhrase)) {
-        newSet.delete(keywordPhrase);
-        toast.success('Removed from saved keywords');
-      } else {
-        newSet.add(keywordPhrase);
-        toast.success('Saved keyword');
-      }
-      
-      localStorage.setItem('savedKeywords', JSON.stringify([...newSet]));
-      return newSet;
-    });
-  };
-
-  const handleRemoveSavedKeyword = (keywordPhrase) => {
-    setSavedKeywords(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(keywordPhrase);
-      localStorage.setItem('savedKeywords', JSON.stringify([...newSet]));
-      toast.success('Removed from saved keywords');
-      return newSet;
-    });
-  };
-
-  const getSavedKeywordsData = () => {
-    return processedData
-      .filter(row => savedKeywords.has(row['Keyword Phrase']))
-      .map(row => ({
-        ...row,
-        savedDate: Date.now()
-      }));
-  };
-
   const groupKeywords = async (selectedKeywords) => {
     if (processedData.length === 0) return;
     
@@ -495,7 +453,7 @@ Return JSON:`,
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
-      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -654,16 +612,6 @@ Return JSON:`,
               onGroupingCriteriaChange={setGroupingCriteria}
               autoCluster={autoCluster}
               onAutoClusterChange={setAutoCluster}
-              onReset={handleReset}
-              savedKeywords={savedKeywords}
-              onToggleSaveKeyword={handleToggleSaveKeyword}
-            />
-          )}
-
-          {activeTab === 'saved' && (
-            <SavedKeywordsSection
-              savedKeywords={getSavedKeywordsData()}
-              onRemoveKeyword={handleRemoveSavedKeyword}
             />
           )}
 

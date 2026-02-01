@@ -5,21 +5,19 @@ import { motion } from 'framer-motion';
 
 const MetricCard = ({ icon: Icon, title, value, subtitle, color, delay }) => (
   <motion.div
-    initial={{ opacity: 0, y: 10 }}
+    initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
   >
-    <Card className="hover:shadow-md transition-shadow border-slate-200">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <CardTitle className="text-xs font-medium text-slate-600">{title}</CardTitle>
-          <div className={`p-2 rounded-lg ${color}`}>
-            <Icon className="w-4 h-4 text-white" />
-          </div>
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium text-slate-600">{title}</CardTitle>
+        <div className={`p-2 rounded-lg ${color}`}>
+          <Icon className="w-4 h-4 text-white" />
         </div>
-        <div className="text-2xl font-bold text-slate-900">
-          {value}
-        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold text-slate-900">{value}</div>
         {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
       </CardContent>
     </Card>
