@@ -148,7 +148,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
         `}</style>
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader>
+            <TableHeader className="sticky top-0 z-10">
               <TableRow className="bg-slate-50 hover:bg-slate-50">
                 <TableHead className={`w-16 text-center font-semibold text-slate-700 ${COLUMN_CLASSES.number}`}>#</TableHead>
                 <TableHead className={`w-12 ${COLUMN_CLASSES.checkbox}`}>
