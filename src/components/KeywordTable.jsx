@@ -134,6 +134,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
       transition={{ delay: 0.3 }}
     >
       <Card className="mt-6 overflow-hidden">
+        <div className="max-h-[800px] overflow-y-auto">
         <style>{`
           .col-number:hover, .col-number:hover ~ * { background-color: rgba(241, 245, 249, 0.6) !important; }
           .col-checkbox:hover, .col-checkbox:hover ~ * { background-color: rgba(241, 245, 249, 0.6) !important; }
@@ -146,9 +147,8 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
           .col-serp:hover, .col-serp:hover ~ * { background-color: rgba(245, 243, 255, 0.6) !important; }
           .col-amazon:hover, .col-amazon:hover ~ * { background-color: rgba(238, 242, 255, 0.6) !important; }
         `}</style>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
+        <Table>
+          <TableHeader className="sticky top-0 z-10 bg-slate-50">
               <TableRow className="bg-slate-50 hover:bg-slate-50">
                 <TableHead className={`w-16 text-center font-semibold text-slate-700 ${COLUMN_CLASSES.number}`}>#</TableHead>
                 <TableHead className={`w-12 ${COLUMN_CLASSES.checkbox}`}>
