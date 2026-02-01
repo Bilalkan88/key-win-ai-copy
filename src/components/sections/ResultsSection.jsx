@@ -603,7 +603,7 @@ export default function ResultsSection({
                           <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Keyword density in product titles (%)</p>
+                          <p>Number of Products Using the Keyword in Their Title on Page 1</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
