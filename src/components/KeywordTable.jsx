@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { motion } from 'framer-motion';
+import { Info } from 'lucide-react';
 
 const formatNumber = (num) => {
   if (num === null || num === undefined) return '-';
@@ -147,54 +148,114 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   </div>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
-                  <button 
-                    onClick={() => handleSort('opportunity')}
-                    className="group flex items-center justify-end gap-1.5 w-full hover:text-indigo-600 transition-colors"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    Score
-                    {getSortIcon('opportunity')}
-                  </button>
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button 
+                      onClick={() => handleSort('opportunity')}
+                      className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Score
+                      {getSortIcon('opportunity')}
+                    </button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>A Score Reflecting Search Demand, Sales Volume, and Competition Level: Higher Scores Mean Stronger Demand and Sales with Fewer Competitors</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
-                  <button 
-                    onClick={() => handleSort('search_volume')}
-                    className="group flex items-center justify-end gap-1.5 w-full hover:text-indigo-600 transition-colors"
-                  >
-                    <TrendingUp className="w-4 h-4" />
-                    Volume
-                    {getSortIcon('search_volume')}
-                  </button>
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button 
+                      onClick={() => handleSort('search_volume')}
+                      className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
+                    >
+                      <TrendingUp className="w-4 h-4" />
+                      Volume
+                      {getSortIcon('search_volume')}
+                    </button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Amazon Monthly Search Volume (Estimated)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
-                  <button 
-                    onClick={() => handleSort('competing')}
-                    className="group flex items-center justify-end gap-1.5 w-full hover:text-indigo-600 transition-colors"
-                  >
-                    <Users className="w-4 h-4" />
-                    Competition
-                    {getSortIcon('competing')}
-                  </button>
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button 
+                      onClick={() => handleSort('competing')}
+                      className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
+                    >
+                      <Users className="w-4 h-4" />
+                      Competition
+                      {getSortIcon('competing')}
+                    </button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Total Number of Products Returned for This Keyword/Phrase<br />(Approximate keyword distribution, not exact competition. Rank is derived from Amazon's algorithms, including organic ranking, advertising, and recommendation logic.)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
-                  <button 
-                    onClick={() => handleSort('title_density')}
-                    className="group flex items-center justify-end gap-1.5 w-full hover:text-indigo-600 transition-colors"
-                  >
-                    <Hash className="w-4 h-4" />
-                    Title Density
-                    {getSortIcon('title_density')}
-                  </button>
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button 
+                      onClick={() => handleSort('title_density')}
+                      className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
+                    >
+                      <Hash className="w-4 h-4" />
+                      Title Density
+                      {getSortIcon('title_density')}
+                    </button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Number of Products Using the Keyword in Their Title on Page 1</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-right">
-                  <button 
-                    onClick={() => handleSort('keyword_sales')}
-                    className="group flex items-center justify-end gap-1.5 w-full hover:text-indigo-600 transition-colors"
-                  >
-                    <ShoppingCart className="w-4 h-4" />
-                    Sales
-                    {getSortIcon('keyword_sales')}
-                  </button>
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button 
+                      onClick={() => handleSort('keyword_sales')}
+                      className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      Sales
+                      {getSortIcon('keyword_sales')}
+                    </button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Estimated monthly sales for this keyword</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-center">SERP</TableHead>
                 <TableHead className="font-semibold text-slate-700 text-center">Amazon</TableHead>
