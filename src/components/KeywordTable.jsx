@@ -173,7 +173,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   </div>
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.score}`}>
-                  <div className="flex items-center justify-center gap-1.5">
+                  <div className="flex items-center justify-center gap-1">
                     <button 
                       onClick={() => handleSort('opportunity')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
@@ -195,7 +195,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   </div>
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.volume}`}>
-                  <div className="flex items-center justify-center gap-1.5">
+                  <div className="flex items-center justify-center gap-1">
                     <button 
                       onClick={() => handleSort('search_volume')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
@@ -217,7 +217,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   </div>
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.competition}`}>
-                  <div className="flex items-center justify-center gap-1.5">
+                  <div className="flex items-center justify-center gap-1">
                     <button 
                       onClick={() => handleSort('competing')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
@@ -239,7 +239,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   </div>
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.titleDensity}`}>
-                  <div className="flex items-center justify-center gap-1.5">
+                  <div className="flex items-center justify-center gap-1">
                     <button 
                       onClick={() => handleSort('title_density')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
@@ -261,7 +261,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   </div>
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.sales}`}>
-                  <div className="flex items-center justify-center gap-1.5">
+                  <div className="flex items-center justify-center gap-1">
                     <button 
                       onClick={() => handleSort('keyword_sales')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
