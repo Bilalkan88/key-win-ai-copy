@@ -146,9 +146,9 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
           .col-serp:hover, .col-serp:hover ~ * { background-color: rgba(245, 243, 255, 0.6) !important; }
           .col-amazon:hover, .col-amazon:hover ~ * { background-color: rgba(238, 242, 255, 0.6) !important; }
         `}</style>
-        <div className="overflow-x-auto max-h-[calc(100vh-300px)] overflow-y-auto">
+        <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="sticky top-0 z-10 bg-slate-50">
+            <TableHeader className="sticky top-0 z-10">
               <TableRow className="bg-slate-50 hover:bg-slate-50">
                 <TableHead className={`w-16 text-center font-semibold text-slate-700 ${COLUMN_CLASSES.number}`}>#</TableHead>
                 <TableHead className={`w-12 ${COLUMN_CLASSES.checkbox}`}>
