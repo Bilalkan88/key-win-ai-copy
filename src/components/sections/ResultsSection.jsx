@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Search, ArrowUpDown, Trash2, Sparkles, Loader2, Upload, Download, Filter, X, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -464,7 +465,16 @@ export default function ResultsSection({
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5 mb-2">
                     <label className="text-sm font-medium text-slate-700">Score</label>
-                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>AI-driven opportunity score (0-100)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <div className="flex gap-2">
                     <Input
@@ -488,7 +498,16 @@ export default function ResultsSection({
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5 mb-2">
                     <label className="text-sm font-medium text-slate-700">Word Count</label>
-                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Number of words in keyword phrase</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <div className="flex gap-2">
                     <Input
@@ -512,7 +531,16 @@ export default function ResultsSection({
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5 mb-2">
                     <label className="text-sm font-medium text-slate-700">Search Volume</label>
-                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Monthly search volume on Amazon</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <div className="flex gap-2">
                     <Input
@@ -536,7 +564,16 @@ export default function ResultsSection({
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5 mb-2">
                     <label className="text-sm font-medium text-slate-700">Competition</label>
-                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Number of competing products</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <div className="flex gap-2">
                     <Input
@@ -560,7 +597,16 @@ export default function ResultsSection({
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5 mb-2">
                     <label className="text-sm font-medium text-slate-700">Title Density</label>
-                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Keyword density in product titles (%)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <div className="flex gap-2">
                     <Input
@@ -578,7 +624,16 @@ export default function ResultsSection({
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5 mb-2">
                     <label className="text-sm font-medium text-slate-700">Sales</label>
-                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Estimated monthly sales for this keyword</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <div className="flex gap-2">
                     <Input
