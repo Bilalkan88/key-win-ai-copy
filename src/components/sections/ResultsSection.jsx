@@ -33,7 +33,9 @@ export default function ResultsSection({
   onGroupingCriteriaChange,
   autoCluster,
   onAutoClusterChange,
-  onReset
+  onReset,
+  savedKeywords = new Set(),
+  onToggleSaveKeyword
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('search_volume_desc');
@@ -840,6 +842,8 @@ export default function ResultsSection({
         onSortChange={setSortBy}
         onDeleteRow={handleDeleteRow}
         startIndex={startIndex}
+        savedKeywords={savedKeywords}
+        onToggleSaveKeyword={onToggleSaveKeyword}
       />
 
       {/* Excluded Keywords Section */}
