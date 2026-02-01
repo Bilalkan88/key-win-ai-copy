@@ -51,6 +51,20 @@ export default function ResultsSection({
   const [minVolume, setMinVolume] = useState('');
   const [maxVolume, setMaxVolume] = useState('');
   const [maxTitleDensity, setMaxTitleDensity] = useState('');
+  const [minWordCount, setMinWordCount] = useState('');
+  const [maxWordCount, setMaxWordCount] = useState('');
+  
+  const [appliedFilters, setAppliedFilters] = useState({
+    minSales: '',
+    maxSales: '',
+    minCompetition: '',
+    maxCompetition: '',
+    minVolume: '',
+    maxVolume: '',
+    maxTitleDensity: '',
+    minWordCount: '',
+    maxWordCount: ''
+  });
 
   const sortedAndFilteredData = useMemo(() => {
     let data = [...processedData];
@@ -65,27 +79,39 @@ export default function ResultsSection({
       data = data.filter(row => isProfitableKeyword(row));
     }
 
-    // Advanced filters
-    if (minSales) {
-      data = data.filter(row => (row.keywordSales || 0) >= parseInt(minSales));
+    // Advanced filters - use appliedFilters instead of immediate state
+    if (appliedFilters.minSales) {
+      data = data.filter(row => (row.keywordSales || 0) >= parseInt(appliedFilters.minSales));
     }
-    if (maxSales) {
-      data = data.filter(row => (row.keywordSales || 0) <= parseInt(maxSales));
+    if (appliedFilters.maxSales) {
+      data = data.filter(row => (row.keywordSales || 0) <= parseInt(appliedFilters.maxSales));
     }
-    if (minCompetition) {
-      data = data.filter(row => row.competingProducts >= parseInt(minCompetition));
+    if (appliedFilters.minCompetition) {
+      data = data.filter(row => row.competingProducts >= parseInt(appliedFilters.minCompetition));
     }
-    if (maxCompetition) {
-      data = data.filter(row => row.competingProducts <= parseInt(maxCompetition));
+    if (appliedFilters.maxCompetition) {
+      data = data.filter(row => row.competingProducts <= parseInt(appliedFilters.maxCompetition));
     }
-    if (minVolume) {
-      data = data.filter(row => row.searchVolume >= parseInt(minVolume));
+    if (appliedFilters.minVolume) {
+      data = data.filter(row => row.searchVolume >= parseInt(appliedFilters.minVolume));
     }
-    if (maxVolume) {
-      data = data.filter(row => row.searchVolume <= parseInt(maxVolume));
+    if (appliedFilters.maxVolume) {
+      data = data.filter(row => row.searchVolume <= parseInt(appliedFilters.maxVolume));
     }
-    if (maxTitleDensity) {
-      data = data.filter(row => row.titleDensity <= parseFloat(maxTitleDensity));
+    if (appliedFilters.maxTitleDensity) {
+      data = data.filter(row => row.titleDensity <= parseFloat(appliedFilters.maxTitleDensity));
+    }
+    if (appliedFilters.minWordCount) {
+      data = data.filter(row => {
+        const wordCount = row['Keyword Phrase'].split(' ').length;
+        return wordCount >= parseInt(appliedFilters.minWordCount);
+      });
+    }
+    if (appliedFilters.maxWordCount) {
+      data = data.filter(row => {
+        const wordCount = row['Keyword Phrase'].split(' ').length;
+        return wordCount <= parseInt(appliedFilters.maxWordCount);
+      });
     }
 
     switch (sortBy) {
@@ -118,7 +144,7 @@ export default function ResultsSection({
     }
 
     return data;
-  }, [processedData, searchTerm, sortBy, showOnlyProfitable, minSales, maxSales, minCompetition, maxCompetition, minVolume, maxVolume, maxTitleDensity]);
+  }, [processedData, searchTerm, sortBy, showOnlyProfitable, appliedFilters]);
 
   const totalPages = Math.ceil(sortedAndFilteredData.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
@@ -128,7 +154,7 @@ export default function ResultsSection({
   // Reset to page 1 when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, sortBy, showOnlyProfitable, pageSize, minSales, maxSales, minCompetition, maxCompetition, minVolume, maxVolume, maxTitleDensity]);
+  }, [searchTerm, sortBy, showOnlyProfitable, pageSize, appliedFilters]);
 
   const handleDeleteSelected = () => {
     onDeleteKeywords(selectedKeywords);
@@ -174,6 +200,45 @@ export default function ResultsSection({
       setCurrentPage(1);
       setCustomPageSize('');
     }
+  };
+
+  const handleApplyFilters = () => {
+    setAppliedFilters({
+      minSales,
+      maxSales,
+      minCompetition,
+      maxCompetition,
+      minVolume,
+      maxVolume,
+      maxTitleDensity,
+      minWordCount,
+      maxWordCount
+    });
+    toast.success('Filters applied successfully');
+  };
+
+  const handleClearFilters = () => {
+    setMinSales('');
+    setMaxSales('');
+    setMinCompetition('');
+    setMaxCompetition('');
+    setMinVolume('');
+    setMaxVolume('');
+    setMaxTitleDensity('');
+    setMinWordCount('');
+    setMaxWordCount('');
+    setAppliedFilters({
+      minSales: '',
+      maxSales: '',
+      minCompetition: '',
+      maxCompetition: '',
+      minVolume: '',
+      maxVolume: '',
+      maxTitleDensity: '',
+      minWordCount: '',
+      maxWordCount: ''
+    });
+    toast.success('Filters cleared');
   };
 
   return (
@@ -352,23 +417,29 @@ export default function ResultsSection({
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Advanced Filters</CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setMinSales('');
-                    setMaxSales('');
-                    setMinCompetition('');
-                    setMaxCompetition('');
-                    setMinVolume('');
-                    setMaxVolume('');
-                    setMaxTitleDensity('');
-                  }}
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Clear All
-                </Button>
+                <div>
+                  <CardTitle className="text-lg">Advanced Filters</CardTitle>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Showing {sortedAndFilteredData.length} of {processedData.length} keywords
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearFilters}
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Clear All
+                  </Button>
+                  <Button
+                    onClick={handleApplyFilters}
+                    className="bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    <Filter className="w-4 h-4 mr-2" />
+                    Apply Filters
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -435,6 +506,24 @@ export default function ResultsSection({
                     placeholder="e.g., 20"
                     value={maxTitleDensity}
                     onChange={(e) => setMaxTitleDensity(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Min Word Count</label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 2"
+                    value={minWordCount}
+                    onChange={(e) => setMinWordCount(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Max Word Count</label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 5"
+                    value={maxWordCount}
+                    onChange={(e) => setMaxWordCount(e.target.value)}
                   />
                 </div>
               </div>
