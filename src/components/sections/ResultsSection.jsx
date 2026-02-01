@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, ArrowUpDown, Trash2, Sparkles, Loader2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { Search, ArrowUpDown, Trash2, Sparkles, Loader2, Upload, Download, Filter, X, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import FilterSummary from '@/components/FilterSummary';
@@ -31,7 +32,10 @@ export default function ResultsSection({
   groupingCriteria,
   onGroupingCriteriaChange,
   autoCluster,
-  onAutoClusterChange
+  onAutoClusterChange,
+  onReset,
+  savedKeywords = new Set(),
+  onToggleSaveKeyword
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('search_volume_desc');
@@ -42,6 +46,32 @@ export default function ResultsSection({
   const [pageSize, setPageSize] = useState(100);
   const [customPageSize, setCustomPageSize] = useState('');
   const [showGroups, setShowGroups] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [minSales, setMinSales] = useState('');
+  const [maxSales, setMaxSales] = useState('');
+  const [minCompetition, setMinCompetition] = useState('');
+  const [maxCompetition, setMaxCompetition] = useState('');
+  const [minVolume, setMinVolume] = useState('');
+  const [maxVolume, setMaxVolume] = useState('');
+  const [maxTitleDensity, setMaxTitleDensity] = useState('');
+  const [minWordCount, setMinWordCount] = useState('');
+  const [maxWordCount, setMaxWordCount] = useState('');
+  const [minScore, setMinScore] = useState('');
+  const [maxScore, setMaxScore] = useState('');
+  
+  const [appliedFilters, setAppliedFilters] = useState({
+    minSales: '',
+    maxSales: '',
+    minCompetition: '',
+    maxCompetition: '',
+    minVolume: '',
+    maxVolume: '',
+    maxTitleDensity: '',
+    minWordCount: '',
+    maxWordCount: '',
+    minScore: '',
+    maxScore: ''
+  });
 
   const sortedAndFilteredData = useMemo(() => {
     let data = [...processedData];
@@ -54,6 +84,47 @@ export default function ResultsSection({
 
     if (showOnlyProfitable) {
       data = data.filter(row => isProfitableKeyword(row));
+    }
+
+    // Advanced filters - use appliedFilters instead of immediate state
+    if (appliedFilters.minSales) {
+      data = data.filter(row => (row.keywordSales || 0) >= parseInt(appliedFilters.minSales));
+    }
+    if (appliedFilters.maxSales) {
+      data = data.filter(row => (row.keywordSales || 0) <= parseInt(appliedFilters.maxSales));
+    }
+    if (appliedFilters.minCompetition) {
+      data = data.filter(row => row.competingProducts >= parseInt(appliedFilters.minCompetition));
+    }
+    if (appliedFilters.maxCompetition) {
+      data = data.filter(row => row.competingProducts <= parseInt(appliedFilters.maxCompetition));
+    }
+    if (appliedFilters.minVolume) {
+      data = data.filter(row => row.searchVolume >= parseInt(appliedFilters.minVolume));
+    }
+    if (appliedFilters.maxVolume) {
+      data = data.filter(row => row.searchVolume <= parseInt(appliedFilters.maxVolume));
+    }
+    if (appliedFilters.maxTitleDensity) {
+      data = data.filter(row => row.titleDensity <= parseFloat(appliedFilters.maxTitleDensity));
+    }
+    if (appliedFilters.minWordCount) {
+      data = data.filter(row => {
+        const wordCount = row['Keyword Phrase'].split(' ').length;
+        return wordCount >= parseInt(appliedFilters.minWordCount);
+      });
+    }
+    if (appliedFilters.maxWordCount) {
+      data = data.filter(row => {
+        const wordCount = row['Keyword Phrase'].split(' ').length;
+        return wordCount <= parseInt(appliedFilters.maxWordCount);
+      });
+    }
+    if (appliedFilters.minScore) {
+      data = data.filter(row => (row.opportunityScore || 0) >= parseInt(appliedFilters.minScore));
+    }
+    if (appliedFilters.maxScore) {
+      data = data.filter(row => (row.opportunityScore || 0) <= parseInt(appliedFilters.maxScore));
     }
 
     switch (sortBy) {
@@ -86,7 +157,7 @@ export default function ResultsSection({
     }
 
     return data;
-  }, [processedData, searchTerm, sortBy, showOnlyProfitable]);
+  }, [processedData, searchTerm, sortBy, showOnlyProfitable, appliedFilters]);
 
   const totalPages = Math.ceil(sortedAndFilteredData.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
@@ -96,7 +167,7 @@ export default function ResultsSection({
   // Reset to page 1 when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, sortBy, showOnlyProfitable, pageSize]);
+  }, [searchTerm, sortBy, showOnlyProfitable, pageSize, appliedFilters]);
 
   const handleDeleteSelected = () => {
     onDeleteKeywords(selectedKeywords);
@@ -105,6 +176,26 @@ export default function ResultsSection({
 
   const handleDeleteRow = (keyword) => {
     onDeleteKeywords(new Set([keyword]));
+  };
+
+  const handleExportSelected = () => {
+    const selectedData = processedData.filter(row => 
+      selectedKeywords.has(row['Keyword Phrase'])
+    );
+    
+    const csv = 'Keyword,Score,Search Volume,Competition,Title Density,Keyword Sales\n' + 
+      selectedData.map(row => 
+        `"${row['Keyword Phrase']}",${row.opportunityScore || 0},${row.searchVolume},${row.competingProducts},${row.titleDensity},${row.keywordSales || 0}`
+      ).join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `selected_keywords_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+    toast.success(`Exported ${selectedData.length} keywords`);
   };
 
   const handlePageSizeChange = (value) => {
@@ -124,13 +215,95 @@ export default function ResultsSection({
     }
   };
 
+  const handleApplyFilters = () => {
+    setAppliedFilters({
+      minSales,
+      maxSales,
+      minCompetition,
+      maxCompetition,
+      minVolume,
+      maxVolume,
+      maxTitleDensity,
+      minWordCount,
+      maxWordCount,
+      minScore,
+      maxScore
+    });
+    toast.success('Filters applied successfully');
+  };
+
+  const handleClearFilters = () => {
+    setMinSales('');
+    setMaxSales('');
+    setMinCompetition('');
+    setMaxCompetition('');
+    setMinVolume('');
+    setMaxVolume('');
+    setMaxTitleDensity('');
+    setMinWordCount('');
+    setMaxWordCount('');
+    setMinScore('');
+    setMaxScore('');
+    setAppliedFilters({
+      minSales: '',
+      maxSales: '',
+      minCompetition: '',
+      maxCompetition: '',
+      minVolume: '',
+      maxVolume: '',
+      maxTitleDensity: '',
+      minWordCount: '',
+      maxWordCount: '',
+      minScore: '',
+      maxScore: ''
+    });
+    toast.success('Filters cleared');
+  };
+
   return (
     <div className="space-y-8">
+      {/* Upload New File Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center"
+      >
+        <Button
+          variant="outline"
+          onClick={onReset}
+          className="text-slate-600 hover:text-slate-800"
+        >
+          <Upload className="w-4 h-4 mr-2" />
+          Upload New File
+        </Button>
+      </motion.div>
+
       {/* Summary Stats */}
       <FilterSummary stats={stats} />
 
       {/* Dashboard Metrics */}
       <DashboardMetrics data={processedData} />
+
+      {/* Detailed Breakdown */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="flex flex-wrap gap-2"
+      >
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg text-sm">
+          <span className="text-slate-500">Short keywords:</span>
+          <span className="font-semibold text-slate-700">{stats.excludedShort}</span>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg text-sm">
+          <span className="text-slate-500">Branded:</span>
+          <span className="font-semibold text-slate-700">{stats.excludedBranded}</span>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg text-sm">
+          <span className="text-slate-500">Unclear intent:</span>
+          <span className="font-semibold text-slate-700">{stats.excludedUnclear}</span>
+        </div>
+      </motion.div>
 
       {/* Charts Section */}
       <Card>
@@ -253,6 +426,240 @@ export default function ResultsSection({
         </CardContent>
       </Card>
 
+      {/* Advanced Filters */}
+      {showAdvancedFilters && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+        >
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg">Advanced Filters</CardTitle>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Showing {sortedAndFilteredData.length} of {processedData.length} keywords
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearFilters}
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Clear All
+                  </Button>
+                  <Button
+                    onClick={handleApplyFilters}
+                    className="bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    <Filter className="w-4 h-4 mr-2" />
+                    Apply Filters
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                {/* Score */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Score</label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>A Score Reflecting Search Demand, Sales Volume, and Competition Level: Higher Scores Mean Stronger Demand and Sales with Fewer Competitors</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    </div>
+                    <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={minScore}
+                      onChange={(e) => setMinScore(e.target.value)}
+                      className="h-9"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={maxScore}
+                      onChange={(e) => setMaxScore(e.target.value)}
+                      className="h-9"
+                    />
+                    </div>
+                    </div>
+
+                    {/* Word Count */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Word Count</label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Number of words in keyword phrase</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={minWordCount}
+                      onChange={(e) => setMinWordCount(e.target.value)}
+                      className="h-9"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={maxWordCount}
+                      onChange={(e) => setMaxWordCount(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
+                </div>
+
+                {/* Search Volume */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Search Volume</label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Amazon Monthly Search Volume (Estimated)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={minVolume}
+                      onChange={(e) => setMinVolume(e.target.value)}
+                      className="h-9"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={maxVolume}
+                      onChange={(e) => setMaxVolume(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
+                </div>
+
+                {/* Competition */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Competition</label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Total Number of Products Returned for This Keyword/Phrase<br />(Approximate keyword distribution, not exact competition. Rank is derived from Amazon's algorithms, including organic ranking, advertising, and recommendation logic.)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    </div>
+                    <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={minCompetition}
+                      onChange={(e) => setMinCompetition(e.target.value)}
+                      className="h-9"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={maxCompetition}
+                      onChange={(e) => setMaxCompetition(e.target.value)}
+                      className="h-9"
+                    />
+                    </div>
+                    </div>
+
+                    {/* Title Density */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Title Density</label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Number of Products Using the Keyword in Their Title on Page 1</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      step="0.1"
+                      placeholder="Max"
+                      value={maxTitleDensity}
+                      onChange={(e) => setMaxTitleDensity(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
+                </div>
+
+                {/* Sales */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Sales</label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Estimated monthly sales for this keyword</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={minSales}
+                      onChange={(e) => setMinSales(e.target.value)}
+                      className="h-9"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={maxSales}
+                      onChange={(e) => setMaxSales(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
       {/* Controls */}
       <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
         <div className="flex flex-col sm:flex-row gap-4 flex-1">
@@ -282,17 +689,36 @@ export default function ResultsSection({
         </div>
         
         <div className="flex gap-3">
+          <Button
+            variant={showAdvancedFilters ? "default" : "outline"}
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className="h-11"
+          >
+            <Filter className="w-4 h-4 mr-2" />
+            {showAdvancedFilters ? "Hide Filters" : "Advanced Filters"}
+          </Button>
+
           {selectedKeywords.size > 0 && (
-            <Button
-              variant="destructive"
-              onClick={handleDeleteSelected}
-              className="h-11"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete ({selectedKeywords.size})
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={handleExportSelected}
+                className="h-11"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export ({selectedKeywords.size})
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteSelected}
+                className="h-11"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete ({selectedKeywords.size})
+              </Button>
+            </>
           )}
-          
+
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-48 h-11">
               <ArrowUpDown className="w-4 h-4 mr-2 text-slate-400" />
@@ -416,6 +842,8 @@ export default function ResultsSection({
         onSortChange={setSortBy}
         onDeleteRow={handleDeleteRow}
         startIndex={startIndex}
+        savedKeywords={savedKeywords}
+        onToggleSaveKeyword={onToggleSaveKeyword}
       />
 
       {/* Excluded Keywords Section */}
