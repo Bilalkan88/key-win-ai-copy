@@ -470,7 +470,7 @@ export default function ResultsSection({
                         <TooltipTrigger asChild>
                           <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent className="max-w-xs">
                           <p>A Score Reflecting Search Demand, Sales Volume, and Competition Level: Higher Scores Mean Stronger Demand and Sales with Fewer Competitors</p>
                         </TooltipContent>
                       </Tooltip>
@@ -503,7 +503,7 @@ export default function ResultsSection({
                         <TooltipTrigger asChild>
                           <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent className="max-w-xs">
                           <p>Number of words in keyword phrase</p>
                         </TooltipContent>
                       </Tooltip>
@@ -536,7 +536,7 @@ export default function ResultsSection({
                         <TooltipTrigger asChild>
                           <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent className="max-w-xs">
                           <p>Amazon Monthly Search Volume (Estimated)</p>
                         </TooltipContent>
                       </Tooltip>
@@ -569,7 +569,7 @@ export default function ResultsSection({
                         <TooltipTrigger asChild>
                           <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent className="max-w-xs">
                           <p>Total Number of Products Returned for This Keyword/Phrase<br />(Approximate keyword distribution, not exact competition. Rank is derived from Amazon's algorithms, including organic ranking, advertising, and recommendation logic.)</p>
                         </TooltipContent>
                       </Tooltip>
@@ -602,7 +602,7 @@ export default function ResultsSection({
                         <TooltipTrigger asChild>
                           <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent className="max-w-xs">
                           <p>Number of Products Using the Keyword in Their Title on Page 1</p>
                         </TooltipContent>
                       </Tooltip>
@@ -629,7 +629,7 @@ export default function ResultsSection({
                         <TooltipTrigger asChild>
                           <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent className="max-w-xs">
                           <p>Estimated monthly sales for this keyword</p>
                         </TooltipContent>
                       </Tooltip>
