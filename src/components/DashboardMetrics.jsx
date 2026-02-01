@@ -5,20 +5,22 @@ import { motion } from 'framer-motion';
 
 const MetricCard = ({ icon: Icon, title, value, subtitle, color, delay }) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay }}
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ delay, type: "spring", stiffness: 200 }}
   >
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-slate-600">{title}</CardTitle>
-        <div className={`p-2 rounded-lg ${color}`}>
-          <Icon className="w-4 h-4 text-white" />
+    <Card className="hover:shadow-xl transition-all duration-300 border-none shadow-md bg-gradient-to-br from-white to-slate-50 group">
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between mb-3">
+          <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{title}</CardTitle>
+          <div className={`p-2.5 rounded-xl ${color} shadow-md group-hover:scale-110 transition-transform duration-300`}>
+            <Icon className="w-4 h-4 text-white" />
+          </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-slate-900">{value}</div>
-        {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
+        <div className="text-3xl font-bold bg-gradient-to-br from-slate-900 to-slate-600 bg-clip-text text-transparent mb-1">
+          {value}
+        </div>
+        {subtitle && <p className="text-xs text-slate-500 font-medium">{subtitle}</p>}
       </CardContent>
     </Card>
   </motion.div>
