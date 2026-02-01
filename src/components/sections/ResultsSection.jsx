@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, ArrowUpDown, Trash2, Sparkles, Loader2, Upload, Download, Filter, X } from 'lucide-react';
+import { Search, ArrowUpDown, Trash2, Sparkles, Loader2, Upload, Download, Filter, X, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import FilterSummary from '@/components/FilterSummary';
@@ -443,88 +443,119 @@ export default function ResultsSection({
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {/* Word Count */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Min Sales</label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 100"
-                    value={minSales}
-                    onChange={(e) => setMinSales(e.target.value)}
-                  />
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Word Count</label>
+                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={minWordCount}
+                      onChange={(e) => setMinWordCount(e.target.value)}
+                      className="h-9"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={maxWordCount}
+                      onChange={(e) => setMaxWordCount(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
                 </div>
+
+                {/* Search Volume */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Max Sales</label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 10000"
-                    value={maxSales}
-                    onChange={(e) => setMaxSales(e.target.value)}
-                  />
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Search Volume</label>
+                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={minVolume}
+                      onChange={(e) => setMinVolume(e.target.value)}
+                      className="h-9"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={maxVolume}
+                      onChange={(e) => setMaxVolume(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
                 </div>
+
+                {/* Competition */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Min Competition</label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 0"
-                    value={minCompetition}
-                    onChange={(e) => setMinCompetition(e.target.value)}
-                  />
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Competition</label>
+                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={minCompetition}
+                      onChange={(e) => setMinCompetition(e.target.value)}
+                      className="h-9"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={maxCompetition}
+                      onChange={(e) => setMaxCompetition(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
                 </div>
+
+                {/* Title Density */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Max Competition</label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 1000"
-                    value={maxCompetition}
-                    onChange={(e) => setMaxCompetition(e.target.value)}
-                  />
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Title Density</label>
+                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      step="0.1"
+                      placeholder="Max"
+                      value={maxTitleDensity}
+                      onChange={(e) => setMaxTitleDensity(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
                 </div>
+
+                {/* Sales */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Min Volume</label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 500"
-                    value={minVolume}
-                    onChange={(e) => setMinVolume(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Max Volume</label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 50000"
-                    value={maxVolume}
-                    onChange={(e) => setMaxVolume(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Max Title Density</label>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    placeholder="e.g., 20"
-                    value={maxTitleDensity}
-                    onChange={(e) => setMaxTitleDensity(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Min Word Count</label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 2"
-                    value={minWordCount}
-                    onChange={(e) => setMinWordCount(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Max Word Count</label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 5"
-                    value={maxWordCount}
-                    onChange={(e) => setMaxWordCount(e.target.value)}
-                  />
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Sales</label>
+                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={minSales}
+                      onChange={(e) => setMinSales(e.target.value)}
+                      className="h-9"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={maxSales}
+                      onChange={(e) => setMaxSales(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
                 </div>
               </div>
             </CardContent>
