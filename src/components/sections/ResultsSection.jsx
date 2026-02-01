@@ -537,7 +537,7 @@ export default function ResultsSection({
                           <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Monthly search volume on Amazon</p>
+                          <p>Amazon Monthly Search Volume (Estimated)</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
