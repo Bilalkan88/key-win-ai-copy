@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, ArrowUpDown, Trash2, Sparkles, Loader2, Upload, Download } from 'lucide-react';
+import { Search, ArrowUpDown, Trash2, Sparkles, Loader2, Upload, Download, Filter, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import FilterSummary from '@/components/FilterSummary';
@@ -43,6 +43,14 @@ export default function ResultsSection({
   const [pageSize, setPageSize] = useState(100);
   const [customPageSize, setCustomPageSize] = useState('');
   const [showGroups, setShowGroups] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [minSales, setMinSales] = useState('');
+  const [maxSales, setMaxSales] = useState('');
+  const [minCompetition, setMinCompetition] = useState('');
+  const [maxCompetition, setMaxCompetition] = useState('');
+  const [minVolume, setMinVolume] = useState('');
+  const [maxVolume, setMaxVolume] = useState('');
+  const [maxTitleDensity, setMaxTitleDensity] = useState('');
 
   const sortedAndFilteredData = useMemo(() => {
     let data = [...processedData];
@@ -55,6 +63,29 @@ export default function ResultsSection({
 
     if (showOnlyProfitable) {
       data = data.filter(row => isProfitableKeyword(row));
+    }
+
+    // Advanced filters
+    if (minSales) {
+      data = data.filter(row => (row.keywordSales || 0) >= parseInt(minSales));
+    }
+    if (maxSales) {
+      data = data.filter(row => (row.keywordSales || 0) <= parseInt(maxSales));
+    }
+    if (minCompetition) {
+      data = data.filter(row => row.competingProducts >= parseInt(minCompetition));
+    }
+    if (maxCompetition) {
+      data = data.filter(row => row.competingProducts <= parseInt(maxCompetition));
+    }
+    if (minVolume) {
+      data = data.filter(row => row.searchVolume >= parseInt(minVolume));
+    }
+    if (maxVolume) {
+      data = data.filter(row => row.searchVolume <= parseInt(maxVolume));
+    }
+    if (maxTitleDensity) {
+      data = data.filter(row => row.titleDensity <= parseFloat(maxTitleDensity));
     }
 
     switch (sortBy) {
@@ -87,7 +118,7 @@ export default function ResultsSection({
     }
 
     return data;
-  }, [processedData, searchTerm, sortBy, showOnlyProfitable]);
+  }, [processedData, searchTerm, sortBy, showOnlyProfitable, minSales, maxSales, minCompetition, maxCompetition, minVolume, maxVolume, maxTitleDensity]);
 
   const totalPages = Math.ceil(sortedAndFilteredData.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
@@ -97,7 +128,7 @@ export default function ResultsSection({
   // Reset to page 1 when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, sortBy, showOnlyProfitable, pageSize]);
+  }, [searchTerm, sortBy, showOnlyProfitable, pageSize, minSales, maxSales, minCompetition, maxCompetition, minVolume, maxVolume, maxTitleDensity]);
 
   const handleDeleteSelected = () => {
     onDeleteKeywords(selectedKeywords);
@@ -311,6 +342,107 @@ export default function ResultsSection({
         </CardContent>
       </Card>
 
+      {/* Advanced Filters */}
+      {showAdvancedFilters && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+        >
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Advanced Filters</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setMinSales('');
+                    setMaxSales('');
+                    setMinCompetition('');
+                    setMaxCompetition('');
+                    setMinVolume('');
+                    setMaxVolume('');
+                    setMaxTitleDensity('');
+                  }}
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Clear All
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Min Sales</label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 100"
+                    value={minSales}
+                    onChange={(e) => setMinSales(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Max Sales</label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 10000"
+                    value={maxSales}
+                    onChange={(e) => setMaxSales(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Min Competition</label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 0"
+                    value={minCompetition}
+                    onChange={(e) => setMinCompetition(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Max Competition</label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 1000"
+                    value={maxCompetition}
+                    onChange={(e) => setMaxCompetition(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Min Volume</label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 500"
+                    value={minVolume}
+                    onChange={(e) => setMinVolume(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Max Volume</label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 50000"
+                    value={maxVolume}
+                    onChange={(e) => setMaxVolume(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Max Title Density</label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    placeholder="e.g., 20"
+                    value={maxTitleDensity}
+                    onChange={(e) => setMaxTitleDensity(e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
       {/* Controls */}
       <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
         <div className="flex flex-col sm:flex-row gap-4 flex-1">
@@ -340,6 +472,15 @@ export default function ResultsSection({
         </div>
         
         <div className="flex gap-3">
+          <Button
+            variant={showAdvancedFilters ? "default" : "outline"}
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className="h-11"
+          >
+            <Filter className="w-4 h-4 mr-2" />
+            {showAdvancedFilters ? "Hide Filters" : "Advanced Filters"}
+          </Button>
+
           {selectedKeywords.size > 0 && (
             <>
               <Button
@@ -360,7 +501,7 @@ export default function ResultsSection({
               </Button>
             </>
           )}
-          
+
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-48 h-11">
               <ArrowUpDown className="w-4 h-4 mr-2 text-slate-400" />
