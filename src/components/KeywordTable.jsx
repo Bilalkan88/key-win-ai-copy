@@ -17,6 +17,19 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 import { motion } from 'framer-motion';
 import { Info } from 'lucide-react';
 
+const COLUMN_CLASSES = {
+  number: 'col-number',
+  checkbox: 'col-checkbox',
+  keyword: 'col-keyword',
+  score: 'col-score',
+  volume: 'col-volume',
+  competition: 'col-competition',
+  titleDensity: 'col-title-density',
+  sales: 'col-sales',
+  serp: 'col-serp',
+  amazon: 'col-amazon'
+};
+
 const formatNumber = (num) => {
   if (num === null || num === undefined) return '-';
   return num.toLocaleString();
@@ -121,12 +134,24 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
       transition={{ delay: 0.3 }}
     >
       <Card className="mt-6 overflow-hidden">
+        <style>{`
+          .col-number:hover, .col-number:hover ~ * { background-color: rgba(241, 245, 249, 0.6) !important; }
+          .col-checkbox:hover, .col-checkbox:hover ~ * { background-color: rgba(241, 245, 249, 0.6) !important; }
+          .col-keyword:hover, .col-keyword:hover ~ * { background-color: rgba(238, 242, 255, 0.5) !important; }
+          .col-score:hover, .col-score:hover ~ * { background-color: rgba(240, 253, 244, 0.6) !important; }
+          .col-volume:hover, .col-volume:hover ~ * { background-color: rgba(236, 254, 255, 0.6) !important; }
+          .col-competition:hover, .col-competition:hover ~ * { background-color: rgba(254, 249, 235, 0.6) !important; }
+          .col-title-density:hover, .col-title-density:hover ~ * { background-color: rgba(254, 243, 250, 0.6) !important; }
+          .col-sales:hover, .col-sales:hover ~ * { background-color: rgba(243, 244, 246, 0.6) !important; }
+          .col-serp:hover, .col-serp:hover ~ * { background-color: rgba(245, 243, 255, 0.6) !important; }
+          .col-amazon:hover, .col-amazon:hover ~ * { background-color: rgba(238, 242, 255, 0.6) !important; }
+        `}</style>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-50 hover:bg-slate-50">
-                <TableHead className="w-16 text-center font-semibold text-slate-700">#</TableHead>
-                <TableHead className="w-12">
+                <TableHead className={`w-16 text-center font-semibold text-slate-700 ${COLUMN_CLASSES.number}`}>#</TableHead>
+                <TableHead className={`w-12 ${COLUMN_CLASSES.checkbox}`}>
                   <Checkbox
                     checked={allSelected}
                     onCheckedChange={toggleAll}
@@ -135,7 +160,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   />
                 </TableHead>
                 <TableHead 
-                  className="font-semibold text-slate-700 relative group"
+                  className={`font-semibold text-slate-700 relative group ${COLUMN_CLASSES.keyword}`}
                   style={{ width: `${keywordColumnWidth}px`, minWidth: `${keywordColumnWidth}px`, maxWidth: `${keywordColumnWidth}px` }}
                 >
                   <div className="flex items-center justify-between">
@@ -147,8 +172,8 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     />
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
+                <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.score}`}>
+                  <div className="flex items-center justify-center gap-1.5">
                     <button 
                       onClick={() => handleSort('opportunity')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
@@ -169,8 +194,8 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     </TooltipProvider>
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
+                <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.volume}`}>
+                  <div className="flex items-center justify-center gap-1.5">
                     <button 
                       onClick={() => handleSort('search_volume')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
@@ -191,8 +216,8 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     </TooltipProvider>
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
+                <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.competition}`}>
+                  <div className="flex items-center justify-center gap-1.5">
                     <button 
                       onClick={() => handleSort('competing')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
@@ -213,8 +238,8 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     </TooltipProvider>
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
+                <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.titleDensity}`}>
+                  <div className="flex items-center justify-center gap-1.5">
                     <button 
                       onClick={() => handleSort('title_density')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
@@ -235,8 +260,8 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     </TooltipProvider>
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
+                <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.sales}`}>
+                  <div className="flex items-center justify-center gap-1.5">
                     <button 
                       onClick={() => handleSort('keyword_sales')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
@@ -257,8 +282,8 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     </TooltipProvider>
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700 text-center">SERP</TableHead>
-                <TableHead className="font-semibold text-slate-700 text-center">Amazon</TableHead>
+                <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.serp}`}>SERP</TableHead>
+                <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.amazon}`}>Amazon</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -271,10 +296,10 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   key={index} 
                   className={`group hover:bg-indigo-50/50 transition-colors ${isProfitable ? 'bg-emerald-50/40' : ''} ${isSelected ? 'bg-indigo-50' : ''}`}
                 >
-                  <TableCell className="w-16 text-center text-slate-500 font-medium">
+                  <TableCell className={`w-16 text-center text-slate-500 font-medium ${COLUMN_CLASSES.number}`}>
                     {globalIndex}
                   </TableCell>
-                  <TableCell className="w-12">
+                  <TableCell className={`w-12 ${COLUMN_CLASSES.checkbox}`}>
                     <Checkbox
                       checked={isSelected}
                       onCheckedChange={() => toggleSelection(row['Keyword Phrase'])}
@@ -282,7 +307,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     />
                   </TableCell>
                   <TableCell 
-                    className={`${isProfitable ? 'font-bold text-emerald-800' : 'font-medium text-slate-900'}`}
+                    className={`${isProfitable ? 'font-bold text-emerald-800' : 'font-medium text-slate-900'} ${COLUMN_CLASSES.keyword}`}
                     style={{ width: `${keywordColumnWidth}px`, minWidth: `${keywordColumnWidth}px`, maxWidth: `${keywordColumnWidth}px` }}
                   >
                     <div className="flex items-center gap-2">
@@ -332,7 +357,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                       </TooltipProvider>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className={`text-center ${COLUMN_CLASSES.score}`}>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -353,25 +378,25 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className={`text-center ${COLUMN_CLASSES.volume}`}>
                     <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 font-semibold">
                       {formatNumber(row.searchVolume)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className={`text-center ${COLUMN_CLASSES.competition}`}>
                     <span className={`font-medium ${row.competingProducts <= 500 ? 'text-emerald-600' : row.competingProducts <= 1000 ? 'text-amber-600' : 'text-slate-600'}`}>
                       {formatNumber(row.competingProducts)}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className={`text-center ${COLUMN_CLASSES.titleDensity}`}>
                     <span className={`font-medium ${row.titleDensity <= 10 ? 'text-emerald-600' : row.titleDensity <= 20 ? 'text-amber-600' : 'text-slate-600'}`}>
                       {formatNumber(row.titleDensity)}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right text-slate-600">
+                  <TableCell className={`text-center text-slate-600 ${COLUMN_CLASSES.sales}`}>
                     {row.keywordSales ? formatNumber(row.keywordSales) : '-'}
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className={`text-center ${COLUMN_CLASSES.serp}`}>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -397,7 +422,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className={`text-center ${COLUMN_CLASSES.amazon}`}>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
