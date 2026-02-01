@@ -612,6 +612,7 @@ Return JSON:`,
               onGroupingCriteriaChange={setGroupingCriteria}
               autoCluster={autoCluster}
               onAutoClusterChange={setAutoCluster}
+              onReset={handleReset}
             />
           )}
 

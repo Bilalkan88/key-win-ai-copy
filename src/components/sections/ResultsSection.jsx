@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, ArrowUpDown, Trash2, Sparkles, Loader2 } from 'lucide-react';
+import { Search, ArrowUpDown, Trash2, Sparkles, Loader2, Upload } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import FilterSummary from '@/components/FilterSummary';
@@ -31,7 +31,8 @@ export default function ResultsSection({
   groupingCriteria,
   onGroupingCriteriaChange,
   autoCluster,
-  onAutoClusterChange
+  onAutoClusterChange,
+  onReset
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('search_volume_desc');
@@ -126,6 +127,22 @@ export default function ResultsSection({
 
   return (
     <div className="space-y-8">
+      {/* Upload New File Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center"
+      >
+        <Button
+          variant="outline"
+          onClick={onReset}
+          className="text-slate-600 hover:text-slate-800"
+        >
+          <Upload className="w-4 h-4 mr-2" />
+          Upload New File
+        </Button>
+      </motion.div>
+
       {/* Summary Stats */}
       <FilterSummary stats={stats} />
 
