@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Bookmark, Search, ArrowUpDown, Trash2, Download, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -24,6 +25,7 @@ const formatNumber = (num) => {
 export default function SavedKeywordsSection({ savedKeywords, onRemoveKeyword }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('saved_date_desc');
+  const [selectedKeywords, setSelectedKeywords] = useState(new Set());
 
   const sortedAndFilteredData = useMemo(() => {
     let data = [...savedKeywords];
@@ -59,6 +61,27 @@ export default function SavedKeywordsSection({ savedKeywords, onRemoveKeyword })
 
     return data;
   }, [savedKeywords, searchTerm, sortBy]);
+
+  const toggleSelection = (keyword) => {
+    const newSelected = new Set(selectedKeywords);
+    if (newSelected.has(keyword)) {
+      newSelected.delete(keyword);
+    } else {
+      newSelected.add(keyword);
+    }
+    setSelectedKeywords(newSelected);
+  };
+
+  const toggleAll = () => {
+    if (selectedKeywords.size === sortedAndFilteredData.length) {
+      setSelectedKeywords(new Set());
+    } else {
+      setSelectedKeywords(new Set(sortedAndFilteredData.map(row => row['Keyword Phrase'])));
+    }
+  };
+
+  const allSelected = sortedAndFilteredData.length > 0 && selectedKeywords.size === sortedAndFilteredData.length;
+  const someSelected = selectedKeywords.size > 0 && selectedKeywords.size < sortedAndFilteredData.length;
 
   const handleExportCSV = () => {
     const csv = 'Keyword,Score,Search Volume,Competition,Title Density,Keyword Sales\n' + 
@@ -143,6 +166,14 @@ export default function SavedKeywordsSection({ savedKeywords, onRemoveKeyword })
                 <TableHeader>
                   <TableRow className="bg-slate-50 hover:bg-slate-50">
                     <TableHead className="w-16 text-center font-semibold text-slate-700">#</TableHead>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={allSelected}
+                        onCheckedChange={toggleAll}
+                        aria-label="Select all"
+                        className={someSelected ? "data-[state=checked]:bg-indigo-600" : ""}
+                      />
+                    </TableHead>
                     <TableHead className="font-semibold text-slate-700">Keyword</TableHead>
                     <TableHead className="font-semibold text-slate-700 text-center">Score</TableHead>
                     <TableHead className="font-semibold text-slate-700 text-center">Volume</TableHead>
@@ -153,10 +184,19 @@ export default function SavedKeywordsSection({ savedKeywords, onRemoveKeyword })
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedAndFilteredData.map((row, index) => (
-                    <TableRow key={index} className="group hover:bg-indigo-50/50 transition-colors">
+                  {sortedAndFilteredData.map((row, index) => {
+                    const isSelected = selectedKeywords.has(row['Keyword Phrase']);
+                    return (
+                    <TableRow key={index} className={`group hover:bg-indigo-50/50 transition-colors ${isSelected ? 'bg-indigo-50' : ''}`}>
                       <TableCell className="w-16 text-center text-slate-500 font-medium">
                         {index + 1}
+                      </TableCell>
+                      <TableCell className="w-12">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleSelection(row['Keyword Phrase'])}
+                          aria-label={`Select ${row['Keyword Phrase']}`}
+                        />
                       </TableCell>
                       <TableCell className="font-medium text-slate-900">
                         <TooltipProvider>
@@ -229,9 +269,21 @@ export default function SavedKeywordsSection({ savedKeywords, onRemoveKeyword })
                         </TooltipProvider>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );
+                  })}
                 </TableBody>
               </Table>
+            </div>
+            
+            <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+              <p className="text-sm text-slate-500">
+                Showing <span className="font-medium text-slate-700">{sortedAndFilteredData.length}</span> keywords
+              </p>
+              {selectedKeywords.size > 0 && (
+                <p className="text-sm font-medium text-indigo-600">
+                  {selectedKeywords.size} selected
+                </p>
+              )}
             </div>
           </Card>
         </>
