@@ -471,12 +471,12 @@ export default function ResultsSection({
                           <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>AI-driven opportunity score (0-100)</p>
+                          <p>A Score Reflecting Search Demand, Sales Volume, and Competition Level: Higher Scores Mean Stronger Demand and Sales with Fewer Competitors</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-                  </div>
-                  <div className="flex gap-2">
+                    </div>
+                    <div className="flex gap-2">
                     <Input
                       type="number"
                       placeholder="Min"
@@ -491,10 +491,10 @@ export default function ResultsSection({
                       onChange={(e) => setMaxScore(e.target.value)}
                       className="h-9"
                     />
-                  </div>
-                </div>
+                    </div>
+                    </div>
 
-                {/* Word Count */}
+                    {/* Word Count */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5 mb-2">
                     <label className="text-sm font-medium text-slate-700">Word Count</label>
