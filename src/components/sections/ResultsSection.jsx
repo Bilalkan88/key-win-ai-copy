@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, ArrowUpDown, Trash2, Sparkles, Loader2, Upload } from 'lucide-react';
+import { Search, ArrowUpDown, Trash2, Sparkles, Loader2, Upload, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import FilterSummary from '@/components/FilterSummary';
@@ -106,6 +106,26 @@ export default function ResultsSection({
 
   const handleDeleteRow = (keyword) => {
     onDeleteKeywords(new Set([keyword]));
+  };
+
+  const handleExportSelected = () => {
+    const selectedData = processedData.filter(row => 
+      selectedKeywords.has(row['Keyword Phrase'])
+    );
+    
+    const csv = 'Keyword,Score,Search Volume,Competition,Title Density,Keyword Sales\n' + 
+      selectedData.map(row => 
+        `"${row['Keyword Phrase']}",${row.opportunityScore || 0},${row.searchVolume},${row.competingProducts},${row.titleDensity},${row.keywordSales || 0}`
+      ).join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `selected_keywords_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+    toast.success(`Exported ${selectedData.length} keywords`);
   };
 
   const handlePageSizeChange = (value) => {
@@ -321,14 +341,24 @@ export default function ResultsSection({
         
         <div className="flex gap-3">
           {selectedKeywords.size > 0 && (
-            <Button
-              variant="destructive"
-              onClick={handleDeleteSelected}
-              className="h-11"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete ({selectedKeywords.size})
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={handleExportSelected}
+                className="h-11"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export ({selectedKeywords.size})
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteSelected}
+                className="h-11"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete ({selectedKeywords.size})
+              </Button>
+            </>
           )}
           
           <Select value={sortBy} onValueChange={setSortBy}>
