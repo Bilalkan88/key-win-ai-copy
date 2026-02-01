@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Search, ArrowUpDown, Trash2, Sparkles, Loader2, Upload } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { base44 } from "@/api/base44Client";
 import FilterSummary from '@/components/FilterSummary';
 import DashboardMetrics from '@/components/DashboardMetrics';
 import KeywordTable from '@/components/KeywordTable';
@@ -15,8 +14,6 @@ import ExportButtons from '@/components/ExportButtons';
 import KeywordCharts from '@/components/KeywordCharts';
 import ExcludedKeywords from '@/components/ExcludedKeywords';
 import KeywordGroups from '@/components/KeywordGroups';
-import DashboardSettings from '@/components/DashboardSettings';
-import ThemeWrapper from '@/components/ThemeWrapper';
 
 const isProfitableKeyword = (row) => {
   return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
@@ -46,63 +43,6 @@ export default function ResultsSection({
   const [pageSize, setPageSize] = useState(100);
   const [customPageSize, setCustomPageSize] = useState('');
   const [showGroups, setShowGroups] = useState(false);
-  const [userPreferences, setUserPreferences] = useState(null);
-  const [savedViews, setSavedViews] = useState([]);
-
-  // Load user preferences
-  useEffect(() => {
-    const loadPreferences = async () => {
-      try {
-        const user = await base44.auth.me();
-        if (user?.dashboard_preferences) {
-          setUserPreferences(user.dashboard_preferences);
-        }
-        if (user?.saved_views) {
-          setSavedViews(user.saved_views);
-        }
-      } catch (error) {
-        console.error('Failed to load preferences:', error);
-      }
-    };
-    loadPreferences();
-  }, []);
-
-  const handleSavePreferences = async (prefs) => {
-    try {
-      await base44.auth.updateMe({ dashboard_preferences: prefs });
-      setUserPreferences(prefs);
-    } catch (error) {
-      toast.error('Failed to save preferences');
-    }
-  };
-
-  const handleSaveView = async (view) => {
-    try {
-      const newViews = [...savedViews, view];
-      await base44.auth.updateMe({ saved_views: newViews });
-      setSavedViews(newViews);
-    } catch (error) {
-      toast.error('Failed to save view');
-    }
-  };
-
-  const handleLoadView = (view) => {
-    setSortBy(view.sortBy || 'search_volume_desc');
-    setShowOnlyProfitable(view.profitableOnly || false);
-  };
-
-  const handleDeleteView = async (index) => {
-    try {
-      const newViews = savedViews.filter((_, idx) => idx !== index);
-      await base44.auth.updateMe({ saved_views: newViews });
-      setSavedViews(newViews);
-    } catch (error) {
-      toast.error('Failed to delete view');
-    }
-  };
-
-  const theme = userPreferences?.theme || 'light';
-  const visibleWidgets = userPreferences?.visible_widgets || ['stats', 'metrics', 'breakdown', 'charts'];
 
   const sortedAndFilteredData = useMemo(() => {
     let data = [...processedData];
@@ -186,45 +126,31 @@ export default function ResultsSection({
   };
 
   return (
-    <ThemeWrapper theme={theme}>
-      <div className="space-y-8">
-        {/* Upload New File Button & Settings */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-center gap-3"
+    <div className="space-y-8">
+      {/* Upload New File Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center"
+      >
+        <Button
+          variant="outline"
+          onClick={onReset}
+          className="text-slate-600 hover:text-slate-800"
         >
-          <Button
-            variant="outline"
-            onClick={onReset}
-            className="text-slate-600 hover:text-slate-800"
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Upload New File
-          </Button>
-          
-          <DashboardSettings
-            preferences={userPreferences}
-            onSavePreferences={handleSavePreferences}
-            currentFilters={{}}
-            currentSort={sortBy}
-            profitableOnly={showOnlyProfitable}
-            savedViews={savedViews}
-            onSaveView={handleSaveView}
-            onLoadView={handleLoadView}
-            onDeleteView={handleDeleteView}
-          />
-        </motion.div>
+          <Upload className="w-4 h-4 mr-2" />
+          Upload New File
+        </Button>
+      </motion.div>
 
-        {/* Summary Stats */}
-        {visibleWidgets.includes('stats') && <FilterSummary stats={stats} />}
+      {/* Summary Stats */}
+      <FilterSummary stats={stats} />
 
-        {/* Dashboard Metrics */}
-        {visibleWidgets.includes('metrics') && <DashboardMetrics data={processedData} />}
+      {/* Dashboard Metrics */}
+      <DashboardMetrics data={processedData} />
 
-        {/* Detailed Breakdown */}
-        {visibleWidgets.includes('breakdown') && (
-          <motion.div 
+      {/* Detailed Breakdown */}
+      <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
@@ -242,12 +168,10 @@ export default function ResultsSection({
           <span className="text-slate-500">Unclear intent:</span>
           <span className="font-semibold text-slate-700">{stats.excludedUnclear}</span>
         </div>
-          </motion.div>
-        )}
+      </motion.div>
 
-        {/* Charts Section */}
-        {visibleWidgets.includes('charts') && (
-          <Card>
+      {/* Charts Section */}
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -268,11 +192,10 @@ export default function ResultsSection({
           <CardContent>
             <KeywordCharts data={processedData} />
           </CardContent>
-          )}
-        </Card>
         )}
+      </Card>
 
-        {/* AI Clustering Section */}
+      {/* AI Clustering Section */}
       {keywordGroups.length > 0 && (
         <Card className="border-2 border-indigo-100 bg-gradient-to-br from-indigo-50/50 to-purple-50/30">
           <CardHeader>
@@ -533,9 +456,8 @@ export default function ResultsSection({
         startIndex={startIndex}
       />
 
-        {/* Excluded Keywords Section */}
-        <ExcludedKeywords excludedData={excludedKeywords} />
-      </div>
-    </ThemeWrapper>
+      {/* Excluded Keywords Section */}
+      <ExcludedKeywords excludedData={excludedKeywords} />
+    </div>
   );
 }
