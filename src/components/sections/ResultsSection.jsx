@@ -570,12 +570,12 @@ export default function ResultsSection({
                           <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Number of competing products</p>
+                          <p>Total Number of Products Returned for This Keyword/Phrase<br />(Approximate keyword distribution, not exact competition. Rank is derived from Amazon's algorithms, including organic ranking, advertising, and recommendation logic.)</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-                  </div>
-                  <div className="flex gap-2">
+                    </div>
+                    <div className="flex gap-2">
                     <Input
                       type="number"
                       placeholder="Min"
@@ -590,10 +590,10 @@ export default function ResultsSection({
                       onChange={(e) => setMaxCompetition(e.target.value)}
                       className="h-9"
                     />
-                  </div>
-                </div>
+                    </div>
+                    </div>
 
-                {/* Title Density */}
+                    {/* Title Density */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5 mb-2">
                     <label className="text-sm font-medium text-slate-700">Title Density</label>
