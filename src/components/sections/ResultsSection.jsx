@@ -53,6 +53,8 @@ export default function ResultsSection({
   const [maxTitleDensity, setMaxTitleDensity] = useState('');
   const [minWordCount, setMinWordCount] = useState('');
   const [maxWordCount, setMaxWordCount] = useState('');
+  const [minScore, setMinScore] = useState('');
+  const [maxScore, setMaxScore] = useState('');
   
   const [appliedFilters, setAppliedFilters] = useState({
     minSales: '',
@@ -63,7 +65,9 @@ export default function ResultsSection({
     maxVolume: '',
     maxTitleDensity: '',
     minWordCount: '',
-    maxWordCount: ''
+    maxWordCount: '',
+    minScore: '',
+    maxScore: ''
   });
 
   const sortedAndFilteredData = useMemo(() => {
@@ -112,6 +116,12 @@ export default function ResultsSection({
         const wordCount = row['Keyword Phrase'].split(' ').length;
         return wordCount <= parseInt(appliedFilters.maxWordCount);
       });
+    }
+    if (appliedFilters.minScore) {
+      data = data.filter(row => (row.opportunityScore || 0) >= parseInt(appliedFilters.minScore));
+    }
+    if (appliedFilters.maxScore) {
+      data = data.filter(row => (row.opportunityScore || 0) <= parseInt(appliedFilters.maxScore));
     }
 
     switch (sortBy) {
@@ -212,7 +222,9 @@ export default function ResultsSection({
       maxVolume,
       maxTitleDensity,
       minWordCount,
-      maxWordCount
+      maxWordCount,
+      minScore,
+      maxScore
     });
     toast.success('Filters applied successfully');
   };
@@ -227,6 +239,8 @@ export default function ResultsSection({
     setMaxTitleDensity('');
     setMinWordCount('');
     setMaxWordCount('');
+    setMinScore('');
+    setMaxScore('');
     setAppliedFilters({
       minSales: '',
       maxSales: '',
@@ -236,7 +250,9 @@ export default function ResultsSection({
       maxVolume: '',
       maxTitleDensity: '',
       minWordCount: '',
-      maxWordCount: ''
+      maxWordCount: '',
+      minScore: '',
+      maxScore: ''
     });
     toast.success('Filters cleared');
   };
@@ -443,7 +459,31 @@ export default function ResultsSection({
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                {/* Score */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <label className="text-sm font-medium text-slate-700">Score</label>
+                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={minScore}
+                      onChange={(e) => setMinScore(e.target.value)}
+                      className="h-9"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={maxScore}
+                      onChange={(e) => setMaxScore(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
+                </div>
+
                 {/* Word Count */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5 mb-2">
