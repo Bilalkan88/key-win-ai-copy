@@ -196,7 +196,6 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     {getSortIcon('keyword_sales')}
                   </button>
                 </TableHead>
-                <TableHead className="font-semibold text-slate-700">Reason</TableHead>
                 <TableHead className="font-semibold text-slate-700 text-center">SERP</TableHead>
                 <TableHead className="font-semibold text-slate-700 text-center">Amazon</TableHead>
               </TableRow>
@@ -310,20 +309,6 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   </TableCell>
                   <TableCell className="text-right text-slate-600">
                     {row.keywordSales ? formatNumber(row.keywordSales) : '-'}
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-sm text-slate-500 cursor-default line-clamp-2">
-                            {row.selectionReason}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-sm">{row.selectionReason}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
                   </TableCell>
                   <TableCell className="text-center">
                     <TooltipProvider>
