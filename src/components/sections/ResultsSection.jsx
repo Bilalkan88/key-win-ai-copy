@@ -834,17 +834,32 @@ export default function ResultsSection({
       </Card>
 
       {/* Results Table */}
-      <KeywordTable 
-        data={paginatedData} 
-        selectedKeywords={selectedKeywords}
-        onSelectionChange={setSelectedKeywords}
-        sortBy={sortBy}
-        onSortChange={setSortBy}
-        onDeleteRow={handleDeleteRow}
-        startIndex={startIndex}
-        savedKeywords={savedKeywords}
-        onToggleSaveKeyword={onToggleSaveKeyword}
-      />
+      <Card>
+        <CardContent className="p-0">
+          <KeywordTable 
+            data={paginatedData} 
+            selectedKeywords={selectedKeywords}
+            onSelectionChange={setSelectedKeywords}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            onDeleteRow={handleDeleteRow}
+            startIndex={startIndex}
+            savedKeywords={savedKeywords}
+            onToggleSaveKeyword={onToggleSaveKeyword}
+          />
+          
+          <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+            <p className="text-sm text-slate-500">
+              Showing <span className="font-medium text-slate-700">{sortedAndFilteredData.length}</span> keywords
+            </p>
+            {selectedKeywords.size > 0 && (
+              <p className="text-sm font-medium text-indigo-600">
+                {selectedKeywords.size} selected
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Excluded Keywords Section */}
       <ExcludedKeywords excludedData={excludedKeywords} />
