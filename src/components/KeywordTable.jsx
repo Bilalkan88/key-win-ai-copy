@@ -174,6 +174,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     />
                   </div>
                 </TableHead>
+                <TableHead className="font-semibold text-slate-700 text-center w-16">Save</TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.score}`}>
                   <div className="flex items-center justify-center gap-1">
                     <button 
@@ -286,9 +287,8 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.serp}`}>SERP</TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.amazon}`}>Amazon</TableHead>
-                <TableHead className="font-semibold text-slate-700 text-center w-16">Save</TableHead>
-              </TableRow>
-            </TableHeader>
+                </TableRow>
+                </TableHeader>
             <TableBody>
               {data.map((row, index) => {
                 const isProfitable = isProfitableKeyword(row);
@@ -359,6 +359,27 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                         </Tooltip>
                       </TooltipProvider>
                     </div>
+                  </TableCell>
+                  <TableCell className="text-center w-16">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onToggleSaveKeyword && onToggleSaveKeyword(row)}
+                            className={savedKeywords.has(row['Keyword Phrase']) 
+                              ? 'text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100' 
+                              : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-100'}
+                          >
+                            <Bookmark className={`w-4 h-4 ${savedKeywords.has(row['Keyword Phrase']) ? 'fill-current' : ''}`} />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{savedKeywords.has(row['Keyword Phrase']) ? 'Remove from saved' : 'Save keyword'}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </TableCell>
                   <TableCell className={`text-center ${COLUMN_CLASSES.score}`}>
                     <TooltipProvider>
@@ -451,28 +472,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell className="text-center w-16">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onToggleSaveKeyword && onToggleSaveKeyword(row)}
-                            className={savedKeywords.has(row['Keyword Phrase']) 
-                              ? 'text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100' 
-                              : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-100'}
-                          >
-                            <Bookmark className={`w-4 h-4 ${savedKeywords.has(row['Keyword Phrase']) ? 'fill-current' : ''}`} />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{savedKeywords.has(row['Keyword Phrase']) ? 'Remove from saved' : 'Save keyword'}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                </TableRow>
+                  </TableRow>
               );
               })}
             </TableBody>
