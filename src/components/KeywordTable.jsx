@@ -2,6 +2,8 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -487,7 +489,115 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
             </p>
           )}
         </div>
-      </Card>
-    </motion.div>
-  );
-}
+        </Card>
+        </motion.div>
+        );
+        }
+
+        export function KeywordTablePagination({ 
+        currentPage, 
+        totalPages, 
+        pageSize, 
+        startIndex, 
+        endIndex, 
+        totalResults,
+        onPageChange, 
+        onPageSizeChange,
+        customPageSize,
+        onCustomPageSizeChange,
+        onCustomPageSizeApply
+        }) {
+        return (
+        <Card>
+        <CardContent className="p-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-slate-600">
+              Showing <span className="font-semibold text-slate-900">{startIndex + 1}</span> to{' '}
+              <span className="font-semibold text-slate-900">{Math.min(endIndex, totalResults)}</span> of{' '}
+              <span className="font-semibold text-slate-900">{totalResults}</span> results
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-slate-600 whitespace-nowrap">Per page:</label>
+              <Select value={pageSize.toString()} onValueChange={onPageSizeChange}>
+                <SelectTrigger className="w-24 h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                  <SelectItem value="200">200</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                placeholder="Custom"
+                value={customPageSize}
+                onChange={(e) => onCustomPageSizeChange(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && onCustomPageSizeApply()}
+                className="w-24 h-9"
+                min="1"
+                max="10000"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onCustomPageSizeApply}
+                disabled={!customPageSize}
+                className="h-9"
+              >
+                Apply
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(1)}
+              disabled={currentPage === 1}
+            >
+              First
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+
+            <div className="text-sm text-slate-600 px-3">
+              Page <span className="font-semibold text-slate-900">{currentPage}</span> of{' '}
+              <span className="font-semibold text-slate-900">{totalPages || 1}</span>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage >= totalPages}
+            >
+              Next
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(totalPages)}
+              disabled={currentPage >= totalPages}
+            >
+              Last
+            </Button>
+          </div>
+        </div>
+        </CardContent>
+        </Card>
+        );
+        }

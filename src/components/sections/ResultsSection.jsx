@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import FilterSummary from '@/components/FilterSummary';
 import DashboardMetrics from '@/components/DashboardMetrics';
-import KeywordTable from '@/components/KeywordTable';
+import KeywordTable, { KeywordTablePagination } from '@/components/KeywordTable';
 import ExportButtons from '@/components/ExportButtons';
 import KeywordCharts from '@/components/KeywordCharts';
 import ExcludedKeywords from '@/components/ExcludedKeywords';
@@ -844,6 +844,21 @@ export default function ResultsSection({
         startIndex={startIndex}
         savedKeywords={savedKeywords}
         onToggleSaveKeyword={onToggleSaveKeyword}
+      />
+
+      {/* Pagination Controls - Bottom */}
+      <KeywordTablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        startIndex={startIndex}
+        endIndex={endIndex}
+        totalResults={sortedAndFilteredData.length}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={handlePageSizeChange}
+        customPageSize={customPageSize}
+        onCustomPageSizeChange={setCustomPageSize}
+        onCustomPageSizeApply={handleCustomPageSize}
       />
 
       {/* Excluded Keywords Section */}
