@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Sparkles, TrendingUp, Zap, Crown, Loader2, CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '../utils';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -176,8 +178,10 @@ export default function Pricing() {
             <p className="text-slate-600 mb-4">
               Analyze your own files for free with no limits - forever free
             </p>
-            <Button variant="outline" onClick={() => window.location.href = '/'}>
-              Go to Free Analysis
+            <Button variant="outline" asChild>
+              <Link to={createPageUrl('Analysis')}>
+                Go to Free Analysis
+              </Link>
             </Button>
           </CardContent>
         </Card>

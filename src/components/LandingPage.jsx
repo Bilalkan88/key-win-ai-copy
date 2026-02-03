@@ -115,7 +115,7 @@ export default function LandingPage() {
                 asChild
                 className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-lg px-8 py-6 shadow-xl"
               >
-                <Link to={createPageUrl('Home')}>
+                <Link to={createPageUrl('Analysis')}>
                   <Search className="w-5 h-5 mr-2" />
                   Start Free Analysis
                 </Link>
@@ -364,6 +364,7 @@ export default function LandingPage() {
             <div>
               <h3 className="text-white font-semibold mb-4">Quick Links</h3>
               <div className="space-y-2 text-sm">
+                <div><Link to={createPageUrl('Analysis')} className="hover:text-white">Free Analysis</Link></div>
                 <div><Link to={createPageUrl('KeywordDatabase')} className="hover:text-white">Keyword Database</Link></div>
                 <div><Link to={createPageUrl('ExclusiveKeywords')} className="hover:text-white">Exclusive Keywords</Link></div>
                 <div><Link to={createPageUrl('Pricing')} className="hover:text-white">Pricing</Link></div>

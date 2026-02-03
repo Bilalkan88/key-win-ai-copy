@@ -53,7 +53,7 @@ import KeywordDatabase from './pages/KeywordDatabase';
 import KeywordDetails from './pages/KeywordDetails';
 import NewThisWeek from './pages/NewThisWeek';
 import Pricing from './pages/Pricing';
-import Landing from './pages/Landing';
+import Analysis from './pages/Analysis';
 import __Layout from './Layout.jsx';
 
 
@@ -64,7 +64,7 @@ export const PAGES = {
     "KeywordDetails": KeywordDetails,
     "NewThisWeek": NewThisWeek,
     "Pricing": Pricing,
-    "Landing": Landing,
+    "Analysis": Analysis,
 }
 
 export const pagesConfig = {
