@@ -170,6 +170,129 @@ export default function Pricing() {
           })}
         </div>
 
+        {/* Comparison Section */}
+        <div className="mt-16 mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-center mb-8"
+          >
+            <h2 className="text-3xl font-bold text-slate-900 mb-2">
+              Why We're Different
+            </h2>
+            <p className="text-slate-600">See how we compare to traditional keyword tools</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Card className="overflow-hidden border-2">
+              <CardContent className="p-0">
+                <div className="grid md:grid-cols-2 divide-x divide-slate-200">
+                  {/* Traditional Tools */}
+                  <div className="p-8 bg-slate-50">
+                    <div className="text-center mb-6">
+                      <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center mx-auto mb-3">
+                        <span className="text-2xl">😕</span>
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-700">Traditional Tools</h3>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-red-600 text-sm">✕</span>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-slate-700">Thousands of keywords</div>
+                          <div className="text-sm text-slate-500">Overwhelming data dumps</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-red-600 text-sm">✕</span>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-slate-700">Manual analysis needed</div>
+                          <div className="text-sm text-slate-500">Hours of spreadsheet work</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-red-600 text-sm">✕</span>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-slate-700">Generic data</div>
+                          <div className="text-sm text-slate-500">Not actionable insights</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-red-600 text-sm">✕</span>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-slate-700">Same keywords for everyone</div>
+                          <div className="text-sm text-slate-500">Everyone targets the same</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Our Platform */}
+                  <div className="p-8 bg-gradient-to-br from-indigo-50 to-purple-50">
+                    <div className="text-center mb-6">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center mx-auto mb-3">
+                        <Sparkles className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-900">Our Platform</h3>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-slate-900">Filtered keywords only</div>
+                          <div className="text-sm text-slate-600">Pre-vetted high-quality keywords</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-slate-900">Ready to use</div>
+                          <div className="text-sm text-slate-600">Start using immediately</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-slate-900">Actionable decisions</div>
+                          <div className="text-sm text-slate-600">Know exactly what to do</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-slate-900">Limited & rare keywords</div>
+                          <div className="text-sm text-slate-600">Exclusive opportunities</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
         {/* Free Analysis */}
         <Card className="mt-12 border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-blue-50">
           <CardContent className="p-8 text-center">
@@ -185,7 +308,7 @@ export default function Pricing() {
             </Button>
           </CardContent>
         </Card>
-      </div>
-    </div>
-  );
-}
+        </div>
+        </div>
+        );
+        }
