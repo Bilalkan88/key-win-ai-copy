@@ -7,6 +7,7 @@ import { Home, Database, Sparkles, Star, DollarSign } from 'lucide-react';
 export default function Layout({ children, currentPageName }) {
   const navLinks = [
     { name: 'Analysis', label: 'Free Tools' },
+    { name: 'FbaProfitCalculator', label: 'FBA Calculator' },
     { name: 'KeywordDatabase', label: 'Keyword Goldmine' },
     { name: 'NewThisWeek', label: 'New This Week' },
     { name: 'ExclusiveKeywords', label: 'Exclusive Keywords' },
