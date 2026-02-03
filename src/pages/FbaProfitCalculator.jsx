@@ -135,15 +135,64 @@ export default function FbaProfitCalculator() {
                 <CardTitle className="text-slate-900">Input Parameters</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                <Field label="Units ordered" value={unitsOrdered} setValue={setUnitsOrdered} />
-                <Field label="Units sold" value={unitsSold} setValue={setUnitsSold} />
-                <Field label="Retail price (USD)" value={retailPrice} setValue={setRetailPrice} step="0.01" />
-                <Field label="Total COGS (USD)" value={totalCOGS} setValue={setTotalCOGS} step="0.01" />
-                <Field label="Shipping to Amazon (USD)" value={shippingToAmazon} setValue={setShippingToAmazon} step="0.01" />
-                <Field label="Extra shipping (USD)" value={extraShipping} setValue={setExtraShipping} step="0.01" />
-                <Field label="FBA fee per unit (USD)" value={fbaFeePerUnit} setValue={setFbaFeePerUnit} step="0.01" />
-                <Field label="Total ad spend (USD)" value={totalAdSpend} setValue={setTotalAdSpend} step="0.01" />
-                <Field label="Giveaway fee per unit (USD)" value={giveawayFeePerUnit} setValue={setGiveawayFeePerUnit} step="0.01" />
+                <Field 
+                  label="Units ordered" 
+                  value={unitsOrdered} 
+                  setValue={setUnitsOrdered} 
+                  helpText="Total units ordered from supplier."
+                />
+                <Field 
+                  label="Units sold" 
+                  value={unitsSold} 
+                  setValue={setUnitsSold} 
+                  helpText="Leave empty if none."
+                />
+                <Field 
+                  label="Retail price (USD)" 
+                  value={retailPrice} 
+                  setValue={setRetailPrice} 
+                  step="0.01" 
+                  helpText="The selling price on Amazon."
+                />
+                <Field 
+                  label="Total COGS (USD)" 
+                  value={totalCOGS} 
+                  setValue={setTotalCOGS} 
+                  step="0.01" 
+                  helpText="Cost of goods sold: This does not include shipping."
+                />
+                <Field 
+                  label="Shipping to Amazon (USD)" 
+                  value={shippingToAmazon} 
+                  setValue={setShippingToAmazon} 
+                  step="0.01" 
+                  helpText="Enter total shipping cost to get product from manufacturer to AMZ warehouse."
+                />
+                <Field 
+                  label="Extra shipping (USD)" 
+                  value={extraShipping} 
+                  setValue={setExtraShipping} 
+                  step="0.01" 
+                />
+                <Field 
+                  label="FBA fee per unit (USD)" 
+                  value={fbaFeePerUnit} 
+                  setValue={setFbaFeePerUnit} 
+                  step="0.01" 
+                />
+                <Field 
+                  label="Total ad spend (USD)" 
+                  value={totalAdSpend} 
+                  setValue={setTotalAdSpend} 
+                  step="0.01" 
+                />
+                <Field 
+                  label="Giveaway fee per unit (USD)" 
+                  value={giveawayFeePerUnit} 
+                  setValue={setGiveawayFeePerUnit} 
+                  step="0.01" 
+                  helpText="Includes any product giveaways and coupons, per unit."
+                />
 
                 <Button onClick={reset} variant="outline" className="w-full mt-6">
                   <RefreshCw className="w-4 h-4 mr-2" />
@@ -262,7 +311,7 @@ export default function FbaProfitCalculator() {
   );
 }
 
-function Field({ label, value, setValue, step = "1" }) {
+function Field({ label, value, setValue, step = "1", helpText }) {
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
@@ -273,6 +322,9 @@ function Field({ label, value, setValue, step = "1" }) {
         onChange={(e) => setValue(e.target.value)}
         className="border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
       />
+      {helpText && (
+        <p className="text-xs text-slate-500 mt-1">{helpText}</p>
+      )}
     </div>
   );
 }
