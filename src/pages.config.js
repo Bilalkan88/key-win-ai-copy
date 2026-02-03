@@ -47,21 +47,21 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import ExclusiveKeywords from './pages/ExclusiveKeywords';
 import Home from './pages/Home';
 import KeywordDatabase from './pages/KeywordDatabase';
-import ExclusiveKeywords from './pages/ExclusiveKeywords';
-import NewThisWeek from './pages/NewThisWeek';
 import KeywordDetails from './pages/KeywordDetails';
+import NewThisWeek from './pages/NewThisWeek';
 import Pricing from './pages/Pricing';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "ExclusiveKeywords": ExclusiveKeywords,
     "Home": Home,
     "KeywordDatabase": KeywordDatabase,
-    "ExclusiveKeywords": ExclusiveKeywords,
-    "NewThisWeek": NewThisWeek,
     "KeywordDetails": KeywordDetails,
+    "NewThisWeek": NewThisWeek,
     "Pricing": Pricing,
 }
 

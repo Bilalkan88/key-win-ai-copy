@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, TrendingUp, Users, DollarSign, AlertTriangle, CheckCircle, XCircle, ArrowLeft, Sparkles, Star, BarChart3 } from 'lucide-react';
+import { Loader2, TrendingUp, Users, DollarSign, AlertTriangle, CheckCircle, XCircle, ArrowLeft, Sparkles, Star, BarChart3, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
