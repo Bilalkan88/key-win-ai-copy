@@ -2,12 +2,21 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { Toaster } from 'sonner';
-import { Home, Database, Sparkles, Star, DollarSign } from 'lucide-react';
+import { Home, Database, Sparkles, Star, DollarSign, ChevronDown } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Layout({ children, currentPageName }) {
+  const freeToolsLinks = [
+    { name: 'Analysis', label: 'Keyword Analysis' },
+    { name: 'FbaProfitCalculator', label: 'FBA Calculator' }
+  ];
+
   const navLinks = [
-    { name: 'Analysis', label: 'Free Tools' },
-    { name: 'FbaProfitCalculator', label: 'FBA Calculator' },
     { name: 'KeywordDatabase', label: 'Keyword Goldmine' },
     { name: 'NewThisWeek', label: 'New This Week' },
     { name: 'ExclusiveKeywords', label: 'Exclusive Keywords' },
@@ -15,6 +24,7 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const isHomePage = currentPageName === 'Home';
+  const isFreeToolActive = freeToolsLinks.some(link => link.name === currentPageName);
 
   return (
     <div className={`min-h-screen ${isHomePage ? 'bg-slate-950' : 'bg-white'}`}>
@@ -32,6 +42,31 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Navigation Links */}
             <div className="hidden md:flex items-center gap-1">
+              {/* Free Tools Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
+                  isFreeToolActive
+                    ? 'text-slate-900 bg-slate-100'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}>
+                  Free Tools
+                  <ChevronDown className="w-4 h-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  {freeToolsLinks.map((link) => (
+                    <DropdownMenuItem key={link.name} asChild>
+                      <Link
+                        to={createPageUrl(link.name)}
+                        className="w-full cursor-pointer"
+                      >
+                        {link.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Other Nav Links */}
               {navLinks.map((link) => {
                 const isActive = currentPageName === link.name;
                 return (
