@@ -1,0 +1,187 @@
+import React from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Check, Sparkles, TrendingUp, Zap, Crown, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { toast } from 'sonner';
+
+export default function Pricing() {
+  const queryClient = useQueryClient();
+
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: subscription } = useQuery({
+    queryKey: ['subscription', user?.email],
+    queryFn: () => base44.entities.Subscription.filter({ user_email: user.email, status: 'active' }),
+    enabled: !!user?.email,
+  });
+
+  const subscribeMutation = useMutation({
+    mutationFn: async (planType) => {
+      const response = await base44.functions.invoke('createSubscriptionCheckout', {
+        plan_type: planType
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      }
+    },
+    onError: () => {
+      toast.error('حدث خطأ في عملية الاشتراك');
+    }
+  });
+
+  const plans = [
+    {
+      name: 'Basic',
+      price: 29,
+      icon: TrendingUp,
+      color: 'blue',
+      features: [
+        'الوصول لقاعدة بيانات الكلمات',
+        'تحديثات أسبوعية',
+        'بحث وفلترة متقدمة',
+        'حفظ الكلمات المفضلة',
+        'تصدير النتائج'
+      ]
+    },
+    {
+      name: 'Pro',
+      price: 49,
+      icon: Zap,
+      color: 'indigo',
+      popular: true,
+      features: [
+        'كل ميزات Basic',
+        'تفسيرات AI مخصصة',
+        'تحليل المنافسين',
+        'توصيات السعر',
+        'دعم أولوية'
+      ]
+    },
+    {
+      name: 'Pro+',
+      price: 99,
+      icon: Crown,
+      color: 'purple',
+      features: [
+        'كل ميزات Pro',
+        'خصم 50% على الكلمات الحصرية',
+        'وصول مبكر للكلمات الجديدة',
+        'API للتكامل',
+        'تقارير مخصصة شهرية'
+      ]
+    }
+  ];
+
+  const currentPlan = subscription && subscription.length > 0 ? subscription[0].plan_type : null;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
+          <h1 className="text-5xl font-bold text-slate-900 mb-4">
+            اختر الخطة المناسبة لك
+          </h1>
+          <p className="text-xl text-slate-600">
+            ابدأ بخطة مجانية أو احصل على ميزات احترافية
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {plans.map((plan, index) => {
+            const Icon = plan.icon;
+            const isCurrentPlan = currentPlan === plan.name.toLowerCase();
+
+            return (
+              <motion.div
+                key={plan.name}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className={`relative h-full ${plan.popular ? 'border-4 border-indigo-300 shadow-2xl scale-105' : ''}`}>
+                  {plan.popular && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                      <Badge className="bg-indigo-600 text-white px-4 py-1">الأكثر شعبية</Badge>
+                    </div>
+                  )}
+
+                  <CardHeader className="text-center pb-4">
+                    <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-${plan.color}-500 to-${plan.color}-600 flex items-center justify-center mx-auto mb-4`}>
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                    <CardTitle className="text-2xl mb-2">{plan.name}</CardTitle>
+                    <div className="text-4xl font-bold text-slate-900 mb-2">
+                      ${plan.price}
+                      <span className="text-lg text-slate-500">/شهر</span>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent>
+                    <ul className="space-y-3 mb-6">
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                          <span className="text-slate-700">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {isCurrentPlan ? (
+                      <Button disabled className="w-full bg-slate-400">
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        الخطة الحالية
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => subscribeMutation.mutate(plan.name.toLowerCase())}
+                        disabled={subscribeMutation.isPending}
+                        className={`w-full bg-gradient-to-r from-${plan.color}-600 to-${plan.color}-700 hover:from-${plan.color}-700 hover:to-${plan.color}-800`}
+                      >
+                        {subscribeMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            جاري المعالجة...
+                          </>
+                        ) : (
+                          'اشترك الآن'
+                        )}
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Free Analysis */}
+        <Card className="mt-12 border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-blue-50">
+          <CardContent className="p-8 text-center">
+            <Sparkles className="w-12 h-12 text-emerald-600 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">التحليل المجاني</h3>
+            <p className="text-slate-600 mb-4">
+              حلل ملفاتك الخاصة مجاناً بدون حدود - سيبقى مجانياً دائماً
+            </p>
+            <Button variant="outline" onClick={() => window.location.href = '/'}>
+              انتقل للتحليل المجاني
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
