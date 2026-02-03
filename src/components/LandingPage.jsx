@@ -261,59 +261,112 @@ export default function LandingPage() {
       </section>
 
       {/* Banner Section */}
-      <section className="py-20 bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-            backgroundSize: '40px 40px'
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900">
+        {/* Animated Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 animate-pulse" />
+          <div className="absolute inset-0 opacity-30" style={{
+            backgroundImage: 'linear-gradient(to right, #ffffff22 1px, transparent 1px), linear-gradient(to bottom, #ffffff22 1px, transparent 1px)',
+            backgroundSize: '60px 60px'
           }} />
         </div>
 
         <div className="max-w-6xl mx-auto px-6 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             className="text-center"
           >
-            {/* Fire Emoji & Main Headline */}
-            <div className="mb-6">
-              <span className="text-6xl md:text-7xl mb-4 inline-block animate-pulse">🔥</span>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 leading-tight" dir="rtl">
-                اعثر على كلمات أمازون الرابحة قبل الجميع
-              </h2>
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white font-semibold text-sm mb-6 shadow-lg"
+            >
+              <span className="text-xl animate-bounce">🔥</span>
+              <span>Limited Keywords • High Demand</span>
+            </motion.div>
+
+            {/* Main Headline */}
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight">
+              Find Winning Amazon Keywords<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-400 to-purple-400">
+                Before Everyone Else
+              </span>
+            </h2>
+
+            {/* Features Grid */}
+            <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-8">
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+                <div className="text-3xl mb-2">📈</div>
+                <div className="font-bold text-white mb-1">High Search Volume</div>
+                <div className="text-sm text-indigo-200">Real demand, real sales</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+                <div className="text-3xl mb-2">🎯</div>
+                <div className="font-bold text-white mb-1">Low Competition</div>
+                <div className="text-sm text-indigo-200">Easy to rank & win</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+                <div className="text-3xl mb-2">✨</div>
+                <div className="font-bold text-white mb-1">AI-Filtered</div>
+                <div className="text-sm text-indigo-200">Pre-analyzed for you</div>
+              </div>
             </div>
 
-            {/* Subheadline */}
-            <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 md:p-8 mb-8 border-2 border-white/40" dir="rtl">
-              <p className="text-xl md:text-2xl lg:text-3xl font-bold text-white leading-relaxed">
-                كلمات بحث عالية الطلب • منافسة منخفضة • مدروسة – مفلترة – ومحدودة
+            {/* Value Proposition */}
+            <div className="max-w-3xl mx-auto mb-8">
+              <p className="text-xl md:text-2xl text-white/90 leading-relaxed mb-4">
+                <span className="font-bold text-orange-300">No more guessing.</span> No more wasting time on tools that give you thousands of useless keywords.
               </p>
+              <div className="bg-gradient-to-r from-orange-500/20 to-pink-500/20 backdrop-blur-sm rounded-2xl p-6 border border-white/30">
+                <p className="text-2xl md:text-3xl font-black text-white">
+                  Get Only Keywords Worth Building Your Product On
+                </p>
+              </div>
             </div>
 
-            {/* Description */}
-            <div className="max-w-4xl mx-auto" dir="rtl">
-              <p className="text-lg md:text-xl text-white/95 leading-relaxed mb-6">
-                <span className="font-bold">لا مزيد من التخمين.</span> لا مزيد من إضاعة الوقت على أدوات تعطيك آلاف الكلمات غير المفيدة.
-              </p>
-              <p className="text-xl md:text-2xl font-bold text-white bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30">
-                هنا تحصل فقط على الكلمات التي تستحق أن تبني عليها منتجك
-              </p>
-            </div>
-
-            {/* CTA Button */}
-            <div className="mt-10">
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 size="lg"
                 asChild
-                className="bg-white text-red-600 hover:bg-slate-100 text-lg md:text-xl font-bold px-10 py-7 rounded-xl shadow-2xl hover:scale-105 transition-transform"
+                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-lg font-bold px-10 py-7 rounded-xl shadow-2xl hover:scale-105 transition-all"
               >
                 <Link to={createPageUrl('KeywordDatabase')}>
-                  ابدأ الآن مجاناً
                   <Sparkles className="w-5 h-5 mr-2" />
+                  Start Free Today
                 </Link>
               </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white/20 text-lg font-bold px-10 py-7 rounded-xl"
+              >
+                <Link to={createPageUrl('Analysis')}>
+                  View Demo
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
+              </Button>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-8 text-white/80 text-sm">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <span>15,000+ Keywords Analyzed</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <span>Updated Weekly</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <span>No Credit Card Required</span>
+              </div>
             </div>
           </motion.div>
         </div>
