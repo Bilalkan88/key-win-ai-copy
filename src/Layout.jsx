@@ -5,6 +5,8 @@ import { Toaster } from 'sonner';
 import { Home, Database, Sparkles, Star, DollarSign } from 'lucide-react';
 
 export default function Layout({ children, currentPageName }) {
+  const showNav = !['Landing'].includes(currentPageName);
+
   const navLinks = [
     { name: 'Home', label: 'Free Analysis', icon: Home },
     { name: 'KeywordDatabase', label: 'Keyword Database', icon: Database },
@@ -16,6 +18,7 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
       {/* Navigation */}
+      {showNav && (
       <nav className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -49,6 +52,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </div>
       </nav>
+      )}
 
       {/* Content */}
       {children}
