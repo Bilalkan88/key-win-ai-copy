@@ -18,7 +18,7 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className={`min-h-screen ${isHomePage ? 'bg-slate-950' : 'bg-white'}`}>
       {/* Navigation - Always Visible */}
-      <nav className={`${isHomePage ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'} border-b sticky top-0 z-50`}
+      <nav className={`${isHomePage ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'} border-b sticky top-0 z-50`}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo - Always visible */}
