@@ -6,7 +6,7 @@ import { Home, Database, Sparkles, Star, DollarSign } from 'lucide-react';
 
 export default function Layout({ children, currentPageName }) {
   const navLinks = [
-    { name: 'Analysis', label: 'Free Analysis' },
+    { name: 'Analysis', label: 'Free Tools' },
     { name: 'KeywordDatabase', label: 'Keywords' },
     { name: 'NewThisWeek', label: 'New This Week' },
     { name: 'ExclusiveKeywords', label: 'Premium' },
