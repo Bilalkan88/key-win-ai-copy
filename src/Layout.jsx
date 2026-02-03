@@ -9,7 +9,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Analysis', label: 'Free Tools' },
     { name: 'KeywordDatabase', label: 'Keyword Goldmine' },
     { name: 'NewThisWeek', label: 'New This Week' },
-    { name: 'ExclusiveKeywords', label: 'One-Time Keywords' },
+    { name: 'ExclusiveKeywords', label: 'Exclusive Keywords' },
     { name: 'Pricing', label: 'Pricing' }
   ];
 
