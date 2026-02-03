@@ -260,63 +260,62 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-br from-slate-50 to-indigo-50">
-        <div className="max-w-7xl mx-auto px-6">
+      {/* Banner Section */}
+      <section className="py-20 bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+            backgroundSize: '40px 40px'
+          }} />
+        </div>
+
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-              Trusted by Amazon sellers worldwide
-            </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Join thousands of successful sellers who use our platform to find winning keywords
-            </p>
+            {/* Fire Emoji & Main Headline */}
+            <div className="mb-6">
+              <span className="text-6xl md:text-7xl mb-4 inline-block animate-pulse">🔥</span>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 leading-tight" dir="rtl">
+                اعثر على كلمات أمازون الرابحة قبل الجميع
+              </h2>
+            </div>
+
+            {/* Subheadline */}
+            <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 md:p-8 mb-8 border-2 border-white/40" dir="rtl">
+              <p className="text-xl md:text-2xl lg:text-3xl font-bold text-white leading-relaxed">
+                كلمات بحث عالية الطلب • منافسة منخفضة • مدروسة – مفلترة – ومحدودة
+              </p>
+            </div>
+
+            {/* Description */}
+            <div className="max-w-4xl mx-auto" dir="rtl">
+              <p className="text-lg md:text-xl text-white/95 leading-relaxed mb-6">
+                <span className="font-bold">لا مزيد من التخمين.</span> لا مزيد من إضاعة الوقت على أدوات تعطيك آلاف الكلمات غير المفيدة.
+              </p>
+              <p className="text-xl md:text-2xl font-bold text-white bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30">
+                هنا تحصل فقط على الكلمات التي تستحق أن تبني عليها منتجك
+              </p>
+            </div>
+
+            {/* CTA Button */}
+            <div className="mt-10">
+              <Button
+                size="lg"
+                asChild
+                className="bg-white text-red-600 hover:bg-slate-100 text-lg md:text-xl font-bold px-10 py-7 rounded-xl shadow-2xl hover:scale-105 transition-transform"
+              >
+                <Link to={createPageUrl('KeywordDatabase')}>
+                  ابدأ الآن مجاناً
+                  <Sparkles className="w-5 h-5 mr-2" />
+                </Link>
+              </Button>
+            </div>
           </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-center"
-            >
-              <div className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-2">
-                $55M+
-              </div>
-              <div className="text-slate-600 font-medium">In total sales generated</div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-center"
-            >
-              <div className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-600 mb-2">
-                500K+
-              </div>
-              <div className="text-slate-600 font-medium">Keywords analyzed weekly</div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="text-center"
-            >
-              <div className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-2">
-                2.8M+
-              </div>
-              <div className="text-slate-600 font-medium">Products tracked</div>
-            </motion.div>
-          </div>
         </div>
       </section>
 
