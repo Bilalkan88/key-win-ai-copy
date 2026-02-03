@@ -439,6 +439,193 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Milestones Section */}
+      <section className="py-20 bg-slate-900">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Trusted by Amazon Sellers Worldwide
+            </h2>
+            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+              Join thousands of successful sellers who use our platform to find winning products
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-center"
+            >
+              <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-2">
+                15K+
+              </div>
+              <div className="text-slate-400 font-medium">Keywords Analyzed</div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-center"
+            >
+              <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-400 mb-2">
+                2,500+
+              </div>
+              <div className="text-slate-400 font-medium">Active Sellers</div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="text-center"
+            >
+              <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 mb-2">
+                90%
+              </div>
+              <div className="text-slate-400 font-medium">Success Rate</div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="text-center"
+            >
+              <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 mb-2">
+                $2M+
+              </div>
+              <div className="text-slate-400 font-medium">Revenue Generated</div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-slate-950">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              What Our Sellers Say
+            </h2>
+            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+              Real results from real Amazon sellers using our platform
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-1 mb-4">
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  </div>
+                  <p className="text-slate-300 leading-relaxed mb-6">
+                    "This platform saved me months of research. I found my winning product in just 3 days and it's already generating $5K/month!"
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                      SM
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white">Sarah Mitchell</div>
+                      <div className="text-sm text-slate-400">Amazon Seller</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-1 mb-4">
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  </div>
+                  <p className="text-slate-300 leading-relaxed mb-6">
+                    "The AI filtering is incredible. No more wasting time on bad keywords. Every suggestion has been profitable for me."
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold">
+                      JC
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white">James Chen</div>
+                      <div className="text-sm text-slate-400">E-commerce Entrepreneur</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+            >
+              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-1 mb-4">
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  </div>
+                  <p className="text-slate-300 leading-relaxed mb-6">
+                    "Best investment I made for my Amazon business. The exclusive keywords feature gave me an unfair advantage!"
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
+                      AR
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white">Alex Rodriguez</div>
+                      <div className="text-sm text-slate-400">FBA Seller</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Banner Section */}
       <section className="py-20 bg-slate-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-orange-600/20" />
