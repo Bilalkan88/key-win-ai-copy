@@ -22,12 +22,12 @@ export default function Layout({ children, currentPageName }) {
       <nav className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <Link to={createPageUrl('Home')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-xl font-bold text-slate-900">Keyword Winner AI</h1>
-            </div>
+            </Link>
 
             <div className="flex items-center gap-2">
               {navLinks.map((link) => {
