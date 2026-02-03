@@ -43,7 +43,7 @@ export default function ExclusiveKeywords() {
       }
     },
     onError: (error) => {
-      toast.error('حدث خطأ في عملية الشراء');
+      toast.error('Purchase error occurred');
     }
   });
 
@@ -66,10 +66,10 @@ export default function ExclusiveKeywords() {
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-slate-900">الكلمات الحصرية</h1>
+            <h1 className="text-4xl font-bold text-slate-900">Exclusive Keywords</h1>
           </div>
           <p className="text-slate-600 text-lg">
-            كلمات مفتاحية مختارة بعناية - تُباع لشخص واحد فقط
+            Carefully selected keywords - sold to one person only
           </p>
         </motion.div>
 
@@ -81,9 +81,9 @@ export default function ExclusiveKeywords() {
                 <Lock className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900 mb-1">ما هي الكلمات الحصرية؟</h3>
+                <h3 className="font-semibold text-slate-900 mb-1">What are Exclusive Keywords?</h3>
                 <p className="text-slate-600">
-                  كل كلمة مفتاحية في هذا القسم تُباع لعميل واحد فقط. بمجرد الشراء، تُحذف من القائمة ولن يتمكن أحد آخر من الوصول إليها. احصل على ميزة تنافسية حقيقية!
+                  Each keyword in this section is sold to one customer only. Once purchased, it's removed from the list and no one else can access it. Get a real competitive advantage!
                 </p>
               </div>
             </div>
@@ -95,15 +95,15 @@ export default function ExclusiveKeywords() {
           <Card>
             <CardContent className="p-12 text-center">
               <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto mb-4" />
-              <p className="text-slate-600">جاري تحميل الكلمات الحصرية...</p>
+              <p className="text-slate-600">Loading exclusive keywords...</p>
             </CardContent>
           </Card>
         ) : keywords.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
               <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">لا توجد كلمات متاحة حالياً</h3>
-              <p className="text-slate-500">سيتم إضافة كلمات حصرية جديدة قريباً</p>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">No Keywords Available</h3>
+              <p className="text-slate-500">New exclusive keywords will be added soon</p>
             </CardContent>
           </Card>
         ) : (
@@ -137,13 +137,13 @@ export default function ExclusiveKeywords() {
                   <CardContent>
                     <div className="space-y-3 mb-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-500">حجم البحث:</span>
+                        <span className="text-sm text-slate-500">Search Volume:</span>
                         <span className="font-semibold text-emerald-600">
                           {keyword.search_volume.toLocaleString()}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-500">المنافسة:</span>
+                        <span className="text-sm text-slate-500">Competition:</span>
                         <span className="font-semibold text-slate-700">
                           {keyword.competing_products.toLocaleString()}
                         </span>
@@ -151,7 +151,7 @@ export default function ExclusiveKeywords() {
                       {keyword.beginner_friendly && (
                         <Badge className="bg-blue-100 text-blue-700 w-full justify-center">
                           <Star className="w-3 h-3 mr-1" />
-                          مناسب للمبتدئين
+                          Beginner Friendly
                         </Badge>
                       )}
                     </div>
@@ -164,12 +164,12 @@ export default function ExclusiveKeywords() {
                       {purchaseMutation.isPending ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          جاري المعالجة...
+                          Processing...
                         </>
                       ) : (
                         <>
                           <Lock className="w-4 h-4 mr-2" />
-                          اشترِ الآن - ${keyword.price}
+                          Buy Now - ${keyword.price}
                         </>
                       )}
                     </Button>

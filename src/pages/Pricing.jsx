@@ -35,7 +35,7 @@ export default function Pricing() {
       }
     },
     onError: () => {
-      toast.error('حدث خطأ في عملية الاشتراك');
+      toast.error('Subscription error occurred');
     }
   });
 
@@ -46,11 +46,11 @@ export default function Pricing() {
       icon: TrendingUp,
       color: 'blue',
       features: [
-        'الوصول لقاعدة بيانات الكلمات',
-        'تحديثات أسبوعية',
-        'بحث وفلترة متقدمة',
-        'حفظ الكلمات المفضلة',
-        'تصدير النتائج'
+        'Access to keyword database',
+        'Weekly updates',
+        'Advanced search & filtering',
+        'Save favorite keywords',
+        'Export results'
       ]
     },
     {
@@ -60,11 +60,11 @@ export default function Pricing() {
       color: 'indigo',
       popular: true,
       features: [
-        'كل ميزات Basic',
-        'تفسيرات AI مخصصة',
-        'تحليل المنافسين',
-        'توصيات السعر',
-        'دعم أولوية'
+        'All Basic features',
+        'Custom AI explanations',
+        'Competitor analysis',
+        'Price recommendations',
+        'Priority support'
       ]
     },
     {
@@ -73,11 +73,11 @@ export default function Pricing() {
       icon: Crown,
       color: 'purple',
       features: [
-        'كل ميزات Pro',
-        'خصم 50% على الكلمات الحصرية',
-        'وصول مبكر للكلمات الجديدة',
-        'API للتكامل',
-        'تقارير مخصصة شهرية'
+        'All Pro features',
+        '50% off exclusive keywords',
+        'Early access to new keywords',
+        'API integration',
+        'Monthly custom reports'
       ]
     }
   ];
@@ -93,10 +93,10 @@ export default function Pricing() {
           className="text-center mb-12"
         >
           <h1 className="text-5xl font-bold text-slate-900 mb-4">
-            اختر الخطة المناسبة لك
+            Choose the Right Plan for You
           </h1>
           <p className="text-xl text-slate-600">
-            ابدأ بخطة مجانية أو احصل على ميزات احترافية
+            Start with a free plan or get professional features
           </p>
         </motion.div>
 
@@ -115,7 +115,7 @@ export default function Pricing() {
                 <Card className={`relative h-full ${plan.popular ? 'border-4 border-indigo-300 shadow-2xl scale-105' : ''}`}>
                   {plan.popular && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <Badge className="bg-indigo-600 text-white px-4 py-1">الأكثر شعبية</Badge>
+                      <Badge className="bg-indigo-600 text-white px-4 py-1">Most Popular</Badge>
                     </div>
                   )}
 
@@ -126,7 +126,7 @@ export default function Pricing() {
                     <CardTitle className="text-2xl mb-2">{plan.name}</CardTitle>
                     <div className="text-4xl font-bold text-slate-900 mb-2">
                       ${plan.price}
-                      <span className="text-lg text-slate-500">/شهر</span>
+                      <span className="text-lg text-slate-500">/month</span>
                     </div>
                   </CardHeader>
 
@@ -143,7 +143,7 @@ export default function Pricing() {
                     {isCurrentPlan ? (
                       <Button disabled className="w-full bg-slate-400">
                         <CheckCircle className="w-4 h-4 mr-2" />
-                        الخطة الحالية
+                        Current Plan
                       </Button>
                     ) : (
                       <Button
@@ -154,10 +154,10 @@ export default function Pricing() {
                         {subscribeMutation.isPending ? (
                           <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            جاري المعالجة...
+                            Processing...
                           </>
                         ) : (
-                          'اشترك الآن'
+                          'Subscribe Now'
                         )}
                       </Button>
                     )}
@@ -172,12 +172,12 @@ export default function Pricing() {
         <Card className="mt-12 border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-blue-50">
           <CardContent className="p-8 text-center">
             <Sparkles className="w-12 h-12 text-emerald-600 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">التحليل المجاني</h3>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">Free Analysis</h3>
             <p className="text-slate-600 mb-4">
-              حلل ملفاتك الخاصة مجاناً بدون حدود - سيبقى مجانياً دائماً
+              Analyze your own files for free with no limits - forever free
             </p>
             <Button variant="outline" onClick={() => window.location.href = '/'}>
-              انتقل للتحليل المجاني
+              Go to Free Analysis
             </Button>
           </CardContent>
         </Card>

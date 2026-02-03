@@ -6,11 +6,11 @@ import { Home, Database, Sparkles, Star, DollarSign } from 'lucide-react';
 
 export default function Layout({ children, currentPageName }) {
   const navLinks = [
-    { name: 'Home', label: 'التحليل المجاني', icon: Home },
-    { name: 'KeywordDatabase', label: 'قاعدة البيانات', icon: Database },
-    { name: 'NewThisWeek', label: 'جديد الأسبوع', icon: Star },
-    { name: 'ExclusiveKeywords', label: 'كلمات حصرية', icon: Sparkles },
-    { name: 'Pricing', label: 'الأسعار', icon: DollarSign }
+    { name: 'Home', label: 'Free Analysis', icon: Home },
+    { name: 'KeywordDatabase', label: 'Keyword Database', icon: Database },
+    { name: 'NewThisWeek', label: 'New This Week', icon: Star },
+    { name: 'ExclusiveKeywords', label: 'Exclusive Keywords', icon: Sparkles },
+    { name: 'Pricing', label: 'Pricing', icon: DollarSign }
   ];
 
   return (

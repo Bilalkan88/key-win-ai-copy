@@ -35,10 +35,10 @@ export default function NewThisWeek() {
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-600 to-blue-600 flex items-center justify-center">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-slate-900">جديد هذا الأسبوع</h1>
+            <h1 className="text-4xl font-bold text-slate-900">New This Week</h1>
           </div>
           <p className="text-slate-600 text-lg">
-            أحدث الكلمات المفتاحية الرابحة المضافة هذا الأسبوع
+            Latest winning keywords added this week
           </p>
         </motion.div>
 
@@ -48,12 +48,12 @@ export default function NewThisWeek() {
               <div className="flex items-center gap-3">
                 <TrendingUp className="w-8 h-8 text-emerald-600" />
                 <div>
-                  <p className="font-semibold text-slate-900">كلمات جديدة هذا الأسبوع</p>
-                  <p className="text-sm text-slate-600">تُحدث كل يوم أحد</p>
+                  <p className="font-semibold text-slate-900">New Keywords This Week</p>
+                  <p className="text-sm text-slate-600">Updated every Sunday</p>
                 </div>
               </div>
               <Badge className="bg-emerald-600 text-white text-lg px-4 py-2">
-                {keywords.length} كلمة
+                {keywords.length} Keywords
               </Badge>
             </div>
           </CardContent>
@@ -63,7 +63,7 @@ export default function NewThisWeek() {
           <Card>
             <CardContent className="p-12 text-center">
               <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-4" />
-              <p className="text-slate-600">جاري التحميل...</p>
+              <p className="text-slate-600">Loading...</p>
             </CardContent>
           </Card>
         ) : (

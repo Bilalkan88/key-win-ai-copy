@@ -130,13 +130,13 @@ export default function KeywordDatabase() {
               <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-6">
                 <Lock className="w-10 h-10 text-indigo-600" />
               </div>
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">قاعدة بيانات الكلمات المفتاحية</h2>
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Keyword Database</h2>
               <p className="text-lg text-slate-600 mb-8">
-                احصل على آلاف الكلمات المفتاحية الرابحة المحدثة أسبوعياً
+                Get thousands of winning keywords updated weekly
               </p>
               <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700">
                 <Sparkles className="w-5 h-5 mr-2" />
-                اشترك الآن
+                Subscribe Now
               </Button>
             </CardContent>
           </Card>
@@ -156,10 +156,10 @@ export default function KeywordDatabase() {
         >
           <h1 className="text-4xl font-bold text-slate-900 mb-2 flex items-center gap-3">
             <TrendingUp className="w-8 h-8 text-indigo-600" />
-            قاعدة بيانات الكلمات المفتاحية
+            Keyword Database
           </h1>
           <p className="text-slate-600">
-            اكتشف آلاف الكلمات المفتاحية الرابحة - محدثة أسبوعياً
+            Discover thousands of winning keywords - updated weekly
           </p>
         </motion.div>
 
@@ -169,7 +169,7 @@ export default function KeywordDatabase() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">إجمالي الكلمات</p>
+                  <p className="text-sm text-slate-500">Total Keywords</p>
                   <p className="text-2xl font-bold text-slate-900">{keywords.length}</p>
                 </div>
                 <BarChart3 className="w-8 h-8 text-indigo-600" />
@@ -180,7 +180,7 @@ export default function KeywordDatabase() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">كلمات جديدة</p>
+                  <p className="text-sm text-slate-500">New This Week</p>
                   <p className="text-2xl font-bold text-emerald-600">
                     {keywords.filter(k => k.is_new_this_week).length}
                   </p>
@@ -193,7 +193,7 @@ export default function KeywordDatabase() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">للمبتدئين</p>
+                  <p className="text-sm text-slate-500">Beginner Friendly</p>
                   <p className="text-2xl font-bold text-blue-600">
                     {keywords.filter(k => k.beginner_friendly).length}
                   </p>
@@ -206,7 +206,7 @@ export default function KeywordDatabase() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">محفوظة</p>
+                  <p className="text-sm text-slate-500">Saved</p>
                   <p className="text-2xl font-bold text-purple-600">{savedKeywords.size}</p>
                 </div>
                 <Bookmark className="w-8 h-8 text-purple-600" />
@@ -220,7 +220,7 @@ export default function KeywordDatabase() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Filter className="w-5 h-5" />
-              الفلاتر والبحث
+              Filters & Search
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -228,19 +228,19 @@ export default function KeywordDatabase() {
               <div className="relative">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
-                  placeholder="ابحث عن كلمة مفتاحية..."
+                  placeholder="Search for a keyword..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pr-10"
+                  className="pl-10"
                 />
               </div>
 
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="التصنيف" />
+                  <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">جميع التصنيفات</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {categories.map(cat => (
                     <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                   ))}
@@ -249,19 +249,19 @@ export default function KeywordDatabase() {
 
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger>
-                  <SelectValue placeholder="الترتيب" />
+                  <SelectValue placeholder="Sort By" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="opportunity_desc">⭐ أعلى فرصة</SelectItem>
-                  <SelectItem value="competition_asc">أقل منافسة</SelectItem>
-                  <SelectItem value="volume_desc">أعلى طلب</SelectItem>
-                  <SelectItem value="newest">الأحدث</SelectItem>
+                  <SelectItem value="opportunity_desc">⭐ Highest Opportunity</SelectItem>
+                  <SelectItem value="competition_asc">Lowest Competition</SelectItem>
+                  <SelectItem value="volume_desc">Highest Demand</SelectItem>
+                  <SelectItem value="newest">Newest</SelectItem>
                 </SelectContent>
               </Select>
 
               <Input
                 type="number"
-                placeholder="أقل حجم بحث"
+                placeholder="Min Search Volume"
                 value={minVolume}
                 onChange={(e) => setMinVolume(e.target.value)}
               />
@@ -270,14 +270,14 @@ export default function KeywordDatabase() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Input
                 type="number"
-                placeholder="أقصى منافسة"
+                placeholder="Max Competition"
                 value={maxCompetition}
                 onChange={(e) => setMaxCompetition(e.target.value)}
               />
 
               <Input
                 type="number"
-                placeholder="أقصى تقييمات المنافسين"
+                placeholder="Max Competitor Reviews"
                 value={maxReviews}
                 onChange={(e) => setMaxReviews(e.target.value)}
               />
@@ -290,7 +290,7 @@ export default function KeywordDatabase() {
                     onCheckedChange={setBeginnerFriendlyOnly}
                   />
                   <label htmlFor="beginner-friendly" className="text-sm cursor-pointer">
-                    للمبتدئين فقط
+                    Beginner Friendly Only
                   </label>
                 </div>
 
@@ -301,7 +301,7 @@ export default function KeywordDatabase() {
                     onCheckedChange={setShowNewOnly}
                   />
                   <label htmlFor="new-only" className="text-sm cursor-pointer">
-                    جديدة هذا الأسبوع
+                    New This Week
                   </label>
                 </div>
               </div>
@@ -312,12 +312,12 @@ export default function KeywordDatabase() {
         {/* Results Count */}
         <div className="mb-4 flex items-center justify-between">
           <p className="text-slate-600">
-            عرض <span className="font-semibold text-slate-900">{filteredData.length}</span> كلمة مفتاحية
+            Showing <span className="font-semibold text-slate-900">{filteredData.length}</span> keywords
           </p>
           {showNewOnly && (
             <Badge className="bg-emerald-100 text-emerald-700">
               <Sparkles className="w-3 h-3 mr-1" />
-              جديدة هذا الأسبوع فقط
+              New This Week Only
             </Badge>
           )}
         </div>
@@ -327,7 +327,7 @@ export default function KeywordDatabase() {
           <Card>
             <CardContent className="p-12 text-center">
               <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto mb-4" />
-              <p className="text-slate-600">جاري تحميل الكلمات المفتاحية...</p>
+              <p className="text-slate-600">Loading keywords...</p>
             </CardContent>
           </Card>
         ) : (
@@ -338,7 +338,7 @@ export default function KeywordDatabase() {
             startIndex={startIndex}
             savedKeywords={savedKeywords}
             onToggleSaveKeyword={(row) => {
-              toast.success('سيتم إضافة ميزة الحفظ قريباً');
+              toast.success('Save feature coming soon');
             }}
           />
         )}

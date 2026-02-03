@@ -39,7 +39,7 @@ export default function KeywordDetails() {
 
   const generateAIExplanation = async () => {
     if (!hasProAccess) {
-      toast.error('هذه الميزة متاحة لمشتركي Pro+ فقط');
+      toast.error('This feature is available for Pro+ subscribers only');
       return;
     }
 
@@ -71,9 +71,9 @@ export default function KeywordDetails() {
         ai_explanation: response
       });
 
-      toast.success('تم إنشاء التفسير بنجاح');
+      toast.success('Explanation generated successfully');
     } catch (error) {
-      toast.error('حدث خطأ في إنشاء التفسير');
+      toast.error('Error generating explanation');
     } finally {
       setIsGeneratingAI(false);
     }
@@ -93,10 +93,10 @@ export default function KeywordDetails() {
         <Card>
           <CardContent className="p-12 text-center">
             <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-slate-900 mb-2">الكلمة المفتاحية غير موجودة</h2>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Keyword Not Found</h2>
             <Button onClick={() => window.history.back()}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              العودة
+              Go Back
             </Button>
           </CardContent>
         </Card>
@@ -110,21 +110,21 @@ export default function KeywordDetails() {
         return (
           <Badge className="bg-emerald-100 text-emerald-800 text-lg px-4 py-2">
             <CheckCircle className="w-5 h-5 mr-2" />
-            فرصة جيدة ✅
+            Good Opportunity ✅
           </Badge>
         );
       case 'caution':
         return (
           <Badge className="bg-amber-100 text-amber-800 text-lg px-4 py-2">
             <AlertTriangle className="w-5 h-5 mr-2" />
-            تحذير ⚠️
+            Caution ⚠️
           </Badge>
         );
       case 'avoid':
         return (
           <Badge className="bg-red-100 text-red-800 text-lg px-4 py-2">
             <XCircle className="w-5 h-5 mr-2" />
-            تجنب ❌
+            Avoid ❌
           </Badge>
         );
     }
@@ -137,9 +137,9 @@ export default function KeywordDetails() {
       high: 'bg-red-100 text-red-700'
     };
     const labels = {
-      low: 'منخفض',
-      medium: 'متوسط',
-      high: 'عالي'
+      low: 'Low',
+      medium: 'Medium',
+      high: 'High'
     };
     return (
       <Badge className={colors[keyword.risk_level]}>
@@ -153,7 +153,7 @@ export default function KeywordDetails() {
       <div className="max-w-5xl mx-auto">
         <Button variant="outline" onClick={() => window.history.back()} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          العودة
+          Back
         </Button>
 
         {/* Main Card */}
@@ -176,7 +176,7 @@ export default function KeywordDetails() {
                 <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <TrendingUp className="w-6 h-6 text-emerald-600" />
-                    <span className="text-slate-700">حجم البحث الشهري</span>
+                    <span className="text-slate-700">Monthly Search Volume</span>
                   </div>
                   <span className="text-2xl font-bold text-emerald-700">
                     {keyword.search_volume.toLocaleString()}
@@ -186,7 +186,7 @@ export default function KeywordDetails() {
                 <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Users className="w-6 h-6 text-blue-600" />
-                    <span className="text-slate-700">المنافسة</span>
+                    <span className="text-slate-700">Competition</span>
                   </div>
                   <span className="text-2xl font-bold text-blue-700">
                     {keyword.competing_products.toLocaleString()}
@@ -196,7 +196,7 @@ export default function KeywordDetails() {
                 <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Sparkles className="w-6 h-6 text-purple-600" />
-                    <span className="text-slate-700">درجة الفرصة</span>
+                    <span className="text-slate-700">Opportunity Score</span>
                   </div>
                   <span className="text-2xl font-bold text-purple-700">
                     {keyword.opportunity_score}/100
@@ -208,7 +208,7 @@ export default function KeywordDetails() {
               <div className="space-y-4">
                 <div className="p-4 bg-slate-50 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-slate-700 font-medium">مستوى المخاطر</span>
+                    <span className="text-slate-700 font-medium">Risk Level</span>
                     {getRiskBadge()}
                   </div>
                   <Progress 
@@ -221,7 +221,7 @@ export default function KeywordDetails() {
                   <div className="p-4 bg-slate-50 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <DollarSign className="w-5 h-5 text-slate-600" />
-                      <span className="text-slate-700 font-medium">نطاق السعر المقترح</span>
+                      <span className="text-slate-700 font-medium">Suggested Price Range</span>
                     </div>
                     <p className="text-2xl font-bold text-slate-900">
                       ${keyword.suggested_price_min} - ${keyword.suggested_price_max}
@@ -233,7 +233,7 @@ export default function KeywordDetails() {
                   <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
                     <div className="flex items-center gap-2">
                       <Star className="w-5 h-5 text-blue-600" />
-                      <span className="font-semibold text-blue-800">مناسب للمبتدئين</span>
+                      <span className="font-semibold text-blue-800">Beginner Friendly</span>
                     </div>
                   </div>
                 )}
@@ -248,27 +248,27 @@ export default function KeywordDetails() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-indigo-600" />
-                لمحة عن المنافسين (أفضل 10)
+                Competition Snapshot (Top 10)
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-slate-50 rounded-lg">
-                  <p className="text-sm text-slate-500 mb-1">متوسط التقييمات</p>
+                  <p className="text-sm text-slate-500 mb-1">Avg Reviews</p>
                   <p className="text-3xl font-bold text-slate-900">
                     {keyword.avg_competitor_reviews.toLocaleString()}
                   </p>
                 </div>
 
                 <div className="text-center p-4 bg-slate-50 rounded-lg">
-                  <p className="text-sm text-slate-500 mb-1">متوسط التقييم</p>
+                  <p className="text-sm text-slate-500 mb-1">Avg Rating</p>
                   <p className="text-3xl font-bold text-slate-900">
                     {keyword.avg_competitor_rating?.toFixed(1) || '-'}
                   </p>
                 </div>
 
                 <div className="text-center p-4 bg-slate-50 rounded-lg">
-                  <p className="text-sm text-slate-500 mb-1">متوسط السعر</p>
+                  <p className="text-sm text-slate-500 mb-1">Avg Price</p>
                   <p className="text-3xl font-bold text-slate-900">
                     ${keyword.avg_competitor_price?.toFixed(2) || '-'}
                   </p>
@@ -277,14 +277,14 @@ export default function KeywordDetails() {
 
               <div className="mt-4 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-700 font-medium">قوة المنافسين</span>
+                  <span className="text-slate-700 font-medium">Competitor Strength</span>
                   <Badge className={
                     keyword.competitor_strength === 'weak' ? 'bg-emerald-100 text-emerald-700' :
                     keyword.competitor_strength === 'medium' ? 'bg-amber-100 text-amber-700' :
                     'bg-red-100 text-red-700'
                   }>
-                    {keyword.competitor_strength === 'weak' ? 'ضعيف' : 
-                     keyword.competitor_strength === 'medium' ? 'متوسط' : 'قوي'}
+                    {keyword.competitor_strength === 'weak' ? 'Weak' : 
+                     keyword.competitor_strength === 'medium' ? 'Medium' : 'Strong'}
                   </Badge>
                 </div>
                 <Progress 
@@ -305,12 +305,12 @@ export default function KeywordDetails() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-indigo-600" />
-                التفسير الذكي (Pro+)
+                AI Explanation (Pro+)
               </CardTitle>
               {!hasProAccess && (
                 <Badge className="bg-indigo-100 text-indigo-700">
                   <Lock className="w-3 h-3 mr-1" />
-                  Pro+ فقط
+                  Pro+ Only
                 </Badge>
               )}
             </div>
@@ -318,9 +318,9 @@ export default function KeywordDetails() {
           <CardContent>
             {!hasProAccess ? (
               <div className="text-center p-8 bg-slate-50 rounded-lg">
-                <p className="text-slate-600 mb-4">قم بالترقية إلى Pro+ للحصول على تفسيرات AI مخصصة</p>
+                <p className="text-slate-600 mb-4">Upgrade to Pro+ for personalized AI explanations</p>
                 <Button className="bg-indigo-600 hover:bg-indigo-700">
-                  الترقية إلى Pro+
+                  Upgrade to Pro+
                 </Button>
               </div>
             ) : keyword.ai_explanation ? (
@@ -337,12 +337,12 @@ export default function KeywordDetails() {
                   {isGeneratingAI ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      جاري التحليل...
+                      Analyzing...
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4 mr-2" />
-                      احصل على التفسير الذكي
+                      Get AI Explanation
                     </>
                   )}
                 </Button>
