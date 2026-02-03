@@ -29,50 +29,34 @@ export default function Layout({ children, currentPageName }) {
               <span className="text-lg font-bold text-slate-900">KeywordWinner</span>
             </Link>
 
-            {/* Navigation Links - Hidden on homepage */}
-            {!isHomePage && (
-              <>
-                <div className="hidden md:flex items-center gap-1">
-                  {navLinks.map((link) => {
-                    const isActive = currentPageName === link.name;
-                    return (
-                      <Link
-                        key={link.name}
-                        to={createPageUrl(link.name)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          isActive
-                            ? 'text-slate-900 bg-slate-100'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                        }`}
-                      >
-                        {link.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-
-                <div className="flex items-center gap-3">
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center gap-1">
+              {navLinks.map((link) => {
+                const isActive = currentPageName === link.name;
+                return (
                   <Link
-                    to={createPageUrl('Analysis')}
-                    className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-lg transition-colors"
+                    key={link.name}
+                    to={createPageUrl(link.name)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'text-slate-900 bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
                   >
-                    Get Started
+                    {link.label}
                   </Link>
-                </div>
-              </>
-            )}
+                );
+              })}
+            </div>
 
-            {/* Homepage CTA */}
-            {isHomePage && (
-              <div className="flex items-center gap-3">
-                <Link
-                  to={createPageUrl('Analysis')}
-                  className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-lg transition-colors"
-                >
-                  Get Started
-                </Link>
-              </div>
-            )}
+            <div className="flex items-center gap-3">
+              <Link
+                to={createPageUrl('Analysis')}
+                className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-lg transition-colors"
+              >
+                Get Started
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
