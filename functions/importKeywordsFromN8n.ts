@@ -47,7 +47,8 @@ Deno.serve(async (req) => {
 
     // Upsert each keyword
     for (const keyword of keywords) {
-      if (!keyword.keyword_phrase) {
+      // Skip empty/invalid entries
+      if (!keyword?.keyword_phrase || String(keyword.keyword_phrase).trim() === "") {
         errors++;
         console.warn("Skipped keyword with missing keyword_phrase");
         continue;
@@ -59,6 +60,7 @@ Deno.serve(async (req) => {
           keyword_phrase: keyword.keyword_phrase
         });
 
+        // Prepare keyword data
         const keywordData = {
           keyword_phrase: keyword.keyword_phrase,
           category: keyword.category || null,
@@ -71,7 +73,8 @@ Deno.serve(async (req) => {
           user_id: keyword.user_id || null
         };
 
-        if (existing && existing.length > 0) {
+        // Upsert logic
+        if (Array.isArray(existing) && existing.length > 0) {
           // Update existing keyword
           await base44.asServiceRole.entities.keywords.update(existing[0].id, keywordData);
           updated++;
