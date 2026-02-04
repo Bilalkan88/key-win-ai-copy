@@ -41,7 +41,7 @@ export default function KeywordDatabase() {
     queryFn: () => base44.entities.keywords.list('-search_volume', 10000),
   });
 
-  const { data: savedKeywords = [] } = useQuery({
+  const { data: savedKeywords = new Set() } = useQuery({
     queryKey: ['saved-keywords', user?.email],
     queryFn: async () => {
       const userProfile = await base44.entities.User.filter({ email: user.email });
