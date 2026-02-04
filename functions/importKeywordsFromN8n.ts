@@ -96,12 +96,15 @@ Deno.serve(async (req) => {
           // Create new keyword
           await base44.asServiceRole.entities.keywords.create(keywordData);
           inserted++;
+          console.log(`[importKeywordsFromN8n] تم إنشاء: ${keyword.keyword_phrase}`);
         }
-      } catch (error) {
+        } catch (error) {
         console.error(`Failed to process keyword "${keyword.keyword_phrase}":`, error.message);
         errors++;
-      }
-    }
+        }
+        }
+
+        console.log(`[importKeywordsFromN8n] النتيجة النهائية - تم إدراج: ${inserted}, تم تحديث: ${updated}, أخطاء: ${errors}`);
 
     return Response.json({
       success: true,
