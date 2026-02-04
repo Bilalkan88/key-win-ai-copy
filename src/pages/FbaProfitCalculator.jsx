@@ -1,110 +1,137 @@
-import React, { useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { RefreshCw, Calculator } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Calculator, DollarSign, TrendingUp, TrendingDown, AlertTriangle, Info, Target } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function FbaProfitCalculator() {
-  const [unitsOrdered, setUnitsOrdered] = useState(500);
-  const [unitsSold, setUnitsSold] = useState(175);
-  const [retailPrice, setRetailPrice] = useState(29.99);
-  const [totalCOGS, setTotalCOGS] = useState(1800);
-  const [shippingToAmazon, setShippingToAmazon] = useState(800);
-  const [extraShipping, setExtraShipping] = useState(0);
-  const [fbaFeePerUnit, setFbaFeePerUnit] = useState(15.15);
-  const [totalAdSpend, setTotalAdSpend] = useState(500);
-  const [giveawayFeePerUnit, setGiveawayFeePerUnit] = useState(0);
+// Amazon FBA fee structure (simplified - actual fees may vary)
+const REFERRAL_FEES = {
+  electronics: 0.08,
+  clothing: 0.17,
+  books: 0.15,
+  homeGarden: 0.15,
+  toys: 0.15,
+  sports: 0.15,
+  beauty: 0.15,
+  automotive: 0.12,
+};
 
-  const [pricePoints, setPricePoints] = useState([
-    { price: 19.99, fbaFee: 13.2 },
-    { price: 25.99, fbaFee: 13.8 },
-    { price: 33.0, fbaFee: 14.05 },
-  ]);
+export default function FBACalculator() {
+  const [productCost, setProductCost] = useState("");
+  const [sellingPrice, setSellingPrice] = useState("");
+  const [shippingToAmazon, setShippingToAmazon] = useState("");
+  const [weight, setWeight] = useState("");
+  const [length, setLength] = useState("");
+  const [width, setWidth] = useState("");
+  const [height, setHeight] = useState("");
+  const [category, setCategory] = useState("electronics");
+  const [calculation, setCalculation] = useState(null);
 
-  const fmtMoney = (n) =>
-    new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(
-      Number.isFinite(n) ? n : 0
-    );
+  const categories = [
+    { value: "electronics", label: "Electronics" },
+    { value: "clothing", label: "Clothing" },
+    { value: "books", label: "Books" },
+    { value: "homeGarden", label: "Home & Garden" },
+    { value: "toys", label: "Toys" },
+    { value: "sports", label: "Sports" },
+    { value: "beauty", label: "Beauty" },
+    { value: "automotive", label: "Automotive" },
+  ];
 
-  const calc = useMemo(() => {
-    const safeUnitsOrdered = Number(unitsOrdered) || 0;
-    const safeUnitsSold = Number(unitsSold) || 0;
-    const safeRetail = Number(retailPrice) || 0;
-    const safeCOGS = Number(totalCOGS) || 0;
-    const safeShip = (Number(shippingToAmazon) || 0) + (Number(extraShipping) || 0);
+  const calculateFulfillmentFee = (weightLbs, lengthIn, widthIn, heightIn) => {
+    const volume = (lengthIn * widthIn * heightIn) / 1728; // cubic feet
+    const dimensionalWeight = volume * 139;
+    const billableWeight = Math.max(weightLbs, dimensionalWeight);
 
-    const cogsPerUnit = safeUnitsOrdered > 0 ? safeCOGS / safeUnitsOrdered : 0;
-    const landedCostTotal = safeCOGS + safeShip;
-    const landedCostPerUnit = safeUnitsOrdered > 0 ? landedCostTotal / safeUnitsOrdered : 0;
-    const adSpendPerUnit = safeUnitsSold > 0 ? (Number(totalAdSpend) || 0) / safeUnitsSold : 0;
-    const totalCostPerUnit =
-      landedCostPerUnit + (Number(fbaFeePerUnit) || 0) + adSpendPerUnit + (Number(giveawayFeePerUnit) || 0);
-    const netProfitPerUnit = safeRetail - totalCostPerUnit;
-    const netMargin = safeRetail > 0 ? netProfitPerUnit / safeRetail : 0;
-    const roi = landedCostPerUnit > 0 ? netProfitPerUnit / landedCostPerUnit : 0;
-
-    return {
-      cogsPerUnit,
-      landedCostPerUnit,
-      adSpendPerUnit,
-      totalCostPerUnit,
-      netProfitPerUnit,
-      netMargin,
-      roi,
-    };
-  }, [
-    unitsOrdered,
-    unitsSold,
-    retailPrice,
-    totalCOGS,
-    shippingToAmazon,
-    extraShipping,
-    fbaFeePerUnit,
-    totalAdSpend,
-    giveawayFeePerUnit,
-  ]);
-
-  const pricePointRows = useMemo(() => {
-    const safeRetailInputs = {
-      landedCostPerUnit: calc.landedCostPerUnit,
-      adSpendPerUnit: calc.adSpendPerUnit,
-      giveawayFeePerUnit: Number(giveawayFeePerUnit) || 0,
-    };
-
-    return pricePoints.map((p, idx) => {
-      const price = Number(p.price) || 0;
-      const fba = Number(p.fbaFee) || 0;
-      const totalCostPerUnit =
-        safeRetailInputs.landedCostPerUnit + safeRetailInputs.adSpendPerUnit + safeRetailInputs.giveawayFeePerUnit + fba;
-      const netProfitPerUnit = price - totalCostPerUnit;
-      const netMargin = price > 0 ? netProfitPerUnit / price : 0;
-
-      return { idx, price, fba, totalCostPerUnit, netProfitPerUnit, netMargin };
-    });
-  }, [pricePoints, calc.landedCostPerUnit, calc.adSpendPerUnit, giveawayFeePerUnit]);
-
-  const reset = () => {
-    setUnitsOrdered(500);
-    setUnitsSold(175);
-    setRetailPrice(29.99);
-    setTotalCOGS(1800);
-    setShippingToAmazon(800);
-    setExtraShipping(0);
-    setFbaFeePerUnit(15.15);
-    setTotalAdSpend(500);
-    setGiveawayFeePerUnit(0);
-    setPricePoints([
-      { price: 19.99, fbaFee: 13.2 },
-      { price: 25.99, fbaFee: 13.8 },
-      { price: 33.0, fbaFee: 14.05 },
-    ]);
+    if (billableWeight <= 1) return 2.5;
+    if (billableWeight <= 2) return 3.48;
+    if (billableWeight <= 3) return 4.09;
+    if (billableWeight <= 12) return 4.75 + (billableWeight - 3) * 0.38;
+    if (billableWeight <= 70) return 8.17 + (billableWeight - 12) * 0.42;
+    return 32.53 + (billableWeight - 70) * 0.83;
   };
+
+  const calculateStorageFee = (lengthIn, widthIn, heightIn) => {
+    const volume = (lengthIn * widthIn * heightIn) / 1728;
+    return volume * 0.75; // $0.75 per cubic foot per month
+  };
+
+  const formatCurrency = (amount) => {
+    return `$${amount.toFixed(2)}`;
+  };
+
+  const formatPercentage = (value) => {
+    return `${value.toFixed(1)}%`;
+  };
+
+  useEffect(() => {
+    const cost = parseFloat(productCost) || 0;
+    const price = parseFloat(sellingPrice) || 0;
+    const shipping = parseFloat(shippingToAmazon) || 0;
+    const weightNum = parseFloat(weight) || 0;
+    const lengthNum = parseFloat(length) || 0;
+    const widthNum = parseFloat(width) || 0;
+    const heightNum = parseFloat(height) || 0;
+
+    if (cost > 0 && price > 0) {
+      const referralFeeRate = REFERRAL_FEES[category] || 0.15;
+      const referralFee = price * referralFeeRate;
+
+      const fulfillmentFee =
+        weightNum > 0 && lengthNum > 0 && widthNum > 0 && heightNum > 0
+          ? calculateFulfillmentFee(weightNum, lengthNum, widthNum, heightNum)
+          : 3.0;
+
+      const storageFee =
+        lengthNum > 0 && widthNum > 0 && heightNum > 0 
+          ? calculateStorageFee(lengthNum, widthNum, heightNum) 
+          : 0.5;
+
+      const totalFees = referralFee + fulfillmentFee + storageFee;
+      const totalCosts = cost + shipping + totalFees;
+      const grossProfit = price - totalCosts;
+      const profitMargin = price > 0 ? (grossProfit / price) * 100 : 0;
+      const roi = cost > 0 ? (grossProfit / cost) * 100 : 0;
+      const breakEvenPrice = totalCosts;
+      const recommendedPrice = totalCosts / 0.7;
+
+      setCalculation({
+        productCost: cost,
+        sellingPrice: price,
+        shippingToAmazon: shipping,
+        referralFee,
+        fulfillmentFee,
+        storageFee,
+        totalFees,
+        totalCosts,
+        grossProfit,
+        profitMargin,
+        roi,
+        breakEvenPrice,
+        recommendedPrice,
+      });
+    } else {
+      setCalculation(null);
+    }
+  }, [productCost, sellingPrice, shippingToAmazon, weight, length, width, height, category]);
+
+  const getProfitStatus = (margin) => {
+    if (margin >= 30)
+      return { status: "Profitable", color: "text-green-600", bg: "bg-green-50", border: "border-green-200" };
+    if (margin >= 15)
+      return { status: "Marginal", color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-200" };
+    return { status: "Unprofitable", color: "text-red-600", bg: "bg-red-50", border: "border-red-200" };
+  };
+
+  const profitStatus = calculation ? getProfitStatus(calculation.profitMargin) : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -115,227 +142,379 @@ export default function FbaProfitCalculator() {
             Free Tool
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight mb-4">
-            Amazon FBA Profit Calculator
+            Amazon FBA Calculator
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Calculate your Amazon FBA profits with precision and explore different pricing scenarios
+            Calculate your FBA fees, profit margins, and get pricing recommendations
           </p>
         </motion.div>
 
-        {/* Main Calculator */}
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Inputs */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className="border-slate-200 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
-                <CardTitle className="text-slate-900">Input Parameters</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <Field 
-                  label="Units ordered" 
-                  value={unitsOrdered} 
-                  setValue={setUnitsOrdered} 
-                  helpText="Total units ordered from supplier."
-                />
-                <Field 
-                  label="Units sold" 
-                  value={unitsSold} 
-                  setValue={setUnitsSold} 
-                  helpText="Leave empty if none."
-                />
-                <Field 
-                  label="Retail price (USD)" 
-                  value={retailPrice} 
-                  setValue={setRetailPrice} 
-                  step="0.01" 
-                  helpText="The selling price on Amazon."
-                />
-                <Field 
-                  label="Total COGS (USD)" 
-                  value={totalCOGS} 
-                  setValue={setTotalCOGS} 
-                  step="0.01" 
-                  helpText="Cost of goods sold: This does not include shipping."
-                />
-                <Field 
-                  label="Shipping to Amazon (USD)" 
-                  value={shippingToAmazon} 
-                  setValue={setShippingToAmazon} 
-                  step="0.01" 
-                  helpText="Enter total shipping cost to get product from manufacturer to AMZ warehouse."
-                />
-                <Field 
-                  label="Extra shipping (USD)" 
-                  value={extraShipping} 
-                  setValue={setExtraShipping} 
-                  step="0.01" 
-                />
-                <Field 
-                  label="FBA fee per unit (USD)" 
-                  value={fbaFeePerUnit} 
-                  setValue={setFbaFeePerUnit} 
-                  step="0.01" 
-                />
-                <Field 
-                  label="Total ad spend (USD)" 
-                  value={totalAdSpend} 
-                  setValue={setTotalAdSpend} 
-                  step="0.01" 
-                />
-                <Field 
-                  label="Giveaway fee per unit (USD)" 
-                  value={giveawayFeePerUnit} 
-                  setValue={setGiveawayFeePerUnit} 
-                  step="0.01" 
-                  helpText="Includes any product giveaways and coupons, per unit."
-                />
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Input Section */}
+          <div className="space-y-6">
+            {/* Basic Information */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="shadow-lg border-slate-200">
+                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
+                  <CardTitle className="flex items-center gap-2">
+                    <Calculator className="h-5 w-5 text-blue-600" />
+                    Product Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="productCost">Product Cost</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
+                        <Input
+                          id="productCost"
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={productCost}
+                          onChange={(e) => setProductCost(e.target.value)}
+                          className="pl-8 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
 
-                <Button onClick={reset} variant="outline" className="w-full mt-6">
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Reset to Defaults
-                </Button>
+                    <div className="space-y-2">
+                      <Label htmlFor="sellingPrice">Selling Price</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
+                        <Input
+                          id="sellingPrice"
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={sellingPrice}
+                          onChange={(e) => setSellingPrice(e.target.value)}
+                          className="pl-8 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
 
-                {(Number(unitsOrdered) || 0) === 0 && (
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
-                    ⚠️ Units ordered cannot be 0.
+                    <div className="space-y-2">
+                      <Label htmlFor="shippingToAmazon">Shipping to Amazon</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
+                        <Input
+                          id="shippingToAmazon"
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={shippingToAmazon}
+                          onChange={(e) => setShippingToAmazon(e.target.value)}
+                          className="pl-8 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="category">Category</Label>
+                      <Select value={category} onValueChange={setCategory}>
+                        <SelectTrigger className="border-slate-200 focus:border-blue-500 focus:ring-blue-500">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.value} value={cat.value}>
+                              {cat.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                )}
-                {(Number(retailPrice) || 0) === 0 && (
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
-                    ⚠️ Retail price cannot be 0.
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-          {/* Results */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="border-slate-200 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
-                <CardTitle className="text-slate-900">Profit Analysis</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-3">
-                  <KPI label="Landed cost / unit" value={fmtMoney(calc.landedCostPerUnit)} />
-                  <KPI label="Ad spend / unit" value={fmtMoney(calc.adSpendPerUnit)} />
-                  <KPI label="Total cost / unit" value={fmtMoney(calc.totalCostPerUnit)} />
-                  <KPI 
-                    label="Net profit / unit" 
-                    value={fmtMoney(calc.netProfitPerUnit)}
-                    highlight={calc.netProfitPerUnit > 0}
-                  />
-                  <KPI label="Net margin" value={`${(calc.netMargin * 100).toFixed(2)}%`} />
-                  <KPI label="ROI" value={`${(calc.roi * 100).toFixed(2)}%`} />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+            {/* Product Dimensions */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <Card className="shadow-lg border-slate-200">
+                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-green-600" />
+                    Dimensions & Weight
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="weight">Weight (lbs)</Label>
+                      <Input
+                        id="weight"
+                        type="number"
+                        step="0.1"
+                        placeholder="0.0"
+                        value={weight}
+                        onChange={(e) => setWeight(e.target.value)}
+                        className="border-slate-200 focus:border-green-500 focus:ring-green-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="length">Length (in)</Label>
+                      <Input
+                        id="length"
+                        type="number"
+                        step="0.1"
+                        placeholder="0.0"
+                        value={length}
+                        onChange={(e) => setLength(e.target.value)}
+                        className="border-slate-200 focus:border-green-500 focus:ring-green-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="width">Width (in)</Label>
+                      <Input
+                        id="width"
+                        type="number"
+                        step="0.1"
+                        placeholder="0.0"
+                        value={width}
+                        onChange={(e) => setWidth(e.target.value)}
+                        className="border-slate-200 focus:border-green-500 focus:ring-green-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="height">Height (in)</Label>
+                      <Input
+                        id="height"
+                        type="number"
+                        step="0.1"
+                        placeholder="0.0"
+                        value={height}
+                        onChange={(e) => setHeight(e.target.value)}
+                        className="border-slate-200 focus:border-green-500 focus:ring-green-500"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Results Section */}
+          <div className="space-y-6">
+            {calculation ? (
+              <>
+                {/* Profit Summary */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Card className={`shadow-lg border ${profitStatus?.border}`}>
+                    <CardHeader className={`${profitStatus?.bg} border-b border-slate-200`}>
+                      <CardTitle className={`flex items-center gap-2 ${profitStatus?.color}`}>
+                        {calculation.profitMargin >= 30 ? (
+                          <TrendingUp className="h-5 w-5" />
+                        ) : calculation.profitMargin >= 15 ? (
+                          <AlertTriangle className="h-5 w-5" />
+                        ) : (
+                          <TrendingDown className="h-5 w-5" />
+                        )}
+                        Profit Analysis
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-4">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="text-center p-4 bg-white rounded-lg border border-slate-200">
+                          <p className="text-sm text-slate-600 mb-1">Gross Profit</p>
+                          <p className={`text-2xl font-bold ${profitStatus?.color}`}>
+                            {formatCurrency(calculation.grossProfit)}
+                          </p>
+                        </div>
+                        <div className="text-center p-4 bg-white rounded-lg border border-slate-200">
+                          <p className="text-sm text-slate-600 mb-1">Profit Margin</p>
+                          <p className={`text-2xl font-bold ${profitStatus?.color}`}>
+                            {formatPercentage(calculation.profitMargin)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-center">
+                        <Badge
+                          variant={
+                            calculation.profitMargin >= 30
+                              ? "default"
+                              : calculation.profitMargin >= 15
+                                ? "secondary"
+                                : "destructive"
+                          }
+                          className="text-sm px-4 py-2"
+                        >
+                          {profitStatus?.status}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Fee Breakdown */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25 }}
+                >
+                  <Card className="shadow-lg border-slate-200">
+                    <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
+                      <CardTitle className="flex items-center gap-2">
+                        <DollarSign className="h-5 w-5 text-purple-600" />
+                        Fee Breakdown
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-4">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-600">Product Cost</span>
+                          <span className="font-medium">{formatCurrency(calculation.productCost)}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-600">Shipping to Amazon</span>
+                          <span className="font-medium">{formatCurrency(calculation.shippingToAmazon)}</span>
+                        </div>
+                        <Separator />
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-600">Amazon Referral Fee</span>
+                          <span className="font-medium">{formatCurrency(calculation.referralFee)}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-600">FBA Fulfillment Fee</span>
+                          <span className="font-medium">{formatCurrency(calculation.fulfillmentFee)}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-600">Monthly Storage Fee</span>
+                          <span className="font-medium">{formatCurrency(calculation.storageFee)}</span>
+                        </div>
+                        <Separator />
+                        <div className="flex justify-between items-center font-semibold">
+                          <span>Total Costs</span>
+                          <span>{formatCurrency(calculation.totalCosts)}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Recommendations */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <Card className="shadow-lg border-slate-200">
+                    <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
+                      <CardTitle className="flex items-center gap-2">
+                        <Target className="h-5 w-5 text-orange-600" />
+                        Recommendations
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-4">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="text-center p-4 bg-slate-50 rounded-lg">
+                          <p className="text-sm text-slate-600 mb-1">Break-Even Price</p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {formatCurrency(calculation.breakEvenPrice)}
+                          </p>
+                        </div>
+                        <div className="text-center p-4 bg-slate-50 rounded-lg">
+                          <p className="text-sm text-slate-600 mb-1">Recommended Price (30% margin)</p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {formatCurrency(calculation.recommendedPrice)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-center p-4 bg-blue-50 rounded-lg">
+                        <p className="text-sm text-slate-600 mb-1">ROI</p>
+                        <p className="text-xl font-bold text-blue-600">{formatPercentage(calculation.roi)}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Card className="shadow-lg border-slate-200">
+                  <CardContent className="text-center py-12 text-slate-500">
+                    <div className="text-6xl mb-4">📊</div>
+                    <p className="text-lg">Enter product details to calculate</p>
+                    <p className="text-sm mt-2">Fill in product cost and selling price to see your profit analysis</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </div>
         </div>
 
-        {/* Price Points Table */}
+        {/* Guidelines */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-6"
+          transition={{ delay: 0.35 }}
+          className="grid gap-4 md:grid-cols-3 mt-8"
         >
-          <Card className="border-slate-200 shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
-              <CardTitle className="text-slate-900">Price Point Scenarios</CardTitle>
+          <Card className="bg-white/60 backdrop-blur border-slate-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Info className="h-5 w-5 text-blue-600" />
+                FBA Guidelines
+              </CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Retail Price</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">FBA Fee</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Total Cost / Unit</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Net Profit / Unit</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Net Margin</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pricePointRows.map((r) => (
-                      <tr key={r.idx} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                        <td className="py-3 px-4">
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={r.price}
-                            onChange={(e) => {
-                              const next = [...pricePoints];
-                              next[r.idx] = { ...next[r.idx], price: Number(e.target.value) };
-                              setPricePoints(next);
-                            }}
-                            className="w-32"
-                          />
-                        </td>
-                        <td className="py-3 px-4">
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={r.fba}
-                            onChange={(e) => {
-                              const next = [...pricePoints];
-                              next[r.idx] = { ...next[r.idx], fbaFee: Number(e.target.value) };
-                              setPricePoints(next);
-                            }}
-                            className="w-32"
-                          />
-                        </td>
-                        <td className="py-3 px-4 text-slate-700">{fmtMoney(r.totalCostPerUnit)}</td>
-                        <td className={`py-3 px-4 font-semibold ${r.netProfitPerUnit > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {fmtMoney(r.netProfitPerUnit)}
-                        </td>
-                        <td className="py-3 px-4 text-slate-700">{`${(r.netMargin * 100).toFixed(2)}%`}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <CardContent>
+              <p className="text-sm text-slate-600">
+                Amazon FBA fees vary by category and product dimensions. Use accurate measurements for best results.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/60 backdrop-blur border-slate-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Target className="h-5 w-5 text-green-600" />
+                Cost Optimization
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-slate-600">
+                Consider reducing product dimensions and weight to lower fulfillment and storage fees.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/60 backdrop-blur border-slate-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-purple-600" />
+                Pricing Strategy
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-slate-600">
+                Target a 30%+ profit margin for sustainable business growth and competitive pricing.
+              </p>
             </CardContent>
           </Card>
         </motion.div>
       </div>
-    </div>
-  );
-}
-
-function Field({ label, value, setValue, step = "1", helpText }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
-      <Input
-        type="number"
-        step={step}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        className="border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
-      />
-      {helpText && (
-        <p className="text-xs text-slate-500 mt-1">{helpText}</p>
-      )}
-    </div>
-  );
-}
-
-function KPI({ label, value, highlight = false }) {
-  return (
-    <div className="flex justify-between items-center py-3 border-b border-slate-100">
-      <span className="text-sm text-slate-600">{label}</span>
-      <span className={`font-semibold text-lg ${highlight ? 'text-green-600' : 'text-slate-900'}`}>
-        {value}
-      </span>
     </div>
   );
 }
