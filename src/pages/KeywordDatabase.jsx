@@ -109,10 +109,47 @@ export default function KeywordDatabase() {
     return data;
   }, [keywords, searchTerm, categoryFilter, sortBy, minVolume, maxCompetition, maxReviews, beginnerFriendlyOnly, showNewOnly]);
 
-  const categories = useMemo(() => {
-    const cats = new Set(keywords.map(k => k.category).filter(Boolean));
-    return Array.from(cats).sort();
-  }, [keywords]);
+  const categories = [
+    'All Categories',
+    'Amazon Devices & Accessories',
+    'Appliances',
+    'Apps & Games',
+    'Arts, Crafts & Sewing',
+    'Audible Books & Originals',
+    'Automotive Parts & Accessories',
+    'Baby',
+    'Beauty & Personal Care',
+    'Books',
+    'CDs & Vinyl',
+    'Cell Phones & Accessories',
+    'Clothing, Shoes & Jewelry',
+    'Collectibles & Fine Art',
+    'Computers',
+    'Credit and Payment Cards',
+    'Digital Music',
+    'Electronics',
+    'Garden & Outdoor',
+    'Gift Cards',
+    'Grocery & Gourmet Food',
+    'Handmade',
+    'Health, Household & Baby Care',
+    'Home & Kitchen',
+    'Industrial & Scientific',
+    'Kindle Store',
+    'Luggage & Travel Gear',
+    'Magazine Subscriptions',
+    'Movies & TV',
+    'Musical Instruments',
+    'Office Products',
+    'Patio, Lawn & Garden',
+    'Pet Supplies',
+    'Software',
+    'Sports & Outdoors',
+    'Subscribe & Save',
+    'Tools & Home Improvement',
+    'Toys & Games',
+    'Video Games'
+  ];
 
   const totalPages = Math.ceil(filteredData.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
