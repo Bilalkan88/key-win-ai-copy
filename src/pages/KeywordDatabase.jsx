@@ -111,35 +111,23 @@ export default function KeywordDatabase() {
 
   const categories = [
     'All Categories',
-    'Amazon Devices & Accessories',
     'Appliances',
-    'Apps & Games',
     'Arts, Crafts & Sewing',
-    'Audible Books & Originals',
     'Automotive Parts & Accessories',
     'Baby',
     'Beauty & Personal Care',
-    'Books',
-    'CDs & Vinyl',
     'Cell Phones & Accessories',
     'Clothing, Shoes & Jewelry',
     'Collectibles & Fine Art',
     'Computers',
-    'Credit and Payment Cards',
-    'Digital Music',
     'Electronics',
     'Garden & Outdoor',
-    'Gift Cards',
     'Grocery & Gourmet Food',
     'Handmade',
     'Health, Household & Baby Care',
     'Home & Kitchen',
     'Industrial & Scientific',
-    'Kindle Store',
     'Luggage & Travel Gear',
-    'Magazine Subscriptions',
-    'Movies & TV',
-    'Musical Instruments',
     'Office Products',
     'Patio, Lawn & Garden',
     'Pet Supplies',
@@ -147,8 +135,7 @@ export default function KeywordDatabase() {
     'Sports & Outdoors',
     'Subscribe & Save',
     'Tools & Home Improvement',
-    'Toys & Games',
-    'Video Games'
+    'Toys & Games'
   ];
 
   const totalPages = Math.ceil(filteredData.length / pageSize);
