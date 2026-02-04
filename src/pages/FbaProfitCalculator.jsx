@@ -1,520 +1,381 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Calculator, DollarSign, TrendingUp, TrendingDown, AlertTriangle, Info, Target } from "lucide-react";
+import { Calculator, RefreshCw, Globe } from "lucide-react";
 import { motion } from "framer-motion";
 
-// Amazon FBA fee structure (simplified - actual fees may vary)
-const REFERRAL_FEES = {
-  electronics: 0.08,
-  clothing: 0.17,
-  books: 0.15,
-  homeGarden: 0.15,
-  toys: 0.15,
-  sports: 0.15,
-  beauty: 0.15,
-  automotive: 0.12,
+const translations = {
+  en: {
+    title: "Amazon FBA Profit Calculator",
+    inputs: "Inputs",
+    results: "Results",
+    unitsOrdered: "Units Ordered",
+    unitsSold: "Units Sold",
+    retailPrice: "Retail Price (USD)",
+    totalCOGS: "Total COGS (USD)",
+    shippingToAmazon: "Shipping to Amazon (USD)",
+    extraShipping: "Extra Shipping (USD)",
+    fbaFeePerUnit: "FBA Fee per Unit (USD)",
+    totalAdSpend: "Total Ad Spend (USD)",
+    promotionPerUnit: "Promotion per Unit (USD)",
+    otherPerUnit: "Other per Unit (USD)",
+    reset: "Reset",
+    landedCost: "Landed cost / unit",
+    adSpend: "Ad spend / unit",
+    totalCost: "Total cost / unit",
+    netProfit: "Net profit / unit",
+    netMargin: "Net margin",
+    roi: "ROI",
+    pricePoints: "Price Points",
+    price: "Price",
+    fbaFee: "FBA Fee",
+    costPerUnit: "Cost/Unit",
+    profitPerUnit: "Profit/Unit",
+    margin: "Margin",
+    warnUnits: "⚠️ Units Ordered cannot be 0",
+    warnPrice: "⚠️ Retail Price cannot be 0",
+  },
+  ar: {
+    title: "حاسبة أرباح أمازون FBA",
+    inputs: "المدخلات",
+    results: "النتائج",
+    unitsOrdered: "عدد الوحدات (Ordered)",
+    unitsSold: "عدد الوحدات المباعة (Sold)",
+    retailPrice: "سعر البيع (USD)",
+    totalCOGS: "إجمالي COGS (USD)",
+    shippingToAmazon: "الشحن إلى أمازون (USD)",
+    extraShipping: "شحن إضافي (USD)",
+    fbaFeePerUnit: "رسوم FBA لكل وحدة (USD)",
+    totalAdSpend: "إجمالي الإنفاق الإعلاني (USD)",
+    promotionPerUnit: "Promotion لكل وحدة (USD)",
+    otherPerUnit: "Other لكل وحدة (USD)",
+    reset: "إعادة ضبط",
+    landedCost: "Landed cost / unit",
+    adSpend: "Ad spend / unit",
+    totalCost: "Total cost / unit",
+    netProfit: "Net profit / unit",
+    netMargin: "Net margin",
+    roi: "ROI",
+    pricePoints: "نقاط السعر",
+    price: "السعر",
+    fbaFee: "FBA fee",
+    costPerUnit: "التكلفة/وحدة",
+    profitPerUnit: "الربح/وحدة",
+    margin: "الهامش",
+    warnUnits: "⚠️ عدد الوحدات Ordered لا يمكن أن يكون 0",
+    warnPrice: "⚠️ سعر البيع لا يمكن أن يكون 0",
+  },
 };
 
-export default function FBACalculator() {
-  const [productCost, setProductCost] = useState("");
-  const [sellingPrice, setSellingPrice] = useState("");
-  const [shippingToAmazon, setShippingToAmazon] = useState("");
-  const [weight, setWeight] = useState("");
-  const [length, setLength] = useState("");
-  const [width, setWidth] = useState("");
-  const [height, setHeight] = useState("");
-  const [category, setCategory] = useState("electronics");
-  const [calculation, setCalculation] = useState(null);
+export default function AmazonFbaProfitCalculator() {
+  const [lang, setLang] = useState("en");
+  const t = translations[lang];
 
-  const categories = [
-    { value: "electronics", label: "Electronics" },
-    { value: "clothing", label: "Clothing" },
-    { value: "books", label: "Books" },
-    { value: "homeGarden", label: "Home & Garden" },
-    { value: "toys", label: "Toys" },
-    { value: "sports", label: "Sports" },
-    { value: "beauty", label: "Beauty" },
-    { value: "automotive", label: "Automotive" },
-  ];
+  const [unitsOrdered, setUnitsOrdered] = useState(500);
+  const [unitsSold, setUnitsSold] = useState(175);
+  const [retailPrice, setRetailPrice] = useState(29.99);
+  const [totalCOGS, setTotalCOGS] = useState(1800);
+  const [shippingToAmazon, setShippingToAmazon] = useState(800);
+  const [extraShipping, setExtraShipping] = useState(0);
+  const [fbaFeePerUnit, setFbaFeePerUnit] = useState(15.15);
+  const [totalAdSpend, setTotalAdSpend] = useState(500);
+  const [promotionPerUnit, setPromotionPerUnit] = useState(0);
+  const [otherPerUnit, setOtherPerUnit] = useState(0);
 
-  const calculateFulfillmentFee = (weightLbs, lengthIn, widthIn, heightIn) => {
-    const volume = (lengthIn * widthIn * heightIn) / 1728; // cubic feet
-    const dimensionalWeight = volume * 139;
-    const billableWeight = Math.max(weightLbs, dimensionalWeight);
+  const [pricePoints, setPricePoints] = useState([
+    { price: 19.99, fbaFee: 13.2 },
+    { price: 25.99, fbaFee: 13.8 },
+    { price: 33.0, fbaFee: 14.05 },
+  ]);
 
-    if (billableWeight <= 1) return 2.5;
-    if (billableWeight <= 2) return 3.48;
-    if (billableWeight <= 3) return 4.09;
-    if (billableWeight <= 12) return 4.75 + (billableWeight - 3) * 0.38;
-    if (billableWeight <= 70) return 8.17 + (billableWeight - 12) * 0.42;
-    return 32.53 + (billableWeight - 70) * 0.83;
+  const money = (n) =>
+    new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(
+      Number.isFinite(n) ? n : 0
+    );
+
+  const calc = useMemo(() => {
+    const uo = Number(unitsOrdered) || 0;
+    const us = Number(unitsSold) || 0;
+
+    const price = Number(retailPrice) || 0;
+    const cogs = Number(totalCOGS) || 0;
+    const ship = (Number(shippingToAmazon) || 0) + (Number(extraShipping) || 0);
+    const fba = Number(fbaFeePerUnit) || 0;
+    const adsTotal = Number(totalAdSpend) || 0;
+    const promo = Number(promotionPerUnit) || 0;
+    const other = Number(otherPerUnit) || 0;
+
+    const landedTotal = cogs + ship;
+    const landedPerUnit = uo > 0 ? landedTotal / uo : 0;
+    const adPerUnit = us > 0 ? adsTotal / us : 0;
+
+    const totalCostPerUnit = landedPerUnit + fba + adPerUnit + promo + other;
+    const netProfitPerUnit = price - totalCostPerUnit;
+
+    const netMargin = price > 0 ? netProfitPerUnit / price : 0;
+    const roi = landedPerUnit > 0 ? netProfitPerUnit / landedPerUnit : 0;
+
+    return {
+      landedPerUnit,
+      adPerUnit,
+      totalCostPerUnit,
+      netProfitPerUnit,
+      netMargin,
+      roi,
+    };
+  }, [
+    unitsOrdered,
+    unitsSold,
+    retailPrice,
+    totalCOGS,
+    shippingToAmazon,
+    extraShipping,
+    fbaFeePerUnit,
+    totalAdSpend,
+    promotionPerUnit,
+    otherPerUnit,
+  ]);
+
+  const rows = useMemo(() => {
+    const promo = Number(promotionPerUnit) || 0;
+    const other = Number(otherPerUnit) || 0;
+
+    return pricePoints.map((r, idx) => {
+      const price = Number(r.price) || 0;
+      const fba = Number(r.fbaFee) || 0;
+
+      const totalCostPerUnit = calc.landedPerUnit + calc.adPerUnit + promo + other + fba;
+      const netProfitPerUnit = price - totalCostPerUnit;
+      const netMargin = price > 0 ? netProfitPerUnit / price : 0;
+
+      return { idx, price, fba, totalCostPerUnit, netProfitPerUnit, netMargin };
+    });
+  }, [pricePoints, calc.landedPerUnit, calc.adPerUnit, promotionPerUnit, otherPerUnit]);
+
+  const reset = () => {
+    setUnitsOrdered(500);
+    setUnitsSold(175);
+    setRetailPrice(29.99);
+    setTotalCOGS(1800);
+    setShippingToAmazon(800);
+    setExtraShipping(0);
+    setFbaFeePerUnit(15.15);
+    setTotalAdSpend(500);
+    setPromotionPerUnit(0);
+    setOtherPerUnit(0);
+    setPricePoints([
+      { price: 19.99, fbaFee: 13.2 },
+      { price: 25.99, fbaFee: 13.8 },
+      { price: 33.0, fbaFee: 14.05 },
+    ]);
   };
 
-  const calculateStorageFee = (lengthIn, widthIn, heightIn) => {
-    const volume = (lengthIn * widthIn * heightIn) / 1728;
-    return volume * 0.75; // $0.75 per cubic foot per month
-  };
-
-  const formatCurrency = (amount) => {
-    return `$${amount.toFixed(2)}`;
-  };
-
-  const formatPercentage = (value) => {
-    return `${value.toFixed(1)}%`;
-  };
-
-  useEffect(() => {
-    const cost = parseFloat(productCost) || 0;
-    const price = parseFloat(sellingPrice) || 0;
-    const shipping = parseFloat(shippingToAmazon) || 0;
-    const weightNum = parseFloat(weight) || 0;
-    const lengthNum = parseFloat(length) || 0;
-    const widthNum = parseFloat(width) || 0;
-    const heightNum = parseFloat(height) || 0;
-
-    if (cost > 0 && price > 0) {
-      const referralFeeRate = REFERRAL_FEES[category] || 0.15;
-      const referralFee = price * referralFeeRate;
-
-      const fulfillmentFee =
-        weightNum > 0 && lengthNum > 0 && widthNum > 0 && heightNum > 0
-          ? calculateFulfillmentFee(weightNum, lengthNum, widthNum, heightNum)
-          : 3.0;
-
-      const storageFee =
-        lengthNum > 0 && widthNum > 0 && heightNum > 0 
-          ? calculateStorageFee(lengthNum, widthNum, heightNum) 
-          : 0.5;
-
-      const totalFees = referralFee + fulfillmentFee + storageFee;
-      const totalCosts = cost + shipping + totalFees;
-      const grossProfit = price - totalCosts;
-      const profitMargin = price > 0 ? (grossProfit / price) * 100 : 0;
-      const roi = cost > 0 ? (grossProfit / cost) * 100 : 0;
-      const breakEvenPrice = totalCosts;
-      const recommendedPrice = totalCosts / 0.7;
-
-      setCalculation({
-        productCost: cost,
-        sellingPrice: price,
-        shippingToAmazon: shipping,
-        referralFee,
-        fulfillmentFee,
-        storageFee,
-        totalFees,
-        totalCosts,
-        grossProfit,
-        profitMargin,
-        roi,
-        breakEvenPrice,
-        recommendedPrice,
-      });
-    } else {
-      setCalculation(null);
-    }
-  }, [productCost, sellingPrice, shippingToAmazon, weight, length, width, height, category]);
-
-  const getProfitStatus = (margin) => {
-    if (margin >= 30)
-      return { status: "Profitable", color: "text-green-600", bg: "bg-green-50", border: "border-green-200" };
-    if (margin >= 15)
-      return { status: "Marginal", color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-200" };
-    return { status: "Unprofitable", color: "text-red-600", bg: "bg-red-50", border: "border-red-200" };
-  };
-
-  const profitStatus = calculation ? getProfitStatus(calculation.profitMargin) : null;
+  const warnUnits = (Number(unitsOrdered) || 0) === 0;
+  const warnPrice = (Number(retailPrice) || 0) === 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50" dir={lang === "ar" ? "rtl" : "ltr"}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-sm font-medium mb-4">
-            <Calculator className="w-4 h-4" />
-            Free Tool
+          <div className="flex justify-center items-center gap-4 mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 rounded-full text-indigo-600 text-sm font-medium">
+              <Calculator className="w-4 h-4" />
+              Free Tool
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLang(lang === "en" ? "ar" : "en")}
+              className="gap-2"
+            >
+              <Globe className="w-4 h-4" />
+              {lang === "en" ? "عربي" : "English"}
+            </Button>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight mb-4">
-            Amazon FBA Calculator
+            {t.title}
           </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Calculate your FBA fees, profit margins, and get pricing recommendations
-          </p>
         </motion.div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Input Section */}
-          <div className="space-y-6">
-            {/* Basic Information */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card className="shadow-lg border-slate-200">
-                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
-                  <CardTitle className="flex items-center gap-2">
-                    <Calculator className="h-5 w-5 text-blue-600" />
-                    Product Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="productCost">Product Cost</Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
-                        <Input
-                          id="productCost"
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          value={productCost}
-                          onChange={(e) => setProductCost(e.target.value)}
-                          className="pl-8 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
+        {/* Main Calculator */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Inputs */}
+          <motion.div
+            initial={{ opacity: 0, x: lang === "ar" ? 20 : -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Card className="border-slate-200 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+                <CardTitle className="text-slate-900">{t.inputs}</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <Field label={t.unitsOrdered} value={unitsOrdered} onChange={setUnitsOrdered} />
+                <Field label={t.unitsSold} value={unitsSold} onChange={setUnitsSold} />
+                <Field label={t.retailPrice} value={retailPrice} onChange={setRetailPrice} step="0.01" />
+                <Field label={t.totalCOGS} value={totalCOGS} onChange={setTotalCOGS} step="0.01" />
+                <Field label={t.shippingToAmazon} value={shippingToAmazon} onChange={setShippingToAmazon} step="0.01" />
+                <Field label={t.extraShipping} value={extraShipping} onChange={setExtraShipping} step="0.01" />
+                <Field label={t.fbaFeePerUnit} value={fbaFeePerUnit} onChange={setFbaFeePerUnit} step="0.01" />
+                <Field label={t.totalAdSpend} value={totalAdSpend} onChange={setTotalAdSpend} step="0.01" />
+                <Field label={t.promotionPerUnit} value={promotionPerUnit} onChange={setPromotionPerUnit} step="0.01" />
+                <Field label={t.otherPerUnit} value={otherPerUnit} onChange={setOtherPerUnit} step="0.01" />
 
-                    <div className="space-y-2">
-                      <Label htmlFor="sellingPrice">Selling Price</Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
-                        <Input
-                          id="sellingPrice"
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          value={sellingPrice}
-                          onChange={(e) => setSellingPrice(e.target.value)}
-                          className="pl-8 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
+                <Button onClick={reset} variant="outline" className="w-full mt-6">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  {t.reset}
+                </Button>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="shippingToAmazon">Shipping to Amazon</Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
-                        <Input
-                          id="shippingToAmazon"
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          value={shippingToAmazon}
-                          onChange={(e) => setShippingToAmazon(e.target.value)}
-                          className="pl-8 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="category">Category</Label>
-                      <Select value={category} onValueChange={setCategory}>
-                        <SelectTrigger className="border-slate-200 focus:border-blue-500 focus:ring-blue-500">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat.value} value={cat.value}>
-                              {cat.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                {warnUnits && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
+                    {t.warnUnits}
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Product Dimensions */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.15 }}
-            >
-              <Card className="shadow-lg border-slate-200">
-                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-green-600" />
-                    Dimensions & Weight
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="weight">Weight (lbs)</Label>
-                      <Input
-                        id="weight"
-                        type="number"
-                        step="0.1"
-                        placeholder="0.0"
-                        value={weight}
-                        onChange={(e) => setWeight(e.target.value)}
-                        className="border-slate-200 focus:border-green-500 focus:ring-green-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="length">Length (in)</Label>
-                      <Input
-                        id="length"
-                        type="number"
-                        step="0.1"
-                        placeholder="0.0"
-                        value={length}
-                        onChange={(e) => setLength(e.target.value)}
-                        className="border-slate-200 focus:border-green-500 focus:ring-green-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="width">Width (in)</Label>
-                      <Input
-                        id="width"
-                        type="number"
-                        step="0.1"
-                        placeholder="0.0"
-                        value={width}
-                        onChange={(e) => setWidth(e.target.value)}
-                        className="border-slate-200 focus:border-green-500 focus:ring-green-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="height">Height (in)</Label>
-                      <Input
-                        id="height"
-                        type="number"
-                        step="0.1"
-                        placeholder="0.0"
-                        value={height}
-                        onChange={(e) => setHeight(e.target.value)}
-                        className="border-slate-200 focus:border-green-500 focus:ring-green-500"
-                      />
-                    </div>
+                )}
+                {warnPrice && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
+                    {t.warnPrice}
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          {/* Results Section */}
-          <div className="space-y-6">
-            {calculation ? (
-              <>
-                {/* Profit Summary */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <Card className={`shadow-lg border ${profitStatus?.border}`}>
-                    <CardHeader className={`${profitStatus?.bg} border-b border-slate-200`}>
-                      <CardTitle className={`flex items-center gap-2 ${profitStatus?.color}`}>
-                        {calculation.profitMargin >= 30 ? (
-                          <TrendingUp className="h-5 w-5" />
-                        ) : calculation.profitMargin >= 15 ? (
-                          <AlertTriangle className="h-5 w-5" />
-                        ) : (
-                          <TrendingDown className="h-5 w-5" />
-                        )}
-                        Profit Analysis
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6 space-y-4">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div className="text-center p-4 bg-white rounded-lg border border-slate-200">
-                          <p className="text-sm text-slate-600 mb-1">Gross Profit</p>
-                          <p className={`text-2xl font-bold ${profitStatus?.color}`}>
-                            {formatCurrency(calculation.grossProfit)}
-                          </p>
-                        </div>
-                        <div className="text-center p-4 bg-white rounded-lg border border-slate-200">
-                          <p className="text-sm text-slate-600 mb-1">Profit Margin</p>
-                          <p className={`text-2xl font-bold ${profitStatus?.color}`}>
-                            {formatPercentage(calculation.profitMargin)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-center">
-                        <Badge
-                          variant={
-                            calculation.profitMargin >= 30
-                              ? "default"
-                              : calculation.profitMargin >= 15
-                                ? "secondary"
-                                : "destructive"
-                          }
-                          className="text-sm px-4 py-2"
-                        >
-                          {profitStatus?.status}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                {/* Fee Breakdown */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.25 }}
-                >
-                  <Card className="shadow-lg border-slate-200">
-                    <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
-                      <CardTitle className="flex items-center gap-2">
-                        <DollarSign className="h-5 w-5 text-purple-600" />
-                        Fee Breakdown
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6 space-y-4">
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-slate-600">Product Cost</span>
-                          <span className="font-medium">{formatCurrency(calculation.productCost)}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-slate-600">Shipping to Amazon</span>
-                          <span className="font-medium">{formatCurrency(calculation.shippingToAmazon)}</span>
-                        </div>
-                        <Separator />
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-slate-600">Amazon Referral Fee</span>
-                          <span className="font-medium">{formatCurrency(calculation.referralFee)}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-slate-600">FBA Fulfillment Fee</span>
-                          <span className="font-medium">{formatCurrency(calculation.fulfillmentFee)}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-slate-600">Monthly Storage Fee</span>
-                          <span className="font-medium">{formatCurrency(calculation.storageFee)}</span>
-                        </div>
-                        <Separator />
-                        <div className="flex justify-between items-center font-semibold">
-                          <span>Total Costs</span>
-                          <span>{formatCurrency(calculation.totalCosts)}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                {/* Recommendations */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <Card className="shadow-lg border-slate-200">
-                    <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
-                      <CardTitle className="flex items-center gap-2">
-                        <Target className="h-5 w-5 text-orange-600" />
-                        Recommendations
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6 space-y-4">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div className="text-center p-4 bg-slate-50 rounded-lg">
-                          <p className="text-sm text-slate-600 mb-1">Break-Even Price</p>
-                          <p className="text-lg font-bold text-slate-900">
-                            {formatCurrency(calculation.breakEvenPrice)}
-                          </p>
-                        </div>
-                        <div className="text-center p-4 bg-slate-50 rounded-lg">
-                          <p className="text-sm text-slate-600 mb-1">Recommended Price (30% margin)</p>
-                          <p className="text-lg font-bold text-slate-900">
-                            {formatCurrency(calculation.recommendedPrice)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <p className="text-sm text-slate-600 mb-1">ROI</p>
-                        <p className="text-xl font-bold text-blue-600">{formatPercentage(calculation.roi)}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Card className="shadow-lg border-slate-200">
-                  <CardContent className="text-center py-12 text-slate-500">
-                    <div className="text-6xl mb-4">📊</div>
-                    <p className="text-lg">Enter product details to calculate</p>
-                    <p className="text-sm mt-2">Fill in product cost and selling price to see your profit analysis</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-          </div>
+          {/* Results */}
+          <motion.div
+            initial={{ opacity: 0, x: lang === "ar" ? -20 : 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card className="border-slate-200 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+                <CardTitle className="text-slate-900">{t.results}</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-3">
+                  <KPI label={t.landedCost} value={money(calc.landedPerUnit)} />
+                  <KPI label={t.adSpend} value={money(calc.adPerUnit)} />
+                  <KPI label={t.totalCost} value={money(calc.totalCostPerUnit)} />
+                  <KPI
+                    label={t.netProfit}
+                    value={money(calc.netProfitPerUnit)}
+                    highlight={calc.netProfitPerUnit > 0}
+                  />
+                  <KPI label={t.netMargin} value={`${(calc.netMargin * 100).toFixed(2)}%`} />
+                  <KPI label={t.roi} value={`${(calc.roi * 100).toFixed(2)}%`} border={false} />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
 
-        {/* Guidelines */}
+        {/* Price Points Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="grid gap-4 md:grid-cols-3 mt-8"
+          transition={{ delay: 0.3 }}
+          className="mt-6"
         >
-          <Card className="bg-white/60 backdrop-blur border-slate-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Info className="h-5 w-5 text-blue-600" />
-                FBA Guidelines
-              </CardTitle>
+          <Card className="border-slate-200 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+              <CardTitle className="text-slate-900">{t.pricePoints}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-slate-600">
-                Amazon FBA fees vary by category and product dimensions. Use accurate measurements for best results.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/60 backdrop-blur border-slate-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Target className="h-5 w-5 text-green-600" />
-                Cost Optimization
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-slate-600">
-                Consider reducing product dimensions and weight to lower fulfillment and storage fees.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/60 backdrop-blur border-slate-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-purple-600" />
-                Pricing Strategy
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-slate-600">
-                Target a 30%+ profit margin for sustainable business growth and competitive pricing.
-              </p>
+            <CardContent className="p-6">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-slate-200">
+                      <th className={`py-3 px-4 text-sm font-semibold text-slate-700 ${lang === "ar" ? "text-right" : "text-left"}`}>
+                        {t.price}
+                      </th>
+                      <th className={`py-3 px-4 text-sm font-semibold text-slate-700 ${lang === "ar" ? "text-right" : "text-left"}`}>
+                        {t.fbaFee}
+                      </th>
+                      <th className={`py-3 px-4 text-sm font-semibold text-slate-700 ${lang === "ar" ? "text-right" : "text-left"}`}>
+                        {t.costPerUnit}
+                      </th>
+                      <th className={`py-3 px-4 text-sm font-semibold text-slate-700 ${lang === "ar" ? "text-right" : "text-left"}`}>
+                        {t.profitPerUnit}
+                      </th>
+                      <th className={`py-3 px-4 text-sm font-semibold text-slate-700 ${lang === "ar" ? "text-right" : "text-left"}`}>
+                        {t.margin}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r) => (
+                      <tr key={r.idx} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                        <td className="py-3 px-4">
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={r.price}
+                            onChange={(e) => {
+                              const next = [...pricePoints];
+                              next[r.idx] = { ...next[r.idx], price: Number(e.target.value) };
+                              setPricePoints(next);
+                            }}
+                            className="w-32"
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={r.fba}
+                            onChange={(e) => {
+                              const next = [...pricePoints];
+                              next[r.idx] = { ...next[r.idx], fbaFee: Number(e.target.value) };
+                              setPricePoints(next);
+                            }}
+                            className="w-32"
+                          />
+                        </td>
+                        <td className="py-3 px-4 text-slate-700">{money(r.totalCostPerUnit)}</td>
+                        <td className={`py-3 px-4 font-semibold ${r.netProfitPerUnit > 0 ? "text-green-600" : "text-red-600"}`}>
+                          {money(r.netProfitPerUnit)}
+                        </td>
+                        <td className="py-3 px-4 text-slate-700">{`${(r.netMargin * 100).toFixed(2)}%`}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
       </div>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, step = "1" }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
+      <Input
+        type="number"
+        step={step}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="border-slate-200 focus:border-indigo-300 focus:ring-indigo-200"
+      />
+    </div>
+  );
+}
+
+function KPI({ label, value, highlight = false, border = true }) {
+  return (
+    <div className={`flex justify-between items-center py-3 ${border ? "border-b border-slate-100" : ""}`}>
+      <span className="text-sm text-slate-600">{label}</span>
+      <span className={`font-semibold text-lg ${highlight ? "text-green-600" : "text-slate-900"}`}>
+        {value}
+      </span>
     </div>
   );
 }

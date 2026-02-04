@@ -47,6 +47,7 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AmazonSellerToolkit from './pages/AmazonSellerToolkit';
 import Analysis from './pages/Analysis';
 import ExclusiveKeywords from './pages/ExclusiveKeywords';
 import FbaProfitCalculator from './pages/FbaProfitCalculator';
@@ -55,11 +56,11 @@ import KeywordDatabase from './pages/KeywordDatabase';
 import KeywordDetails from './pages/KeywordDetails';
 import NewThisWeek from './pages/NewThisWeek';
 import Pricing from './pages/Pricing';
-import AmazonSellerToolkit from './pages/AmazonSellerToolkit';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AmazonSellerToolkit": AmazonSellerToolkit,
     "Analysis": Analysis,
     "ExclusiveKeywords": ExclusiveKeywords,
     "FbaProfitCalculator": FbaProfitCalculator,
@@ -68,7 +69,6 @@ export const PAGES = {
     "KeywordDetails": KeywordDetails,
     "NewThisWeek": NewThisWeek,
     "Pricing": Pricing,
-    "AmazonSellerToolkit": AmazonSellerToolkit,
 }
 
 export const pagesConfig = {
