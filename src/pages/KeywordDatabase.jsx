@@ -21,6 +21,7 @@ export default function KeywordDatabase() {
   const [maxReviews, setMaxReviews] = useState('');
   const [beginnerFriendlyOnly, setBeginnerFriendlyOnly] = useState(false);
   const [showNewOnly, setShowNewOnly] = useState(false);
+  const [marketplace, setMarketplace] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
 
