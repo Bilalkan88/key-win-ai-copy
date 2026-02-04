@@ -91,6 +91,10 @@ export default function KeywordDatabase() {
       data = data.filter(k => k.is_new_this_week === true);
     }
 
+    if (marketplace !== 'all') {
+      data = data.filter(k => k.marketplace === marketplace);
+    }
+
     // Sorting
     switch (sortBy) {
       case 'opportunity_desc':
