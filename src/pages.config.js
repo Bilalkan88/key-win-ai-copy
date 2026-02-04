@@ -56,7 +56,6 @@ import KeywordDatabase from './pages/KeywordDatabase';
 import KeywordDetails from './pages/KeywordDetails';
 import NewThisWeek from './pages/NewThisWeek';
 import Pricing from './pages/Pricing';
-import AmazonAsinScraper from './pages/AmazonAsinScraper';
 import __Layout from './Layout.jsx';
 
 
@@ -70,7 +69,6 @@ export const PAGES = {
     "KeywordDetails": KeywordDetails,
     "NewThisWeek": NewThisWeek,
     "Pricing": Pricing,
-    "AmazonAsinScraper": AmazonAsinScraper,
 }
 
 export const pagesConfig = {
