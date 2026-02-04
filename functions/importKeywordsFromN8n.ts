@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     let errors = 0;
 
     // Upsert each keyword
-    for (const keyword of keywords) {
+    for (const keyword of keywordsClean) {
       // Skip empty/invalid entries
       if (!keyword?.keyword_phrase || String(keyword.keyword_phrase).trim() === "") {
         errors++;
