@@ -12,9 +12,11 @@ import {
   CheckCircle,
   XCircle,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Package
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { FeeCalc } from 'amazon-fba-calc';
 
 function Field({ label, value, setValue, step = "1", helpText, prefix = "$" }) {
   return (
@@ -57,6 +59,11 @@ export default function AmazonSellerToolkit() {
     mid: '5.50',
     high: '6.00'
   });
+
+  // FBA Fee Calculator State
+  const [dimensions, setDimensions] = useState({ length: '10', width: '8', height: '6' });
+  const [weight, setWeight] = useState('1.5');
+  const [isCalculatingFee, setIsCalculatingFee] = useState(false);
 
   // Calculations
   const calculations = useMemo(() => {
@@ -173,6 +180,27 @@ export default function AmazonSellerToolkit() {
     });
   }, [calculations, sellingPrice, unitsOrdered, unitsSold, productCostTotal, shippingToAmazon, adSpendTotal, scenarioFees]);
 
+  const handleCalculateFBAFee = async () => {
+    setIsCalculatingFee(true);
+    try {
+      const feeCalculator = new FeeCalc();
+      const dims = [
+        parseFloat(dimensions.length) || 0,
+        parseFloat(dimensions.width) || 0,
+        parseFloat(dimensions.height) || 0
+      ];
+      const weightInLbs = parseFloat(weight) || 0;
+      
+      const fee = await feeCalculator.calculateFBAFee(dims, weightInLbs);
+      setFbaFeePerUnit(fee.toFixed(2));
+    } catch (error) {
+      console.error('Error calculating FBA fee:', error);
+      alert('Failed to calculate FBA fee. Please check your inputs.');
+    } finally {
+      setIsCalculatingFee(false);
+    }
+  };
+
   const handleReset = () => {
     setSellingPrice('29.99');
     setUnitsOrdered('500');
@@ -182,6 +210,8 @@ export default function AmazonSellerToolkit() {
     setFbaFeePerUnit('5.50');
     setAdSpendTotal('900');
     setScenarioFees({ low: '5.00', mid: '5.50', high: '6.00' });
+    setDimensions({ length: '10', width: '8', height: '6' });
+    setWeight('1.5');
   };
 
   const decision = getDecision();
@@ -290,6 +320,74 @@ export default function AmazonSellerToolkit() {
                     step="0.01"
                     helpText="Total advertising spend"
                   />
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <Card className="border-indigo-200 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Package className="w-5 h-5 text-indigo-600" />
+                    Auto Calculate FBA Fee
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="grid grid-cols-3 gap-3">
+                    <Field 
+                      label="Length (in)"
+                      value={dimensions.length}
+                      setValue={(val) => setDimensions(prev => ({ ...prev, length: val }))}
+                      step="0.1"
+                      prefix=""
+                    />
+                    <Field 
+                      label="Width (in)"
+                      value={dimensions.width}
+                      setValue={(val) => setDimensions(prev => ({ ...prev, width: val }))}
+                      step="0.1"
+                      prefix=""
+                    />
+                    <Field 
+                      label="Height (in)"
+                      value={dimensions.height}
+                      setValue={(val) => setDimensions(prev => ({ ...prev, height: val }))}
+                      step="0.1"
+                      prefix=""
+                    />
+                  </div>
+                  <Field 
+                    label="Weight (lbs)"
+                    value={weight}
+                    setValue={setWeight}
+                    step="0.1"
+                    prefix=""
+                    helpText="Product weight in pounds"
+                  />
+                  <Button
+                    onClick={handleCalculateFBAFee}
+                    disabled={isCalculatingFee}
+                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    {isCalculatingFee ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        Calculating...
+                      </>
+                    ) : (
+                      <>
+                        <Calculator className="w-4 h-4 mr-2" />
+                        Calculate FBA Fee
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-xs text-slate-500 text-center">
+                    Automatically calculates Amazon FBA fees based on dimensions and weight
+                  </p>
                 </CardContent>
               </Card>
             </motion.div>
