@@ -16,11 +16,28 @@ Deno.serve(async (req) => {
     }
 
     // 3️⃣ التحقق من البيانات
-    const body = await req.json();
+    let body;
+    try {
+      const text = await req.text();
+      if (!text || text.trim() === '') {
+        return Response.json({ error: "Request body is empty" }, { status: 400 });
+      }
+      body = JSON.parse(text);
+    } catch (error) {
+      return Response.json({ 
+        error: "Invalid JSON in request body",
+        details: error.message 
+      }, { status: 400 });
+    }
+
     const { keywords } = body;
 
     if (!Array.isArray(keywords)) {
       return Response.json({ error: "keywords must be an array" }, { status: 400 });
+    }
+
+    if (keywords.length === 0) {
+      return Response.json({ error: "keywords array is empty" }, { status: 400 });
     }
 
     const base44 = createClientFromRequest(req);
