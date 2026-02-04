@@ -38,19 +38,32 @@ Deno.serve(async (req) => {
 
             const result = await response.json();
 
+            console.log('ScraperAPI Response:', JSON.stringify(result, null, 2));
+
             if (result.results && result.results.length > 0) {
-                data = result.results.map(product => ({
-                    asin: product.asin || 'N/A',
-                    title: product.name || 'No title',
-                    price: product.price_string || product.price || 'N/A',
-                    rating: product.rating || 0,
-                    reviews: product.reviews_count || 0,
-                    image: product.image || '',
-                    inStock: product.is_prime !== false,
-                    bestseller: product.is_best_seller || false,
-                    category: product.categories?.[0] || 'Electronics',
-                    brand: product.brand || product.name?.split(' ')[0] || 'Unknown'
-                }));
+                data = result.results.map(product => {
+                    console.log('Processing product:', {
+                        asin: product.asin,
+                        name: product.name,
+                        price: product.price,
+                        price_string: product.price_string,
+                        rating: product.rating,
+                        reviews_count: product.reviews_count
+                    });
+
+                    return {
+                        asin: product.asin || 'N/A',
+                        title: product.name || 'No title',
+                        price: product.price_string || (product.price ? `$${product.price}` : 'N/A'),
+                        rating: parseFloat(product.rating) || 0,
+                        reviews: parseInt(product.reviews_count) || 0,
+                        image: product.image || '',
+                        inStock: product.is_prime !== false,
+                        bestseller: product.is_best_seller || false,
+                        category: product.categories?.[0] || 'Electronics',
+                        brand: product.brand || product.name?.split(' ')[0] || 'Unknown'
+                    };
+                });
             }
         }
         
@@ -73,13 +86,15 @@ Deno.serve(async (req) => {
 
             const product = await response.json();
 
+            console.log('Single Product Response:', JSON.stringify(product, null, 2));
+
             if (product) {
                 data = [{
                     asin: product.asin || searchValue,
                     title: product.name || 'No title',
-                    price: product.price_string || product.price || 'N/A',
-                    rating: product.rating || 0,
-                    reviews: product.reviews_count || 0,
+                    price: product.price_string || (product.price ? `$${product.price}` : 'N/A'),
+                    rating: parseFloat(product.rating) || 0,
+                    reviews: parseInt(product.reviews_count) || 0,
                     image: product.images?.[0] || product.image || '',
                     inStock: product.in_stock !== false,
                     bestseller: product.is_best_seller || false,
