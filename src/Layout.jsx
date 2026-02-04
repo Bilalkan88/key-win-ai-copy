@@ -13,7 +13,8 @@ import {
 export default function Layout({ children, currentPageName }) {
   const freeToolsLinks = [
     { name: 'Analysis', label: 'Keyword Analysis' },
-    { name: 'FbaProfitCalculator', label: 'FBA Calculator' }
+    { name: 'FbaProfitCalculator', label: 'FBA Calculator' },
+    { name: 'AmazonSellerToolkit', label: 'Seller Toolkit' }
   ];
 
   const navLinks = [
