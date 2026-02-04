@@ -295,6 +295,23 @@ export default function KeywordDatabase() {
                 </SelectContent>
               </Select>
 
+              <Select value={marketplace} onValueChange={setMarketplace}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Marketplace" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Marketplaces</SelectItem>
+                  <SelectItem value="amazon.com">🇺🇸 www.amazon.com</SelectItem>
+                  <SelectItem value="amazon.co.uk">🇬🇧 www.amazon.co.uk</SelectItem>
+                  <SelectItem value="amazon.ca">🇨🇦 www.amazon.ca</SelectItem>
+                  <SelectItem value="amazon.com.mx">🇲🇽 www.amazon.com.mx</SelectItem>
+                  <SelectItem value="amazon.de">🇩🇪 www.amazon.de</SelectItem>
+                  <SelectItem value="amazon.es">🇪🇸 www.amazon.es</SelectItem>
+                  <SelectItem value="amazon.it">🇮🇹 www.amazon.it</SelectItem>
+                  <SelectItem value="amazon.fr">🇫🇷 www.amazon.fr</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Input
                 type="number"
                 placeholder="Min Search Volume"
