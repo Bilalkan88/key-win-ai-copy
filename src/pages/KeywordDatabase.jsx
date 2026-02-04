@@ -106,19 +106,34 @@ export default function KeywordDatabase() {
     return data;
   }, [keywords, searchTerm, categoryFilter, sortBy, minVolume, maxCompetition, maxReviews, beginnerFriendlyOnly, showNewOnly, marketplace]);
 
-  const categoryCounts = useMemo(() => {
-    const counts = {};
-    keywords.forEach(k => {
-      if (k.category) {
-        counts[k.category] = (counts[k.category] || 0) + 1;
-      }
-    });
-    return counts;
-  }, [keywords]);
-
-  const categories = useMemo(() => {
-    return ['All Categories', ...Object.keys(categoryCounts).sort()];
-  }, [categoryCounts]);
+  const categories = [
+    'All Categories',
+    'Appliances',
+    'Arts, Crafts & Sewing',
+    'Automotive Parts & Accessories',
+    'Baby',
+    'Beauty & Personal Care',
+    'Cell Phones & Accessories',
+    'Clothing, Shoes & Jewelry',
+    'Collectibles & Fine Art',
+    'Computers',
+    'Electronics',
+    'Garden & Outdoor',
+    'Grocery & Gourmet Food',
+    'Handmade',
+    'Health, Household & Baby Care',
+    'Home & Kitchen',
+    'Industrial & Scientific',
+    'Luggage & Travel Gear',
+    'Office Products',
+    'Patio, Lawn & Garden',
+    'Pet Supplies',
+    'Software',
+    'Sports & Outdoors',
+    'Subscribe & Save',
+    'Tools & Home Improvement',
+    'Toys & Games'
+  ];
 
   const totalPages = Math.ceil(filteredData.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
