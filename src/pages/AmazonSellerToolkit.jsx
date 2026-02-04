@@ -101,7 +101,7 @@ export default function AmazonSellerToolkit() {
     
     if (margin >= 30 && roi >= 100) {
       return {
-        label: 'منتج ممتاز',
+        label: 'Excellent Product',
         color: 'bg-emerald-500',
         icon: CheckCircle,
         textColor: 'text-emerald-600',
@@ -109,7 +109,7 @@ export default function AmazonSellerToolkit() {
       };
     } else if (margin >= 15 && margin < 30) {
       return {
-        label: 'منتج متوسط',
+        label: 'Average Product',
         color: 'bg-yellow-500',
         icon: AlertCircle,
         textColor: 'text-yellow-600',
@@ -117,7 +117,7 @@ export default function AmazonSellerToolkit() {
       };
     } else {
       return {
-        label: 'غير موصى به',
+        label: 'Not Recommended',
         color: 'bg-red-500',
         icon: XCircle,
         textColor: 'text-red-600',
@@ -203,7 +203,7 @@ export default function AmazonSellerToolkit() {
             Amazon Seller Toolkit – Lite
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            احسب الربحية وقيّم المنتج بسرعة واتخذ قرار ذكي
+            Calculate profitability, evaluate products quickly, and make smart decisions
           </p>
         </motion.div>
 
@@ -227,7 +227,7 @@ export default function AmazonSellerToolkit() {
                     value={sellingPrice}
                     setValue={setSellingPrice}
                     step="0.01"
-                    helpText="سعر البيع على Amazon"
+                    helpText="Selling price on Amazon"
                   />
                   <div className="grid grid-cols-2 gap-4">
                     <Field 
@@ -235,14 +235,14 @@ export default function AmazonSellerToolkit() {
                       value={unitsOrdered}
                       setValue={setUnitsOrdered}
                       prefix=""
-                      helpText="عدد الوحدات المطلوبة"
+                      helpText="Number of units ordered"
                     />
                     <Field 
                       label="Units Sold"
                       value={unitsSold}
                       setValue={setUnitsSold}
                       prefix=""
-                      helpText="عدد الوحدات المباعة"
+                      helpText="Number of units sold"
                     />
                   </div>
                 </CardContent>
@@ -267,28 +267,28 @@ export default function AmazonSellerToolkit() {
                     value={productCostTotal}
                     setValue={setProductCostTotal}
                     step="0.01"
-                    helpText="إجمالي تكلفة المنتج"
+                    helpText="Total cost of the product"
                   />
                   <Field 
                     label="Shipping to Amazon (USD)"
                     value={shippingToAmazon}
                     setValue={setShippingToAmazon}
                     step="0.01"
-                    helpText="تكلفة الشحن الكلية"
+                    helpText="Total shipping cost"
                   />
                   <Field 
                     label="FBA Fee Per Unit (USD)"
                     value={fbaFeePerUnit}
                     setValue={setFbaFeePerUnit}
                     step="0.01"
-                    helpText="رسوم FBA للوحدة الواحدة"
+                    helpText="FBA fee per unit"
                   />
                   <Field 
                     label="Total Ad Spend (USD)"
                     value={adSpendTotal}
                     setValue={setAdSpendTotal}
                     step="0.01"
-                    helpText="إجمالي الإعلانات"
+                    helpText="Total advertising spend"
                   />
                 </CardContent>
               </Card>
