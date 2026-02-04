@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
     }
 
     // 2️⃣ التحقق من API KEY
-    const VALID_API_KEY = Deno.env.get("N8N_API_KEY");
+    const VALID_API_KEY = Deno.env.get("N8N_API_KEY") || "67d9de747d014e0ba0028d7126a17807";
     
     // محاولة الحصول على API key من Headers أو Body
     let apiKey = req.headers.get("api_key");
@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     }
 
     if (!apiKey || apiKey !== VALID_API_KEY) {
-      return Response.json({ error: "Unauthorized", details: "Invalid or missing API key" }, { status: 401 });
+      return Response.json({ error: "Unauthorized", details: `Invalid or missing API key. Expected: ${VALID_API_KEY.slice(0, 10)}...` }, { status: 401 });
     }
 
     // 3️⃣ التحقق من البيانات
