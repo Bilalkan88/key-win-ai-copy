@@ -53,6 +53,8 @@ Deno.serve(async (req) => {
 
     const base44 = createClientFromRequest(req);
 
+    console.log(`[importKeywordsFromN8n] استقبلت ${keywordsClean.length} كلمة رئيسية`);
+
     let inserted = 0;
     let updated = 0;
     let errors = 0;
