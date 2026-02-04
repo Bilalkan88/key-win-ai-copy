@@ -35,24 +35,16 @@ export default function KeywordDatabase() {
     enabled: !!user?.email,
   });
 
-  const [sheetConfig, setSheetConfig] = useState({
-    spreadsheetId: localStorage.getItem('sheets_spreadsheetId') || '',
-    range: localStorage.getItem('sheets_range') || 'Sheet1!A:Z'
-  });
-
   const { data: keywords = [], isLoading } = useQuery({
-    queryKey: ['keywords-database', sheetConfig],
+    queryKey: ['keywords-database'],
     queryFn: async () => {
-      if (!sheetConfig.spreadsheetId) {
+      try {
+        const response = await base44.functions.invoke('readGoogleSheets', {});
+        return response.data.keywords || [];
+      } catch (error) {
+        console.log('Google Sheets not configured, using database');
         return base44.entities.KeywordDatabase.list('-opportunity_score', 1000);
       }
-      
-      const response = await base44.functions.invoke('readGoogleSheets', {
-        spreadsheetId: sheetConfig.spreadsheetId,
-        range: sheetConfig.range
-      });
-      
-      return response.data.keywords || [];
     },
   });
 
@@ -170,33 +162,13 @@ export default function KeywordDatabase() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2 flex items-center gap-3">
-                <TrendingUp className="w-8 h-8 text-indigo-600" />
-                Keyword Database
-              </h1>
-              <p className="text-slate-600">
-                Discover thousands of winning keywords - updated weekly
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => {
-                const id = prompt('أدخل Spreadsheet ID من رابط Google Sheets:\nمثال: 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms');
-                const range = prompt('أدخل النطاق (مثل: Sheet1!A:Z)', 'Sheet1!A:Z');
-                
-                if (id && range) {
-                  localStorage.setItem('sheets_spreadsheetId', id);
-                  localStorage.setItem('sheets_range', range);
-                  setSheetConfig({ spreadsheetId: id, range });
-                  toast.success('تم ربط Google Sheets بنجاح');
-                }
-              }}
-            >
-              ربط Google Sheets
-            </Button>
-          </div>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2 flex items-center gap-3">
+            <TrendingUp className="w-8 h-8 text-indigo-600" />
+            Keyword Database
+          </h1>
+          <p className="text-slate-600">
+            Discover thousands of winning keywords - updated weekly
+          </p>
         </motion.div>
 
         {/* Stats */}

@@ -9,12 +9,13 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { spreadsheetId, range } = await req.json();
+        const spreadsheetId = Deno.env.get("SHEETS_SPREADSHEET_ID");
+        const range = Deno.env.get("SHEETS_RANGE") || "Sheet1!A:Z";
 
-        if (!spreadsheetId || !range) {
+        if (!spreadsheetId) {
             return Response.json({ 
-                error: 'Missing required parameters: spreadsheetId and range' 
-            }, { status: 400 });
+                error: 'SHEETS_SPREADSHEET_ID not configured' 
+            }, { status: 500 });
         }
 
         // Get Google Sheets access token
