@@ -3,11 +3,13 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
-        const user = await base44.auth.me();
+        
+        // Verify webhook secret from query parameter
+        const secret = new URL(req.url).searchParams.get('secret');
+        const n8nWebhookSecret = Deno.env.get("N8N_WEBHOOK_SECRET");
 
-        // Only admin can import keywords
-        if (user?.role !== 'admin') {
-            return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+        if (!secret || secret !== n8nWebhookSecret) {
+            return Response.json({ error: 'Unauthorized: Invalid webhook secret' }, { status: 401 });
         }
 
         const { keywords } = await req.json();
