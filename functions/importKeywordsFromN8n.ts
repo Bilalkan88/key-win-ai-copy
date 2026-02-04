@@ -39,6 +39,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: "keywords must be a non-empty array" }, { status: 400 });
     }
 
+    // Clean and normalize keywords
+    const keywordsClean = keywords
+      .map(k => ({
+        ...k,
+        keyword_phrase: (k.keyword_phrase ?? k.Keyword_phrase ?? "").toString().trim()
+      }))
+      .filter(k => k.keyword_phrase);
+
+    if (keywordsClean.length === 0) {
+      return Response.json({ error: "No valid keywords after cleaning" }, { status: 400 });
+    }
+
     const base44 = createClientFromRequest(req);
 
     let inserted = 0;
