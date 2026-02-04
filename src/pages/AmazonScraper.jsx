@@ -6,79 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Search, Package, Star, DollarSign, TrendingUp, ExternalLink } from "lucide-react";
+import { Search, Package, Star, DollarSign, TrendingUp, ExternalLink, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 
-// Mock data for demo
-const mockProductData = [
-  {
-    asin: "B0BZYCJK89",
-    title: "Apple iPhone 15 Pro Max (256 GB) - Natural Titanium",
-    price: "$1,199.00",
-    rating: 4.7,
-    reviews: 2847,
-    image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=200",
-    category: "Electronics",
-    brand: "Apple",
-    inStock: true,
-    bestseller: true
-  },
-  {
-    asin: "B09X5JQ8M2",
-    title: "Samsung Galaxy S24 Ultra 5G (512GB, 12GB) 6.8\" 200MP",
-    price: "$1,299.99",
-    rating: 4.6,
-    reviews: 1523,
-    image: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=200",
-    category: "Electronics",
-    brand: "Samsung",
-    inStock: true,
-    bestseller: false
-  },
-  {
-    asin: "B0CX23V2ZK",
-    title: "Sony WH-1000XM5 Wireless Noise Canceling Headphones",
-    price: "$349.99",
-    rating: 4.8,
-    reviews: 4521,
-    image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=200",
-    category: "Electronics",
-    brand: "Sony",
-    inStock: true,
-    bestseller: true
-  },
-  {
-    asin: "B08N5WRWNW",
-    title: "Apple AirPods Pro (2nd Generation)",
-    price: "$249.00",
-    rating: 4.7,
-    reviews: 8965,
-    image: "https://images.unsplash.com/photo-1606841837239-c5a1a4a07af7?w=200",
-    category: "Electronics",
-    brand: "Apple",
-    inStock: true,
-    bestseller: true
-  },
-  {
-    asin: "B0BDJ4XVD7",
-    title: "Amazon Echo Dot (5th Gen) with Clock | Smart Speaker",
-    price: "$59.99",
-    rating: 4.5,
-    reviews: 12453,
-    image: "https://images.unsplash.com/photo-1543512214-318c7553f230?w=200",
-    category: "Electronics",
-    brand: "Amazon",
-    inStock: true,
-    bestseller: false
-  }
-];
 
-const mockReviews = [
-  { rating: 5, title: "Amazing product!", author: "John D.", date: "2024-01-15", verified: true, text: "This product exceeded my expectations. Highly recommended!" },
-  { rating: 4, title: "Good value", author: "Sarah M.", date: "2024-01-10", verified: true, text: "Works well for the price. Would buy again." },
-  { rating: 5, title: "Perfect!", author: "Mike R.", date: "2024-01-08", verified: false, text: "Exactly what I needed. Fast shipping too." },
-  { rating: 3, title: "It's okay", author: "Lisa K.", date: "2024-01-05", verified: true, text: "Does the job but nothing special." }
-];
 
 export default function AmazonScraper() {
   const [activeTab, setActiveTab] = useState("products");
@@ -86,18 +19,45 @@ export default function AmazonScraper() {
   const [searchValue, setSearchValue] = useState("");
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
+    if (!searchValue.trim()) {
+      toast.error('Please enter a search value');
+      return;
+    }
+
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      if (activeTab === "products") {
-        setResults(mockProductData);
-      } else if (activeTab === "reviews") {
-        setResults(mockReviews);
+    setError(null);
+    setResults(null);
+
+    try {
+      const response = await base44.functions.invoke('scrapeAmazon', {
+        type: activeTab,
+        searchType,
+        searchValue: searchValue.trim()
+      });
+
+      if (response.data.error) {
+        setError(response.data.error);
+        toast.error(response.data.error);
+        if (response.data.data && response.data.data.length > 0) {
+          setResults(response.data.data);
+        }
+      } else if (response.data.data && response.data.data.length > 0) {
+        setResults(response.data.data);
+        toast.success(`Found ${response.data.data.length} results`);
+      } else {
+        setError('No results found');
+        toast.warning('No results found');
       }
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || err.message || 'Failed to fetch data';
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -185,6 +145,21 @@ export default function AmazonScraper() {
                   </Button>
                 </CardContent>
               </Card>
+
+              {/* Error Message */}
+              {error && !results && (
+                <Card className="border-red-200 bg-red-50">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 text-red-800">
+                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">Error</p>
+                        <p className="text-sm">{error}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Results */}
               {results && (
@@ -324,6 +299,21 @@ export default function AmazonScraper() {
                   </Button>
                 </CardContent>
               </Card>
+
+              {/* Error Message */}
+              {error && !results && (
+                <Card className="border-red-200 bg-red-50">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 text-red-800">
+                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">Error</p>
+                        <p className="text-sm">{error}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {results && (
                 <Card className="border-slate-200 shadow-lg">
