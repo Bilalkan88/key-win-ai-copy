@@ -38,15 +38,7 @@ export default function KeywordDatabase() {
 
   const { data: keywords = [], isLoading } = useQuery({
     queryKey: ['keywords-database'],
-    queryFn: async () => {
-      try {
-        const response = await base44.functions.invoke('readGoogleSheets', {});
-        return response.data.keywords || [];
-      } catch (error) {
-        console.log('Google Sheets not configured, using database');
-        return base44.entities.KeywordDatabase.list('-opportunity_score', 1000);
-      }
-    },
+    queryFn: () => base44.entities.keywords.list('-search_volume', 10000),
   });
 
   const { data: savedKeywords = [] } = useQuery({
