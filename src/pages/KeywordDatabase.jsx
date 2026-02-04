@@ -164,7 +164,7 @@ export default function KeywordDatabase() {
         >
           <h1 className="text-4xl font-bold text-slate-900 mb-2 flex items-center gap-3">
             <TrendingUp className="w-8 h-8 text-indigo-600" />
-            Keyword Database
+            Keyword Goldmine
           </h1>
           <p className="text-slate-600">
             Discover thousands of winning keywords - updated weekly
