@@ -112,7 +112,7 @@ export default function KeywordDatabase() {
     }
 
     return data;
-  }, [keywords, searchTerm, categoryFilter, sortBy, minVolume, maxCompetition, maxReviews, beginnerFriendlyOnly, showNewOnly]);
+  }, [keywords, searchTerm, categoryFilter, sortBy, minVolume, maxCompetition, maxReviews, beginnerFriendlyOnly, showNewOnly, marketplace]);
 
   const categories = [
     'All Categories',
