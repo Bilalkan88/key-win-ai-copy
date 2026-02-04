@@ -42,11 +42,11 @@ Deno.serve(async (req) => {
                 data = result.results.map(product => ({
                     asin: product.asin || 'N/A',
                     title: product.name || 'No title',
-                    price: product.price ? `$${product.price}` : 'N/A',
+                    price: product.price_string || product.price || 'N/A',
                     rating: product.rating || 0,
                     reviews: product.reviews_count || 0,
                     image: product.image || '',
-                    inStock: product.is_prime || true,
+                    inStock: product.is_prime !== false,
                     bestseller: product.is_best_seller || false,
                     category: product.categories?.[0] || 'Electronics',
                     brand: product.brand || product.name?.split(' ')[0] || 'Unknown'
@@ -77,10 +77,10 @@ Deno.serve(async (req) => {
                 data = [{
                     asin: product.asin || searchValue,
                     title: product.name || 'No title',
-                    price: product.price ? `$${product.price}` : 'N/A',
+                    price: product.price_string || product.price || 'N/A',
                     rating: product.rating || 0,
                     reviews: product.reviews_count || 0,
-                    image: product.images?.[0] || '',
+                    image: product.images?.[0] || product.image || '',
                     inStock: product.in_stock !== false,
                     bestseller: product.is_best_seller || false,
                     category: product.categories?.[0] || 'Electronics',
