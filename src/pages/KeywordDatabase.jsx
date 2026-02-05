@@ -509,6 +509,111 @@ export default function KeywordDatabase() {
           </Card>
         </motion.div>
 
+        {/* Compact Pagination */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45 }}
+          className="mb-6"
+        >
+          <Card className="border-none shadow-md">
+            <CardContent className="p-3">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="text-xs text-slate-600">
+                    Showing <span className="font-semibold text-slate-900">{startIndex + 1}</span> to{' '}
+                    <span className="font-semibold text-slate-900">{Math.min(endIndex, filteredData.length)}</span> of{' '}
+                    <span className="font-semibold text-slate-900">{filteredData.length}</span> results
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs text-slate-600 whitespace-nowrap">Per page:</label>
+                    <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+                      <SelectTrigger className="w-20 h-7 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                        <SelectItem value="200">200</SelectItem>
+                        <SelectItem value="500">500</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Custom"
+                      value={customPageSize}
+                      onChange={(e) => setCustomPageSize(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleCustomPageSizeApply()}
+                      className="w-20 h-7 text-xs"
+                      min="1"
+                      max="10000"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCustomPageSizeApply}
+                      disabled={!customPageSize}
+                      className="h-7 px-2 text-xs"
+                    >
+                      Apply
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    className="h-7 px-2 text-xs"
+                  >
+                    First
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="h-7 px-2 text-xs"
+                  >
+                    Previous
+                  </Button>
+
+                  <div className="text-xs text-slate-600 px-2">
+                    Page <span className="font-semibold text-slate-900">{currentPage}</span> of{' '}
+                    <span className="font-semibold text-slate-900">{totalPages || 1}</span>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage >= totalPages}
+                    className="h-7 px-2 text-xs"
+                  >
+                    Next
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage >= totalPages}
+                    className="h-7 px-2 text-xs"
+                  >
+                    Last
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
         {/* Table */}
         {isLoading ? (
           <Card>
