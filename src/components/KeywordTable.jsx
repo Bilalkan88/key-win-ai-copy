@@ -81,6 +81,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
   }, [isResizing, keywordColumnWidth]);
 
   const toggleSelection = (keyword) => {
+    if (!onSelectionChange) return;
     const newSelected = new Set(selectedKeywords);
     if (newSelected.has(keyword)) {
       newSelected.delete(keyword);
@@ -91,6 +92,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
   };
 
   const toggleAll = () => {
+    if (!onSelectionChange) return;
     if (selectedKeywords.size === data.length) {
       onSelectionChange(new Set());
     } else {
@@ -153,14 +155,16 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
             <TableHeader className="sticky top-0 z-10">
               <TableRow className="bg-slate-50 hover:bg-slate-50">
                 <TableHead className={`w-16 text-center font-semibold text-slate-700 ${COLUMN_CLASSES.number}`}>#</TableHead>
-                <TableHead className={`w-12 ${COLUMN_CLASSES.checkbox}`}>
-                  <Checkbox
-                    checked={allSelected}
-                    onCheckedChange={toggleAll}
-                    aria-label="Select all"
-                    className={someSelected ? "data-[state=checked]:bg-indigo-600" : ""}
-                  />
-                </TableHead>
+                {onSelectionChange && (
+                  <TableHead className={`w-12 ${COLUMN_CLASSES.checkbox}`}>
+                    <Checkbox
+                      checked={allSelected}
+                      onCheckedChange={toggleAll}
+                      aria-label="Select all"
+                      className={someSelected ? "data-[state=checked]:bg-indigo-600" : ""}
+                    />
+                  </TableHead>
+                )}
                 <TableHead 
                   className={`font-semibold text-slate-700 relative group ${COLUMN_CLASSES.keyword}`}
                   style={{ width: `${keywordColumnWidth}px`, minWidth: `${keywordColumnWidth}px`, maxWidth: `${keywordColumnWidth}px` }}
@@ -302,13 +306,15 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   <TableCell className={`w-16 text-center text-slate-500 font-medium ${COLUMN_CLASSES.number}`}>
                     {globalIndex}
                   </TableCell>
-                  <TableCell className={`w-12 ${COLUMN_CLASSES.checkbox}`}>
-                    <Checkbox
-                      checked={isSelected}
-                      onCheckedChange={() => toggleSelection(row['Keyword Phrase'])}
-                      aria-label={`Select ${row['Keyword Phrase']}`}
-                    />
-                  </TableCell>
+                  {onSelectionChange && (
+                    <TableCell className={`w-12 ${COLUMN_CLASSES.checkbox}`}>
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleSelection(row['Keyword Phrase'])}
+                        aria-label={`Select ${row['Keyword Phrase']}`}
+                      />
+                    </TableCell>
+                  )}
                   <TableCell 
                     className={`${isProfitable ? 'font-bold text-emerald-800' : 'font-medium text-slate-900'} ${COLUMN_CLASSES.keyword}`}
                     style={{ width: `${keywordColumnWidth}px`, minWidth: `${keywordColumnWidth}px`, maxWidth: `${keywordColumnWidth}px` }}
