@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown, Star, Sparkles, Trash2, Bookmark, Brain } from 'lucide-react';
+import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown, Star, Sparkles, Trash2, Bookmark } from 'lucide-react';
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -42,7 +42,7 @@ const isProfitableKeyword = (row) => {
   return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
 };
 
-export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange, sortBy, onSortChange, onDeleteRow, startIndex = 0, savedKeywords = new Set(), onToggleSaveKeyword, onViewAnalysis }) {
+export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange, sortBy, onSortChange, onDeleteRow, startIndex = 0, savedKeywords = new Set(), onToggleSaveKeyword }) {
   const [keywordColumnWidth, setKeywordColumnWidth] = React.useState(() => {
     const saved = localStorage.getItem('keywordColumnWidth');
     return saved ? parseInt(saved) : 300;
@@ -287,7 +287,6 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.serp}`}>SERP</TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.amazon}`}>Amazon</TableHead>
-                {onViewAnalysis && <TableHead className="font-semibold text-slate-700 text-center">AI Analysis</TableHead>}
                 </TableRow>
                 </TableHeader>
             <TableBody>
@@ -473,32 +472,11 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  {onViewAnalysis && (
-                    <TableCell className="text-center">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => onViewAnalysis(row)}
-                              className="text-purple-600 hover:text-purple-700 hover:bg-purple-100"
-                            >
-                              <Brain className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>View AI Analysis</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                  )}
                   </TableRow>
-                  );
-                  })}
-                  </TableBody>
-                  </Table>
+              );
+              })}
+            </TableBody>
+          </Table>
         </div>
         
         <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
