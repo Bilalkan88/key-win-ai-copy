@@ -24,6 +24,7 @@ export default function KeywordDatabase() {
   const [marketplace, setMarketplace] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
+  const [smartFilter, setSmartFilter] = useState('all');
 
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -54,6 +55,25 @@ export default function KeywordDatabase() {
 
   const filteredData = useMemo(() => {
     let data = keywords;
+
+    // Smart Filters
+    if (smartFilter === 'fast_launch') {
+      data = data.filter(k => k.competing_products <= 500 && (k.keyword_sales || 0) >= 100);
+    } else if (smartFilter === 'hidden_gems') {
+      data = data.filter(k => k.search_volume >= 500 && k.search_volume <= 3000 && k.competing_products <= 300);
+    } else if (smartFilter === 'high_margin') {
+      data = data.filter(k => (k.keyword_sales || 0) >= 200 && k.competing_products <= 800);
+    } else if (smartFilter === 'gold_score') {
+      data = data.filter(k => (k.score || k.opportunity_score || 0) >= 80);
+    } else if (smartFilter === 'low_risk') {
+      data = data.filter(k => k.risk_level === 'low' || (k.competing_products <= 500 && (k.max_competitor_reviews || 0) <= 100));
+    } else if (smartFilter === 'trending') {
+      data = data.filter(k => k.is_new_this_week === true);
+    } else if (smartFilter === 'newly_added') {
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      data = data.filter(k => new Date(k.created_date) >= oneWeekAgo);
+    }
 
     if (searchTerm) {
       data = data.filter(k => k.keyword_phrase.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -179,11 +199,121 @@ export default function KeywordDatabase() {
           </p>
         </motion.div>
 
+        {/* Smart Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8"
+        >
+          <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Sparkles className="w-5 h-5 text-indigo-600" />
+                🧠 Smart Filters
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                <Button
+                  variant={smartFilter === 'all' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('all')}
+                  className={smartFilter === 'all' ? 'bg-indigo-600 hover:bg-indigo-700' : 'hover:bg-white'}
+                >
+                  All Keywords
+                </Button>
+                <Button
+                  variant={smartFilter === 'fast_launch' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('fast_launch')}
+                  className={smartFilter === 'fast_launch' ? 'bg-emerald-600 hover:bg-emerald-700' : 'hover:bg-white'}
+                >
+                  🚀 Fast Launch
+                </Button>
+                <Button
+                  variant={smartFilter === 'hidden_gems' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('hidden_gems')}
+                  className={smartFilter === 'hidden_gems' ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-white'}
+                >
+                  💎 Hidden Gems
+                </Button>
+                <Button
+                  variant={smartFilter === 'high_margin' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('high_margin')}
+                  className={smartFilter === 'high_margin' ? 'bg-amber-600 hover:bg-amber-700' : 'hover:bg-white'}
+                >
+                  💰 High Margin
+                </Button>
+                <Button
+                  variant={smartFilter === 'gold_score' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('gold_score')}
+                  className={smartFilter === 'gold_score' ? 'bg-yellow-600 hover:bg-yellow-700' : 'hover:bg-white'}
+                >
+                  ⭐ Gold Score
+                </Button>
+                <Button
+                  variant={smartFilter === 'low_risk' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('low_risk')}
+                  className={smartFilter === 'low_risk' ? 'bg-green-600 hover:bg-green-700' : 'hover:bg-white'}
+                >
+                  🟢 Low Risk
+                </Button>
+                <Button
+                  variant={smartFilter === 'newly_added' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('newly_added')}
+                  className={smartFilter === 'newly_added' ? 'bg-blue-600 hover:bg-blue-700' : 'hover:bg-white'}
+                >
+                  🆕 New
+                </Button>
+              </div>
+
+              {/* Filter Descriptions */}
+              {smartFilter !== 'all' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-4 p-4 bg-white rounded-lg border border-indigo-100"
+                >
+                  {smartFilter === 'fast_launch' && (
+                    <p className="text-sm text-slate-600">
+                      <span className="font-semibold text-emerald-700">Fast Launch Keywords:</span> منافسة ضعيفة (≤ 500) + مبيعات جاهزة (≥ 100)
+                    </p>
+                  )}
+                  {smartFilter === 'hidden_gems' && (
+                    <p className="text-sm text-slate-600">
+                      <span className="font-semibold text-purple-700">Hidden Gems:</span> بحث متوسط (500-3000) + منافسة ضعيفة جدًا (≤ 300)
+                    </p>
+                  )}
+                  {smartFilter === 'high_margin' && (
+                    <p className="text-sm text-slate-600">
+                      <span className="font-semibold text-amber-700">High Margin Potential:</span> مبيعات جيدة (≥ 200) + منافسة مقبولة (≤ 800)
+                    </p>
+                  )}
+                  {smartFilter === 'gold_score' && (
+                    <p className="text-sm text-slate-600">
+                      <span className="font-semibold text-yellow-700">Gold Score Only:</span> أعلى الفرص (Score ≥ 80)
+                    </p>
+                  )}
+                  {smartFilter === 'low_risk' && (
+                    <p className="text-sm text-slate-600">
+                      <span className="font-semibold text-green-700">Low Risk Only:</span> منافسة قليلة + مراجعات منخفضة للمنافسين
+                    </p>
+                  )}
+                  {smartFilter === 'newly_added' && (
+                    <p className="text-sm text-slate-600">
+                      <span className="font-semibold text-blue-700">Newly Added:</span> كلمات مفتاحية جديدة أضيفت خلال آخر 7 أيام
+                    </p>
+                  )}
+                </motion.div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
         {/* Stats */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.15 }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
         >
           <Card className="border-none shadow-lg hover:shadow-xl transition-shadow bg-white/80 backdrop-blur">
@@ -251,7 +381,7 @@ export default function KeywordDatabase() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.25 }}
         >
           <Card className="mb-8 border-none shadow-lg bg-white/80 backdrop-blur">
             <CardHeader className="border-b border-slate-100">
@@ -377,7 +507,7 @@ export default function KeywordDatabase() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.35 }}
           className="mb-6 flex items-center justify-between bg-white/60 backdrop-blur px-6 py-4 rounded-xl border border-slate-100"
         >
           <p className="text-slate-700 font-medium">
