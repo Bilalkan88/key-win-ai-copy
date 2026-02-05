@@ -11,6 +11,7 @@ import { Loader2, Search, Filter, Sparkles, Star, Lock, TrendingUp, BarChart3, B
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import KeywordTable from '@/components/KeywordTable';
+import ExportButtons from '@/components/ExportButtons';
 
 export default function KeywordDatabase() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -362,12 +363,18 @@ export default function KeywordDatabase() {
           <p className="text-slate-700 font-medium">
             Showing <span className="font-bold text-indigo-600 text-lg">{filteredData.length.toLocaleString()}</span> keywords
           </p>
-          {showNewOnly && (
-            <Badge className="bg-emerald-100 text-emerald-700 px-3 py-1">
-              <Sparkles className="w-3 h-3 mr-1" />
-              New This Week Only
-            </Badge>
-          )}
+          <div className="flex items-center gap-3">
+            {showNewOnly && (
+              <Badge className="bg-emerald-100 text-emerald-700 px-3 py-1">
+                <Sparkles className="w-3 h-3 mr-1" />
+                New This Week Only
+              </Badge>
+            )}
+            <ExportButtons 
+              data={transformedData} 
+              category={categoryFilter !== 'all' ? categoryFilter : 'All'} 
+            />
+          </div>
         </motion.div>
 
         {/* Smart Filters */}
