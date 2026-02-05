@@ -11,6 +11,7 @@ import { Loader2, Search, Filter, Sparkles, Star, Lock, TrendingUp, BarChart3, B
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import KeywordTable from '@/components/KeywordTable';
+import KeywordAnalysisDialog from '@/components/KeywordAnalysisDialog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function KeywordDatabase() {
@@ -28,6 +29,8 @@ export default function KeywordDatabase() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAIDialog, setShowAIDialog] = useState(false);
   const [aiCount, setAiCount] = useState(10);
+  const [selectedKeywordForAnalysis, setSelectedKeywordForAnalysis] = useState(null);
+  const [showAnalysisDialog, setShowAnalysisDialog] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -490,9 +493,23 @@ export default function KeywordDatabase() {
             onToggleSaveKeyword={(row) => {
               toast.success('Save feature coming soon');
             }}
+            onViewAnalysis={(row) => {
+              const keyword = paginatedData.find(k => k.keyword_phrase === row['Keyword Phrase']);
+              if (keyword) {
+                setSelectedKeywordForAnalysis(keyword);
+                setShowAnalysisDialog(true);
+              }
+            }}
           />
         )}
-      </div>
-    </div>
-  );
-}
+
+        {/* Analysis Dialog */}
+        <KeywordAnalysisDialog
+          keyword={selectedKeywordForAnalysis}
+          open={showAnalysisDialog}
+          onOpenChange={setShowAnalysisDialog}
+        />
+        </div>
+        </div>
+        );
+        }

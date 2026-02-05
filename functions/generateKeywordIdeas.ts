@@ -31,26 +31,48 @@ Deno.serve(async (req) => {
 
     console.log(`[generateKeywordIdeas] Generating ${count} keywords based on ${existingKeywords.length} existing keywords`);
 
-    // Use AI to generate new keyword ideas
-    const prompt = `You are an Amazon keyword research expert. Based on these existing high-performing keywords:
+    // Use AI to generate new keyword ideas with comprehensive analysis
+    const prompt = `You are an Amazon keyword research and competitive analysis expert. Based on these existing high-performing keywords:
 
 ${existingKeywords.slice(0, 10).join('\n')}
 
-Generate ${count} NEW keyword ideas that:
-1. Are related to the same product category
-2. Have good commercial intent for Amazon sellers
-3. Are specific enough to target (2-5 words typically)
-4. Would likely have decent search volume
-5. Are NOT exact duplicates of the provided keywords
+Generate ${count} NEW keyword ideas with COMPREHENSIVE ANALYSIS for each:
 
-For each keyword, estimate:
-- Monthly search volume (realistic Amazon numbers: 500-50000)
-- Number of competing products (realistic: 100-5000)
-- Title density percentage (0-100)
-- Category (if provided: "${category || 'infer from keywords'}")
-- Opportunity score (0-100, higher is better)
+1. Basic Keyword Data:
+   - keyword_phrase: Related to the category, 2-5 words, NOT duplicates
+   - category: "${category || 'infer from keywords'}"
+   - search_volume: Realistic Amazon numbers (500-50000)
+   - competing_products: Realistic count (100-5000)
+   - title_density: Percentage (0-100)
+   - keyword_sales: Estimated monthly sales
+   - score: Opportunity score (0-100)
 
-Return ONLY valid JSON array with no markdown formatting.`;
+2. Advanced Analysis:
+   - profitability_score: (0-100) Based on search volume vs competition ratio, estimated profit margins
+   - seo_difficulty: "easy", "medium", or "hard" - how difficult to rank for this keyword
+   - ctr_estimate: Click-through rate percentage (1-15) - estimated CTR on Amazon
+   - confidence_score: (0-100) Your confidence in this keyword's success potential
+
+3. Competitor Analysis:
+   - competitor_analysis: {
+       top_competitors: [
+         {
+           product_name: "Example Product Name",
+           strengths: ["High reviews", "Low price", "Prime eligible"],
+           weaknesses: ["Poor images", "Limited features", "Bad descriptions"]
+         }
+       ] (3-5 competitors),
+       market_gap: "Identified opportunity in the market",
+       recommendation: "Strategic advice for entering this market"
+     }
+
+Analyze each keyword thoroughly considering:
+- Profit potential vs market saturation
+- Buyer intent and conversion likelihood
+- Competition strength and market gaps
+- Real competitor products and their positioning
+
+Return ONLY valid JSON with no markdown.`;
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt,
@@ -68,7 +90,29 @@ Return ONLY valid JSON array with no markdown formatting.`;
                 competing_products: { type: "number" },
                 title_density: { type: "number" },
                 score: { type: "number" },
-                keyword_sales: { type: "number" }
+                keyword_sales: { type: "number" },
+                profitability_score: { type: "number" },
+                seo_difficulty: { type: "string" },
+                ctr_estimate: { type: "number" },
+                confidence_score: { type: "number" },
+                competitor_analysis: {
+                  type: "object",
+                  properties: {
+                    top_competitors: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          product_name: { type: "string" },
+                          strengths: { type: "array", items: { type: "string" } },
+                          weaknesses: { type: "array", items: { type: "string" } }
+                        }
+                      }
+                    },
+                    market_gap: { type: "string" },
+                    recommendation: { type: "string" }
+                  }
+                }
               }
             }
           }
