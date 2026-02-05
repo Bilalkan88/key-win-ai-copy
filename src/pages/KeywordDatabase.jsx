@@ -23,7 +23,8 @@ export default function KeywordDatabase() {
   const [showNewOnly, setShowNewOnly] = useState(false);
   const [marketplace, setMarketplace] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(50);
+  const [pageSize, setPageSize] = useState(100);
+  const [customPageSize, setCustomPageSize] = useState('');
   const [smartFilter, setSmartFilter] = useState('all');
 
   const { data: user } = useQuery({
@@ -158,6 +159,19 @@ export default function KeywordDatabase() {
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedData = filteredData.slice(startIndex, endIndex);
+
+  const handlePageSizeChange = (value) => {
+    setPageSize(parseInt(value));
+    setCurrentPage(1);
+  };
+
+  const handleCustomPageSizeApply = () => {
+    if (customPageSize && parseInt(customPageSize) > 0) {
+      setPageSize(parseInt(customPageSize));
+      setCurrentPage(1);
+      setCustomPageSize('');
+    }
+  };
 
   const transformedData = paginatedData.map(k => ({
     'Keyword Phrase': k.keyword_phrase,
@@ -504,18 +518,116 @@ export default function KeywordDatabase() {
             </CardContent>
           </Card>
         ) : (
-          <KeywordTable 
-            data={transformedData}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            startIndex={startIndex}
-            savedKeywords={savedKeywords}
-            onToggleSaveKeyword={(row) => {
-              toast.success('Save feature coming soon');
-            }}
-          />
+          <>
+            <KeywordTable 
+              data={transformedData}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              startIndex={startIndex}
+              savedKeywords={savedKeywords}
+              onToggleSaveKeyword={(row) => {
+                toast.success('Save feature coming soon');
+              }}
+            />
+
+            {/* Pagination */}
+            <div className="mt-6">
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <div className="text-sm text-slate-600">
+                        Showing <span className="font-semibold text-slate-900">{startIndex + 1}</span> to{' '}
+                        <span className="font-semibold text-slate-900">{Math.min(endIndex, filteredData.length)}</span> of{' '}
+                        <span className="font-semibold text-slate-900">{filteredData.length}</span> results
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-slate-600 whitespace-nowrap">Per page:</label>
+                        <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+                          <SelectTrigger className="w-24 h-9">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="25">25</SelectItem>
+                            <SelectItem value="50">50</SelectItem>
+                            <SelectItem value="100">100</SelectItem>
+                            <SelectItem value="200">200</SelectItem>
+                            <SelectItem value="500">500</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          placeholder="Custom"
+                          value={customPageSize}
+                          onChange={(e) => setCustomPageSize(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && handleCustomPageSizeApply()}
+                          className="w-24 h-9"
+                          min="1"
+                          max="10000"
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCustomPageSizeApply}
+                          disabled={!customPageSize}
+                          className="h-9"
+                        >
+                          Apply
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(1)}
+                        disabled={currentPage === 1}
+                      >
+                        First
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        Previous
+                      </Button>
+
+                      <div className="text-sm text-slate-600 px-3">
+                        Page <span className="font-semibold text-slate-900">{currentPage}</span> of{' '}
+                        <span className="font-semibold text-slate-900">{totalPages || 1}</span>
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage >= totalPages}
+                      >
+                        Next
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(totalPages)}
+                        disabled={currentPage >= totalPages}
+                      >
+                        Last
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
         )}
-      </div>
-    </div>
-  );
-}
+        </div>
+        </div>
+        );
+        }
