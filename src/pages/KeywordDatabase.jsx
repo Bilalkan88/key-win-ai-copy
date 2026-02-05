@@ -50,6 +50,15 @@ export default function KeywordDatabase() {
     enabled: !!user?.email,
   });
 
+  const { data: trackedKeywords = new Set() } = useQuery({
+    queryKey: ['tracked-keywords', user?.email],
+    queryFn: async () => {
+      const userProfile = await base44.entities.User.filter({ email: user.email });
+      return new Set(userProfile[0]?.tracked_keywords || []);
+    },
+    enabled: !!user?.email,
+  });
+
   const hasAccess = user?.role === 'admin' || (subscription && subscription.length > 0);
 
   const filteredData = useMemo(() => {
@@ -408,6 +417,30 @@ export default function KeywordDatabase() {
             savedKeywords={savedKeywords}
             onToggleSaveKeyword={(row) => {
               toast.success('Save feature coming soon');
+            }}
+            trackedKeywords={trackedKeywords}
+            onToggleTrackKeyword={async (row) => {
+              if (!user) {
+                toast.error('يجب تسجيل الدخول أولاً');
+                return;
+              }
+
+              const userProfile = await base44.entities.User.filter({ email: user.email });
+              const current = new Set(userProfile[0]?.tracked_keywords || []);
+
+              if (current.has(row['Keyword Phrase'])) {
+                current.delete(row['Keyword Phrase']);
+                toast.success('تم إيقاف التتبع');
+              } else {
+                current.add(row['Keyword Phrase']);
+                toast.success('تم إضافة الكلمة للتتبع');
+              }
+
+              await base44.auth.updateMe({ 
+                tracked_keywords: Array.from(current) 
+              });
+
+              queryClient.invalidateQueries(['tracked-keywords']);
             }}
           />
         )}
