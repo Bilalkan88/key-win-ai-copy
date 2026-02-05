@@ -213,76 +213,6 @@ export default function KeywordDatabase() {
           </p>
         </motion.div>
 
-        {/* Smart Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8"
-        >
-          <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Sparkles className="w-5 h-5 text-indigo-600" />
-                🧠 Smart Filters
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-                <Button
-                  variant={smartFilter === 'all' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('all')}
-                  className={smartFilter === 'all' ? 'bg-indigo-600 hover:bg-indigo-700' : 'hover:bg-white'}
-                >
-                  All Keywords
-                </Button>
-                <Button
-                  variant={smartFilter === 'fast_launch' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('fast_launch')}
-                  className={smartFilter === 'fast_launch' ? 'bg-emerald-600 hover:bg-emerald-700' : 'hover:bg-white'}
-                >
-                  🚀 Fast Launch
-                </Button>
-                <Button
-                  variant={smartFilter === 'hidden_gems' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('hidden_gems')}
-                  className={smartFilter === 'hidden_gems' ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-white'}
-                >
-                  💎 Hidden Gems
-                </Button>
-                <Button
-                  variant={smartFilter === 'high_margin' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('high_margin')}
-                  className={smartFilter === 'high_margin' ? 'bg-amber-600 hover:bg-amber-700' : 'hover:bg-white'}
-                >
-                  💰 High Margin
-                </Button>
-                <Button
-                  variant={smartFilter === 'gold_score' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('gold_score')}
-                  className={smartFilter === 'gold_score' ? 'bg-yellow-600 hover:bg-yellow-700' : 'hover:bg-white'}
-                >
-                  ⭐ Gold Score
-                </Button>
-                <Button
-                  variant={smartFilter === 'low_risk' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('low_risk')}
-                  className={smartFilter === 'low_risk' ? 'bg-green-600 hover:bg-green-700' : 'hover:bg-white'}
-                >
-                  🟢 Low Risk
-                </Button>
-                <Button
-                  variant={smartFilter === 'newly_added' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('newly_added')}
-                  className={smartFilter === 'newly_added' ? 'bg-blue-600 hover:bg-blue-700' : 'hover:bg-white'}
-                >
-                  🆕 New
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
         {/* Stats */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -493,6 +423,76 @@ export default function KeywordDatabase() {
               New This Week Only
             </Badge>
           )}
+        </motion.div>
+
+        {/* Smart Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-6"
+        >
+          <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Sparkles className="w-5 h-5 text-indigo-600" />
+                🧠 Smart Filters
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                <Button
+                  variant={smartFilter === 'all' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('all')}
+                  className={smartFilter === 'all' ? 'bg-indigo-600 hover:bg-indigo-700' : 'hover:bg-white'}
+                >
+                  All Keywords
+                </Button>
+                <Button
+                  variant={smartFilter === 'fast_launch' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('fast_launch')}
+                  className={smartFilter === 'fast_launch' ? 'bg-emerald-600 hover:bg-emerald-700' : 'hover:bg-white'}
+                >
+                  🚀 Fast Launch
+                </Button>
+                <Button
+                  variant={smartFilter === 'hidden_gems' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('hidden_gems')}
+                  className={smartFilter === 'hidden_gems' ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-white'}
+                >
+                  💎 Hidden Gems
+                </Button>
+                <Button
+                  variant={smartFilter === 'high_margin' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('high_margin')}
+                  className={smartFilter === 'high_margin' ? 'bg-amber-600 hover:bg-amber-700' : 'hover:bg-white'}
+                >
+                  💰 High Margin
+                </Button>
+                <Button
+                  variant={smartFilter === 'gold_score' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('gold_score')}
+                  className={smartFilter === 'gold_score' ? 'bg-yellow-600 hover:bg-yellow-700' : 'hover:bg-white'}
+                >
+                  ⭐ Gold Score
+                </Button>
+                <Button
+                  variant={smartFilter === 'low_risk' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('low_risk')}
+                  className={smartFilter === 'low_risk' ? 'bg-green-600 hover:bg-green-700' : 'hover:bg-white'}
+                >
+                  🟢 Low Risk
+                </Button>
+                <Button
+                  variant={smartFilter === 'newly_added' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('newly_added')}
+                  className={smartFilter === 'newly_added' ? 'bg-blue-600 hover:bg-blue-700' : 'hover:bg-white'}
+                >
+                  🆕 New
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Table */}
