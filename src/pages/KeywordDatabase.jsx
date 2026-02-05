@@ -160,97 +160,122 @@ export default function KeywordDatabase() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 text-center"
         >
-          <h1 className="text-4xl font-bold text-slate-900 mb-2 flex items-center gap-3">
-            <TrendingUp className="w-8 h-8 text-indigo-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 mb-4 shadow-lg">
+            <TrendingUp className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
             Keyword Goldmine
           </h1>
-          <p className="text-slate-600">
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
             Discover thousands of winning keywords - updated weekly
           </p>
         </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+        >
+          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow bg-white/80 backdrop-blur">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">Total Keywords</p>
-                  <p className="text-2xl font-bold text-slate-900">{keywords.length}</p>
+                  <p className="text-sm font-medium text-slate-500 mb-1">Total Keywords</p>
+                  <p className="text-3xl font-bold text-slate-900">{keywords.length.toLocaleString()}</p>
                 </div>
-                <BarChart3 className="w-8 h-8 text-indigo-600" />
+                <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-indigo-600" />
+                </div>
               </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
+
+          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow bg-white/80 backdrop-blur">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">New This Week</p>
-                  <p className="text-2xl font-bold text-emerald-600">
-                    {keywords.filter(k => k.is_new_this_week).length}
+                  <p className="text-sm font-medium text-slate-500 mb-1">New This Week</p>
+                  <p className="text-3xl font-bold text-emerald-600">
+                    {keywords.filter(k => k.is_new_this_week).length.toLocaleString()}
                   </p>
                 </div>
-                <Sparkles className="w-8 h-8 text-emerald-600" />
+                <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-emerald-600" />
+                </div>
               </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
+
+          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow bg-white/80 backdrop-blur">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">Beginner Friendly</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {keywords.filter(k => k.beginner_friendly).length}
+                  <p className="text-sm font-medium text-slate-500 mb-1">Beginner Friendly</p>
+                  <p className="text-3xl font-bold text-blue-600">
+                    {keywords.filter(k => k.beginner_friendly).length.toLocaleString()}
                   </p>
                 </div>
-                <Star className="w-8 h-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-500">Saved</p>
-                  <p className="text-2xl font-bold text-purple-600">{savedKeywords.size}</p>
+                <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-blue-600" />
                 </div>
-                <Bookmark className="w-8 h-8 text-purple-600" />
               </div>
             </CardContent>
           </Card>
-        </div>
+
+          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow bg-white/80 backdrop-blur">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500 mb-1">Saved</p>
+                  <p className="text-3xl font-bold text-purple-600">{savedKeywords.size.toLocaleString()}</p>
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                  <Bookmark className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Filters */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5" />
-              Filters & Search
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-              <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="mb-8 border-none shadow-lg bg-white/80 backdrop-blur">
+            <CardHeader className="border-b border-slate-100">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
+                  <Filter className="w-5 h-5 text-indigo-600" />
+                </div>
+                Filters & Search
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="relative lg:col-span-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <Input
                   placeholder="Search for a keyword..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-11 pr-4 h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
                 />
               </div>
 
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -266,7 +291,7 @@ export default function KeywordDatabase() {
               </Select>
 
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
                   <SelectValue placeholder="Sort By" />
                 </SelectTrigger>
                 <SelectContent>
@@ -278,7 +303,7 @@ export default function KeywordDatabase() {
               </Select>
 
               <Select value={marketplace} onValueChange={setMarketplace}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
                   <SelectValue placeholder="Marketplace" />
                 </SelectTrigger>
                 <SelectContent>
@@ -299,15 +324,17 @@ export default function KeywordDatabase() {
                 placeholder="Min Search Volume"
                 value={minVolume}
                 onChange={(e) => setMinVolume(e.target.value)}
+                className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
               />
-            </div>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Input
                 type="number"
                 placeholder="Max Competition"
                 value={maxCompetition}
                 onChange={(e) => setMaxCompetition(e.target.value)}
+                className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
               />
 
               <Input
@@ -315,47 +342,54 @@ export default function KeywordDatabase() {
                 placeholder="Max Competitor Reviews"
                 value={maxReviews}
                 onChange={(e) => setMaxReviews(e.target.value)}
+                className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
               />
 
-              <div className="flex gap-4">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-wrap gap-6">
+                <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors">
                   <Checkbox
                     id="beginner-friendly"
                     checked={beginnerFriendlyOnly}
                     onCheckedChange={setBeginnerFriendlyOnly}
                   />
-                  <label htmlFor="beginner-friendly" className="text-sm cursor-pointer">
+                  <label htmlFor="beginner-friendly" className="text-sm font-medium cursor-pointer text-slate-700">
                     Beginner Friendly Only
                   </label>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors">
                   <Checkbox
                     id="new-only"
                     checked={showNewOnly}
                     onCheckedChange={setShowNewOnly}
                   />
-                  <label htmlFor="new-only" className="text-sm cursor-pointer">
+                  <label htmlFor="new-only" className="text-sm font-medium cursor-pointer text-slate-700">
                     New This Week
                   </label>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+              </CardContent>
+              </Card>
+              </motion.div>
 
         {/* Results Count */}
-        <div className="mb-4 flex items-center justify-between">
-          <p className="text-slate-600">
-            Showing <span className="font-semibold text-slate-900">{filteredData.length}</span> keywords
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="mb-6 flex items-center justify-between bg-white/60 backdrop-blur px-6 py-4 rounded-xl border border-slate-100"
+        >
+          <p className="text-slate-700 font-medium">
+            Showing <span className="font-bold text-indigo-600 text-lg">{filteredData.length.toLocaleString()}</span> keywords
           </p>
           {showNewOnly && (
-            <Badge className="bg-emerald-100 text-emerald-700">
+            <Badge className="bg-emerald-100 text-emerald-700 px-3 py-1">
               <Sparkles className="w-3 h-3 mr-1" />
               New This Week Only
             </Badge>
           )}
-        </div>
+        </motion.div>
 
         {/* Table */}
         {isLoading ? (
