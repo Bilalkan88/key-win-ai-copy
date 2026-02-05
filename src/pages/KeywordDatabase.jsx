@@ -138,7 +138,7 @@ export default function KeywordDatabase() {
     }
 
     return data;
-  }, [keywords, searchTerm, categoryFilter, sortBy, minVolume, maxCompetition, maxReviews, beginnerFriendlyOnly, showNewOnly, marketplace]);
+  }, [keywords, searchTerm, categoryFilter, sortBy, minVolume, maxCompetition, maxReviews, beginnerFriendlyOnly, showNewOnly, marketplace, smartFilter]);
 
   const categoryCounts = useMemo(() => {
     const counts = {};
