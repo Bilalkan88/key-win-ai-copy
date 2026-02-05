@@ -131,7 +131,7 @@ export default function KeywordDatabase() {
     competingProducts: k.competing_products,
     titleDensity: k.title_density || 0,
     keywordSales: k.keyword_sales || 0,
-    opportunityScore: k.opportunity_score,
+    opportunityScore: k.score || k.opportunity_score || 0,
     amazonLink: k.amazon_link || `https://www.amazon.com/s?k=${encodeURIComponent(k.keyword_phrase)}`
   }));
 
