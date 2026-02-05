@@ -81,6 +81,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
   }, [isResizing, keywordColumnWidth]);
 
   const toggleSelection = (keyword) => {
+    if (!onSelectionChange) return;
     const newSelected = new Set(selectedKeywords);
     if (newSelected.has(keyword)) {
       newSelected.delete(keyword);
@@ -91,6 +92,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
   };
 
   const toggleAll = () => {
+    if (!onSelectionChange) return;
     if (selectedKeywords.size === data.length) {
       onSelectionChange(new Set());
     } else {
