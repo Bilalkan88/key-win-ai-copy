@@ -265,46 +265,6 @@ export default function KeywordDatabase() {
                   🆕 New
                 </Button>
               </div>
-
-              {/* Filter Descriptions */}
-              {smartFilter !== 'all' && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  className="mt-4 p-4 bg-white rounded-lg border border-indigo-100"
-                >
-                  {smartFilter === 'fast_launch' && (
-                    <p className="text-sm text-slate-600">
-                      <span className="font-semibold text-emerald-700">Fast Launch Keywords:</span> منافسة ضعيفة (≤ 500) + مبيعات جاهزة (≥ 100)
-                    </p>
-                  )}
-                  {smartFilter === 'hidden_gems' && (
-                    <p className="text-sm text-slate-600">
-                      <span className="font-semibold text-purple-700">Hidden Gems:</span> بحث متوسط (500-3000) + منافسة ضعيفة جدًا (≤ 300)
-                    </p>
-                  )}
-                  {smartFilter === 'high_margin' && (
-                    <p className="text-sm text-slate-600">
-                      <span className="font-semibold text-amber-700">High Margin Potential:</span> مبيعات جيدة (≥ 200) + منافسة مقبولة (≤ 800)
-                    </p>
-                  )}
-                  {smartFilter === 'gold_score' && (
-                    <p className="text-sm text-slate-600">
-                      <span className="font-semibold text-yellow-700">Gold Score Only:</span> أعلى الفرص (Score ≥ 80)
-                    </p>
-                  )}
-                  {smartFilter === 'low_risk' && (
-                    <p className="text-sm text-slate-600">
-                      <span className="font-semibold text-green-700">Low Risk Only:</span> منافسة قليلة + مراجعات منخفضة للمنافسين
-                    </p>
-                  )}
-                  {smartFilter === 'newly_added' && (
-                    <p className="text-sm text-slate-600">
-                      <span className="font-semibold text-blue-700">Newly Added:</span> كلمات مفتاحية جديدة أضيفت خلال آخر 7 أيام
-                    </p>
-                  )}
-                </motion.div>
-              )}
             </CardContent>
           </Card>
         </motion.div>
