@@ -54,22 +54,36 @@ export default function KeywordDatabase() {
   const hasAccess = user?.role === 'admin' || (subscription && subscription.length > 0);
 
   const filteredData = useMemo(() => {
-    let data = keywords;
+    let data = [...keywords];
 
     // Smart Filters
     if (smartFilter === 'fast_launch') {
-      data = data.filter(k => k.competing_products <= 500 && (k.keyword_sales || 0) >= 100);
+      // منافسة ضعيفة + مبيعات جاهزة
+      data = data.filter(k => 
+        (k.competing_products || 0) <= 500 && 
+        (k.keyword_sales || 0) >= 100
+      );
     } else if (smartFilter === 'hidden_gems') {
-      data = data.filter(k => k.search_volume >= 500 && k.search_volume <= 3000 && k.competing_products <= 300);
+      // بحث متوسط + منافسة ضعيفة جدًا
+      data = data.filter(k => 
+        (k.search_volume || 0) >= 500 && 
+        (k.search_volume || 0) <= 3000 && 
+        (k.competing_products || 0) <= 300
+      );
     } else if (smartFilter === 'high_margin') {
-      data = data.filter(k => (k.keyword_sales || 0) >= 200 && k.competing_products <= 800);
+      // مبيعات جيدة + منافسة مقبولة
+      data = data.filter(k => 
+        (k.keyword_sales || 0) >= 200 && 
+        (k.competing_products || 0) <= 800
+      );
     } else if (smartFilter === 'gold_score') {
-      data = data.filter(k => (k.score || k.opportunity_score || 0) >= 80);
+      // Score ≥ 80
+      data = data.filter(k => (k.score || 0) >= 80);
     } else if (smartFilter === 'low_risk') {
-      data = data.filter(k => k.risk_level === 'low' || (k.competing_products <= 500 && (k.max_competitor_reviews || 0) <= 100));
-    } else if (smartFilter === 'trending') {
-      data = data.filter(k => k.is_new_this_week === true);
+      // منافسة قليلة
+      data = data.filter(k => (k.competing_products || 0) <= 500);
     } else if (smartFilter === 'newly_added') {
+      // كلمات جديدة خلال 7 أيام
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
       data = data.filter(k => new Date(k.created_date) >= oneWeekAgo);
