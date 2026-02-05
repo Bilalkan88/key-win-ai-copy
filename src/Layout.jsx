@@ -20,7 +20,6 @@ export default function Layout({ children, currentPageName }) {
 
   const navLinks = [
     { name: 'KeywordDatabase', label: 'Keyword Goldmine' },
-    { name: 'TrackedKeywords', label: 'Tracked Keywords' },
     { name: 'NewThisWeek', label: 'New This Week' },
     { name: 'ExclusiveKeywords', label: 'Exclusive Keywords' },
     { name: 'Pricing', label: 'Pricing' }

@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown, Star, Sparkles, Trash2, Bookmark, Activity } from 'lucide-react';
+import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown, Star, Sparkles, Trash2, Bookmark } from 'lucide-react';
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -42,7 +42,7 @@ const isProfitableKeyword = (row) => {
   return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
 };
 
-export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange, sortBy, onSortChange, onDeleteRow, startIndex = 0, savedKeywords = new Set(), onToggleSaveKeyword, trackedKeywords = new Set(), onToggleTrackKeyword }) {
+export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange, sortBy, onSortChange, onDeleteRow, startIndex = 0, savedKeywords = new Set(), onToggleSaveKeyword }) {
   const [keywordColumnWidth, setKeywordColumnWidth] = React.useState(() => {
     const saved = localStorage.getItem('keywordColumnWidth');
     return saved ? parseInt(saved) : 300;
@@ -81,7 +81,6 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
   }, [isResizing, keywordColumnWidth]);
 
   const toggleSelection = (keyword) => {
-    if (!onSelectionChange) return;
     const newSelected = new Set(selectedKeywords);
     if (newSelected.has(keyword)) {
       newSelected.delete(keyword);
@@ -92,7 +91,6 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
   };
 
   const toggleAll = () => {
-    if (!onSelectionChange) return;
     if (selectedKeywords.size === data.length) {
       onSelectionChange(new Set());
     } else {
@@ -177,7 +175,6 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                   </div>
                 </TableHead>
                 <TableHead className="font-semibold text-slate-700 text-center w-16">Save</TableHead>
-                <TableHead className="font-semibold text-slate-700 text-center w-16">Track</TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.score}`}>
                   <div className="flex items-center justify-center gap-1">
                     <button 
@@ -380,27 +377,6 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>{savedKeywords.has(row['Keyword Phrase']) ? 'Remove from saved' : 'Save keyword'}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell className="text-center w-16">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onToggleTrackKeyword && onToggleTrackKeyword(row)}
-                            className={trackedKeywords.has(row['Keyword Phrase']) 
-                              ? 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-100' 
-                              : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-100'}
-                          >
-                            <Activity className={`w-4 h-4 ${trackedKeywords.has(row['Keyword Phrase']) ? 'fill-current' : ''}`} />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{trackedKeywords.has(row['Keyword Phrase']) ? 'Stop tracking' : 'Track performance'}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
