@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, Filter, Sparkles, Star, Lock, TrendingUp, BarChart3, Bookmark } from 'lucide-react';
+import { Loader2, Search, Filter, Sparkles, Star, Lock, TrendingUp, BarChart3, Bookmark, Wand2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import KeywordTable from '@/components/KeywordTable';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function KeywordDatabase() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,6 +25,9 @@ export default function KeywordDatabase() {
   const [marketplace, setMarketplace] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showAIDialog, setShowAIDialog] = useState(false);
+  const [aiCount, setAiCount] = useState(10);
 
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -51,6 +55,34 @@ export default function KeywordDatabase() {
   });
 
   const hasAccess = user?.role === 'admin' || (subscription && subscription.length > 0);
+
+  const handleGenerateKeywords = async () => {
+    setIsGenerating(true);
+    try {
+      const selectedKeywords = Array.from(keywords)
+        .filter(k => !categoryFilter || categoryFilter === 'all' || k.category === categoryFilter)
+        .slice(0, 10)
+        .map(k => k.keyword_phrase);
+
+      const response = await base44.functions.invoke('generateKeywordIdeas', {
+        category: categoryFilter !== 'all' ? categoryFilter : null,
+        count: aiCount,
+        basedOnKeywords: selectedKeywords
+      });
+
+      if (response.data.success) {
+        toast.success(`✨ تم إنشاء ${response.data.inserted} كلمة رئيسية جديدة!`);
+        queryClient.invalidateQueries({ queryKey: ['keywords-database'] });
+        setShowAIDialog(false);
+      } else {
+        toast.error('فشل في إنشاء الكلمات الرئيسية');
+      }
+    } catch (error) {
+      toast.error(error.message || 'حدث خطأ أثناء إنشاء الكلمات الرئيسية');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const filteredData = useMemo(() => {
     let data = keywords;
@@ -228,6 +260,89 @@ export default function KeywordDatabase() {
             </CardContent>
           </Card>
         </div>
+
+        {/* AI Keyword Generator */}
+        <Card className="mb-6 border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                  <Wand2 className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">AI Keyword Generator</h3>
+                  <p className="text-sm text-slate-600">Generate new keyword ideas automatically using AI</p>
+                </div>
+              </div>
+
+              <Dialog open={showAIDialog} onOpenChange={setShowAIDialog}>
+                <DialogTrigger asChild>
+                  <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
+                    <Wand2 className="w-4 h-4 mr-2" />
+                    Generate Keywords
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>✨ AI Keyword Generator</DialogTitle>
+                    <DialogDescription>
+                      Generate new keyword ideas based on existing keywords in your database
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-4 py-4">
+                    <div>
+                      <label className="text-sm font-medium text-slate-700 mb-2 block">
+                        How many keywords to generate?
+                      </label>
+                      <Select value={aiCount.toString()} onValueChange={(v) => setAiCount(parseInt(v))}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="5">5 Keywords</SelectItem>
+                          <SelectItem value="10">10 Keywords</SelectItem>
+                          <SelectItem value="20">20 Keywords</SelectItem>
+                          <SelectItem value="30">30 Keywords</SelectItem>
+                          <SelectItem value="50">50 Keywords</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {categoryFilter !== 'all' && (
+                      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                        <p className="text-sm text-indigo-800">
+                          <strong>Category:</strong> {categoryFilter}
+                        </p>
+                        <p className="text-xs text-indigo-600 mt-1">
+                          Keywords will be generated based on this category
+                        </p>
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={handleGenerateKeywords}
+                      disabled={isGenerating}
+                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="w-4 h-4 mr-2" />
+                          Generate {aiCount} Keywords
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Filters */}
         <Card className="mb-6">
