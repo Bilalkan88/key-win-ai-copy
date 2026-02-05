@@ -300,126 +300,57 @@ export default function KeywordDatabase() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
+          className="mb-6"
         >
-          <Card className="mb-8 border-none shadow-lg bg-white/80 backdrop-blur">
-            <CardHeader className="border-b border-slate-100">
-              <CardTitle className="flex items-center gap-3 text-xl">
-                <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
-                  <Filter className="w-5 h-5 text-indigo-600" />
-                </div>
-                Filters & Search
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <div className="relative lg:col-span-2">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <Input
-                  placeholder="Search for a keyword..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-11 pr-4 h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
-                />
-              </div>
-
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                   {categories.map(cat => {
-                     const count = cat === 'All Categories' ? keywords.length : (categoryCounts[cat] || 0);
-                     return (
-                       <SelectItem key={cat} value={cat === 'All Categories' ? 'all' : cat}>
-                         {cat} ({count})
-                       </SelectItem>
-                     );
-                   })}
-                 </SelectContent>
-              </Select>
-
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
-                  <SelectValue placeholder="Sort By" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="opportunity_desc">⭐ Highest Opportunity</SelectItem>
-                  <SelectItem value="competition_asc">Lowest Competition</SelectItem>
-                  <SelectItem value="volume_desc">Highest Demand</SelectItem>
-                  <SelectItem value="newest">Newest</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={marketplace} onValueChange={setMarketplace}>
-                <SelectTrigger className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
-                  <SelectValue placeholder="Marketplace" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Marketplaces</SelectItem>
-                  <SelectItem value="amazon.com">🇺🇸 www.amazon.com</SelectItem>
-                  <SelectItem value="amazon.co.uk">🇬🇧 www.amazon.co.uk</SelectItem>
-                  <SelectItem value="amazon.ca">🇨🇦 www.amazon.ca</SelectItem>
-                  <SelectItem value="amazon.com.mx">🇲🇽 www.amazon.com.mx</SelectItem>
-                  <SelectItem value="amazon.de">🇩🇪 www.amazon.de</SelectItem>
-                  <SelectItem value="amazon.es">🇪🇸 www.amazon.es</SelectItem>
-                  <SelectItem value="amazon.it">🇮🇹 www.amazon.it</SelectItem>
-                  <SelectItem value="amazon.fr">🇫🇷 www.amazon.fr</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Input
-                type="number"
-                placeholder="Min Search Volume"
-                value={minVolume}
-                onChange={(e) => setMinVolume(e.target.value)}
-                className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
-              />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Input
-                type="number"
-                placeholder="Max Competition"
-                value={maxCompetition}
-                onChange={(e) => setMaxCompetition(e.target.value)}
-                className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
-              />
-
-              <Input
-                type="number"
-                placeholder="Max Competitor Reviews"
-                value={maxReviews}
-                onChange={(e) => setMaxReviews(e.target.value)}
-                className="h-11 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
-              />
-
-              <div className="flex flex-wrap gap-6">
-                <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors">
-                  <Checkbox
-                    id="beginner-friendly"
-                    checked={beginnerFriendlyOnly}
-                    onCheckedChange={setBeginnerFriendlyOnly}
+          <Card className="border-none shadow-md bg-white/80 backdrop-blur">
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    placeholder="Search for a keyword..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 h-9 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
                   />
-                  <label htmlFor="beginner-friendly" className="text-sm font-medium cursor-pointer text-slate-700">
-                    Beginner Friendly Only
-                  </label>
                 </div>
 
-                <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors">
-                  <Checkbox
-                    id="new-only"
-                    checked={showNewOnly}
-                    onCheckedChange={setShowNewOnly}
-                  />
-                  <label htmlFor="new-only" className="text-sm font-medium cursor-pointer text-slate-700">
-                    New This Week
-                  </label>
-                </div>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(cat => {
+                      const count = cat === 'All Categories' ? keywords.length : (categoryCounts[cat] || 0);
+                      return (
+                        <SelectItem key={cat} value={cat === 'All Categories' ? 'all' : cat}>
+                          {cat} ({count})
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+
+                <Select value={marketplace} onValueChange={setMarketplace}>
+                  <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
+                    <SelectValue placeholder="Marketplace" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Marketplaces</SelectItem>
+                    <SelectItem value="amazon.com">🇺🇸 www.amazon.com</SelectItem>
+                    <SelectItem value="amazon.co.uk">🇬🇧 www.amazon.co.uk</SelectItem>
+                    <SelectItem value="amazon.ca">🇨🇦 www.amazon.ca</SelectItem>
+                    <SelectItem value="amazon.com.mx">🇲🇽 www.amazon.com.mx</SelectItem>
+                    <SelectItem value="amazon.de">🇩🇪 www.amazon.de</SelectItem>
+                    <SelectItem value="amazon.es">🇪🇸 www.amazon.es</SelectItem>
+                    <SelectItem value="amazon.it">🇮🇹 www.amazon.it</SelectItem>
+                    <SelectItem value="amazon.fr">🇫🇷 www.amazon.fr</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              </div>
-              </CardContent>
-              </Card>
-              </motion.div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Results Count */}
         <motion.div
