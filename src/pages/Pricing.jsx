@@ -48,11 +48,16 @@ export default function Pricing() {
       icon: Sparkles,
       color: 'emerald',
       features: [
-        'Free keyword analysis tool',
-        'Upload your own CSV files',
-        'Basic filtering options',
-        'Export results',
-        'Community support'
+        { text: 'Free keyword analysis tool', available: true },
+        { text: 'Upload your own CSV files', available: true },
+        { text: 'Basic filtering options', available: true },
+        { text: 'Export results', available: true },
+        { text: 'Community support', available: true },
+        { text: 'Access to keyword database', available: false },
+        { text: 'Weekly updates with new keywords', available: false },
+        { text: 'Advanced search & filtering', available: false },
+        { text: 'Custom AI explanations', available: false },
+        { text: 'Priority support', available: false }
       ]
     },
     {
@@ -62,15 +67,16 @@ export default function Pricing() {
       color: 'indigo',
       popular: true,
       features: [
-        'All Free features',
-        'Access to keyword database',
-        'Weekly updates with new keywords',
-        'Advanced search & filtering',
-        'Save favorite keywords',
-        'Custom AI explanations',
-        'Competitor analysis',
-        'Price recommendations',
-        'Priority support'
+        { text: 'Free keyword analysis tool', available: true },
+        { text: 'Upload your own CSV files', available: true },
+        { text: 'Basic filtering options', available: true },
+        { text: 'Export results', available: true },
+        { text: 'Community support', available: true },
+        { text: 'Access to keyword database', available: true },
+        { text: 'Weekly updates with new keywords', available: true },
+        { text: 'Advanced search & filtering', available: true },
+        { text: 'Custom AI explanations', available: true },
+        { text: 'Priority support', available: true }
       ]
     }
   ];
