@@ -290,21 +290,7 @@ export default function Pricing() {
           </motion.div>
         </div>
 
-        {/* Free Analysis */}
-        <Card className="mt-12 border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-blue-50">
-          <CardContent className="p-8 text-center">
-            <Sparkles className="w-12 h-12 text-emerald-600 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Free Analysis</h3>
-            <p className="text-slate-600 mb-4">
-              Analyze your own files for free with no limits - forever free
-            </p>
-            <Button variant="outline" asChild>
-              <Link to={createPageUrl('Analysis')}>
-                Go to Free Analysis
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+
         </div>
         </div>
         );
