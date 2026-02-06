@@ -51,12 +51,12 @@ import AmazonScraper from './pages/AmazonScraper';
 import AmazonSellerToolkit from './pages/AmazonSellerToolkit';
 import Analysis from './pages/Analysis';
 import ExclusiveKeywords from './pages/ExclusiveKeywords';
-import FbaProfitCalculator from './pages/FbaProfitCalculator';
 import Home from './pages/Home';
 import KeywordDatabase from './pages/KeywordDatabase';
 import KeywordDetails from './pages/KeywordDetails';
 import NewThisWeek from './pages/NewThisWeek';
 import Pricing from './pages/Pricing';
+import FbaProfitCalculator from './pages/FbaProfitCalculator';
 import __Layout from './Layout.jsx';
 
 
@@ -65,12 +65,12 @@ export const PAGES = {
     "AmazonSellerToolkit": AmazonSellerToolkit,
     "Analysis": Analysis,
     "ExclusiveKeywords": ExclusiveKeywords,
-    "FbaProfitCalculator": FbaProfitCalculator,
     "Home": Home,
     "KeywordDatabase": KeywordDatabase,
     "KeywordDetails": KeywordDetails,
     "NewThisWeek": NewThisWeek,
     "Pricing": Pricing,
+    "FbaProfitCalculator": FbaProfitCalculator,
 }
 
 export const pagesConfig = {
