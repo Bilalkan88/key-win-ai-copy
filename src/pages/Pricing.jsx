@@ -303,6 +303,71 @@ export default function Pricing() {
           </motion.div>
         </div>
 
+        {/* FAQ Section */}
+        <div className="mt-16 mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="text-center mb-8"
+          >
+            <h2 className="text-3xl font-bold text-slate-900 mb-2">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-slate-600">Everything you need to know</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="max-w-3xl mx-auto space-y-4"
+          >
+            <Card className="border-2 hover:border-indigo-200 transition-colors">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                  Can I cancel anytime?
+                </h3>
+                <p className="text-slate-600">
+                  Yes, you can change or cancel your plan anytime from the billing menu in your Keyword Winner account.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-indigo-200 transition-colors">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                  How long does it take to set up Keyword Winner?
+                </h3>
+                <p className="text-slate-600">
+                  Instant. Create your account and start using the free Analysis and exploring winning keywords right away.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-indigo-200 transition-colors">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                  Which markets do you support?
+                </h3>
+                <p className="text-slate-600">
+                  Currently, Keyword Winner supports only Amazon US but we have plans to expand in other large markets.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-indigo-200 transition-colors">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                  What type of payments do you accept?
+                </h3>
+                <p className="text-slate-600">
+                  Payments are processed securely via Stripe and we accept all major credit cards - Visa, Mastercard and AMEX.
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
 
         </div>
         </div>
