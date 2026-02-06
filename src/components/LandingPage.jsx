@@ -41,7 +41,7 @@ export default function LandingPage() {
               </h1>
 
               <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                Stop wasting time on useless keywords. Get AI-filtered, high-demand, low-competition keywords that actually convert into sales.
+                Stop wasting time on useless keywords. Discover carefully selected, AI-filtered opportunities with real demand and manageable competition — so you can focus on keywords that actually lead to profitable products and sales.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-10">
