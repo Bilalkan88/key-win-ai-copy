@@ -124,14 +124,19 @@ export default function Pricing() {
                   </CardHeader>
 
                   <CardContent>
-                    <ul className="space-y-3 mb-6">
-                      {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                          <span className="text-slate-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="mb-6">
+                      <div className="text-sm font-semibold text-slate-600 mb-3">
+                        {plan.name} Plan Functionalities +
+                      </div>
+                      <ul className="space-y-3">
+                        {plan.features.map((feature, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                            <span className="text-slate-700">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
                     {plan.name === 'Free' ? (
                       <Button asChild className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800">
