@@ -83,7 +83,7 @@ export default function ExclusiveKeywords() {
               <div>
                 <h3 className="font-semibold text-slate-900 mb-1">What are Exclusive Keywords?</h3>
                 <p className="text-slate-600">
-                  Each keyword in this section is sold to one customer only. Once purchased, it's removed from the list and no one else can access it. Get a real competitive advantage!
+                  Skip the research. Save your time. Launch with a keyword built for profit.
                 </p>
               </div>
             </div>
