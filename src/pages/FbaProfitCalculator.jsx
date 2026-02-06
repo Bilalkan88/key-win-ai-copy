@@ -10,83 +10,10 @@ import React, { useMemo, useState } from "react";
  * so tier is selected manually for now.
  */
 
-// ---------------- Types ----------------
-type Season = "JAN_SEP" | "OCT_DEC";
-type PriceBand = "<10" | "10-50" | ">50";
-type FulfillmentTier =
-  | "SMALL_STANDARD"
-  | "LARGE_STANDARD"
-  | "SMALL_BULKY"
-  | "LARGE_BULKY"
-  | "EXTRA_LARGE";
-
-type DisposalTier = "STANDARD" | "BULKY_XL";
-
-type ReferralRule =
-  | { type: "flat"; rate: number; min: number }
-  | { type: "tiered"; tiers: { upTo?: number; rate: number }[]; min?: number };
-
-type FeeRow = {
-  maxWeight: number;
-  unit: "oz" | "lb";
-  fees: Record<PriceBand, number>;
-  extra?: {
-    after: number;
-    step: number;
-    stepUnit: "oz" | "lb";
-    add: number;
-  };
-};
-
-type Inputs = {
-  // Product
-  marketplace: "Amazon US";
-  category: string;
-  sellPrice: number;
-
-  // Dimensions (inches) + weights (lb)
-  lengthIn: number;
-  widthIn: number;
-  heightIn: number;
-
-  unitWeightLb: number;
-  dimensionalWeightLb: number; // optional manual override
-  useDimWeightOverride: boolean;
-
-  fulfillmentTier: FulfillmentTier; // manual until size-tier rules are added
-  season: Season;
-  storageWeeks: number;
-
-  // Costs (per unit)
-  manufacturingCost: number;
-  advertisingCost: number;
-
-  // Inbound shipping
-  shippingCostPerShipment: number;
-  unitsPerShipment: number;
-
-  // Advanced (per unit) – optional
-  inboundPlacementFeePerUnit: number;
-  lowInventoryFeePerUnit: number;
-  longTermStorageFeePerUnit: number;
-  variableClosingFeePerUnit: number;
-  removalFeePerUnit: number;
-  liquidationFeePerUnit: number;
-  couponFeePerUnit: number;
-  importFeeDepositPerUnit: number;
-  digitalServicesFeePerUnit: number;
-
-  // Disposal toggle
-  includeDisposalFee: boolean;
-
-  // Sales volume
-  expectedMonthlySales: number;
-};
-
 // ---------------- Config ----------------
 
 // Referral fee rules (add/expand from your Amazon table)
-const REFERRAL_FEES_US: Record<string, ReferralRule> = {
+const REFERRAL_FEES_US = {
   "Everything Else": { type: "flat", rate: 0.15, min: 0.30 },
   "Home & Kitchen": { type: "flat", rate: 0.15, min: 0.30 },
   "Toys & Games": { type: "flat", rate: 0.15, min: 0.30 },
@@ -113,10 +40,7 @@ const REFERRAL_FEES_US: Record<string, ReferralRule> = {
 };
 
 // Storage total monthly fee per cubic foot (non-dangerous), from your table
-const STORAGE_TOTAL_MONTHLY_FEE_PER_CUFT_US: Record<
-  Season,
-  Record<"STANDARD" | "OVERSIZE", { maxWeeks: number; fee: number }[]>
-> = {
+const STORAGE_TOTAL_MONTHLY_FEE_PER_CUFT_US = {
   JAN_SEP: {
     STANDARD: [
       { maxWeeks: 22, fee: 0.78 },
@@ -173,7 +97,7 @@ const DISPOSAL_FEES_2026_US = {
 } as const;
 
 // Fulfillment fees (US) starting Jan 15, 2026 (excluding apparel), from your screenshots
-const FBA_FULFILLMENT_FEES_US_2026: Record<FulfillmentTier, FeeRow[]> = {
+const FBA_FULFILLMENT_FEES_US_2026 = {
   SMALL_STANDARD: [
     { maxWeight: 2, unit: "oz", fees: { "<10": 2.43, "10-50": 3.32, ">50": 3.58 } },
     { maxWeight: 4, unit: "oz", fees: { "<10": 2.49, "10-50": 3.42, ">50": 3.68 } },
@@ -248,16 +172,16 @@ const FBA_FULFILLMENT_FEES_US_2026: Record<FulfillmentTier, FeeRow[]> = {
 };
 
 // ---------------- Helpers ----------------
-function clamp(n: number) {
+function clamp(n) {
   return Number.isFinite(n) ? Math.max(0, n) : 0;
 }
-function round2(n: number) {
+function round2(n) {
   return Math.round((n + Number.EPSILON) * 100) / 100;
 }
-function cubicFeetFromInches(l: number, w: number, h: number) {
+function cubicFeetFromInches(l, w, h) {
   return (l * w * h) / 1728;
 }
-function calcReferralFee(totalSalesPrice: number, rule: ReferralRule) {
+function calcReferralFee(totalSalesPrice, rule) {
   if (totalSalesPrice <= 0) return 0;
   if (rule.type === "flat") return Math.max(totalSalesPrice * rule.rate, rule.min);
 
@@ -271,18 +195,18 @@ function calcReferralFee(totalSalesPrice: number, rule: ReferralRule) {
   }
   return Math.max(fee, rule.min ?? 0);
 }
-function calcStorageFeePerUnitPerMonth(cubicFeet: number, weeks: number, season: Season, group: "STANDARD" | "OVERSIZE") {
+function calcStorageFeePerUnitPerMonth(cubicFeet, weeks, season, group) {
   const tiers = STORAGE_TOTAL_MONTHLY_FEE_PER_CUFT_US[season][group];
   const tier = tiers.find((t) => weeks <= t.maxWeeks) ?? tiers[tiers.length - 1];
   return cubicFeet * tier.fee;
 }
-function roundShippingWeight(weight: number, unit: "oz" | "lb") {
+function roundShippingWeight(weight, unit) {
   return unit === "oz" ? Math.ceil(weight) : Math.ceil(weight * 4) / 4; // 0.25 lb
 }
-function priceBand(price: number): PriceBand {
+function priceBand(price) {
   return price < 10 ? "<10" : price <= 50 ? "10-50" : ">50";
 }
-function calcFulfillmentFeeUS2026(tier: FulfillmentTier, shippingWeightLb: number, sellPrice: number) {
+function calcFulfillmentFeeUS2026(tier, shippingWeightLb, sellPrice) {
   const band = priceBand(sellPrice);
   const rows = FBA_FULFILLMENT_FEES_US_2026[tier];
 
@@ -310,10 +234,10 @@ function calcFulfillmentFeeUS2026(tier: FulfillmentTier, shippingWeightLb: numbe
   }
   return 0;
 }
-function roundWeightForDisposal(weightLb: number, tier: DisposalTier) {
+function roundWeightForDisposal(weightLb, tier) {
   return tier === "STANDARD" ? Math.ceil(weightLb * 10) / 10 : Math.ceil(weightLb);
 }
-function calcDisposalFeeUS2026(unitWeightLb: number, tier: DisposalTier) {
+function calcDisposalFeeUS2026(unitWeightLb, tier) {
   const rounded = roundWeightForDisposal(unitWeightLb, tier);
   const table = DISPOSAL_FEES_2026_US[tier];
   for (const row of table) {
@@ -324,19 +248,18 @@ function calcDisposalFeeUS2026(unitWeightLb: number, tier: DisposalTier) {
   }
   return { roundedWeightLb: rounded, fee: 0 };
 }
-function tierToStorageGroup(t: FulfillmentTier): "STANDARD" | "OVERSIZE" {
+function tierToStorageGroup(t) {
   return t === "SMALL_STANDARD" || t === "LARGE_STANDARD" ? "STANDARD" : "OVERSIZE";
 }
-function tierToDisposalTier(t: FulfillmentTier): DisposalTier {
+function tierToDisposalTier(t) {
   return t === "SMALL_STANDARD" || t === "LARGE_STANDARD" ? "STANDARD" : "BULKY_XL";
 }
 
 // ---------------- UI ----------------
-type TabKey = "PRODUCT" | "COSTS" | "AMAZON_FEES" | "RESULTS";
 
 export default function AmazonFBAProfitCalculatorTabs() {
-  const [tab, setTab] = useState<TabKey>("PRODUCT");
-  const [inputs, setInputs] = useState<Inputs>({
+  const [tab, setTab] = useState("PRODUCT");
+  const [inputs, setInputs] = useState({
     marketplace: "Amazon US",
     category: "Everything Else",
     sellPrice: 43.95,
@@ -374,7 +297,7 @@ export default function AmazonFBAProfitCalculatorTabs() {
     expectedMonthlySales: 50,
   });
 
-  function set<K extends keyof Inputs>(k: K, v: Inputs[K]) {
+  function set(k, v) {
     setInputs((p) => ({ ...p, [k]: v }));
   }
 
@@ -462,9 +385,9 @@ export default function AmazonFBAProfitCalculatorTabs() {
     };
   }, [inputs]);
 
-  const box: React.CSSProperties = { border: "1px solid #eee", borderRadius: 14, padding: 14, background: "#fff" };
-  const input: React.CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid #e5e7eb" };
-  const label: React.CSSProperties = { fontSize: 12, opacity: 0.75, marginBottom: 6 };
+  const box = { border: "1px solid #eee", borderRadius: 14, padding: 14, background: "#fff" };
+  const input = { width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid #e5e7eb" };
+  const label = { fontSize: 12, opacity: 0.75, marginBottom: 6 };
 
   return (
     <div style={{ maxWidth: 1050, margin: "0 auto", padding: 16, fontFamily: "system-ui, -apple-system, Segoe UI, Roboto" }}>
@@ -536,7 +459,7 @@ export default function AmazonFBAProfitCalculatorTabs() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
             <div>
               <div style={label}>Fulfillment tier (manual)</div>
-              <select style={input} value={inputs.fulfillmentTier} onChange={(e) => set("fulfillmentTier", e.target.value as FulfillmentTier)}>
+              <select style={input} value={inputs.fulfillmentTier} onChange={(e) => set("fulfillmentTier", e.target.value)}>
                 <option value="SMALL_STANDARD">Small standard</option>
                 <option value="LARGE_STANDARD">Large standard</option>
                 <option value="SMALL_BULKY">Small bulky</option>
@@ -550,7 +473,7 @@ export default function AmazonFBAProfitCalculatorTabs() {
 
             <div>
               <div style={label}>Season (storage)</div>
-              <select style={input} value={inputs.season} onChange={(e) => set("season", e.target.value as Season)}>
+              <select style={input} value={inputs.season} onChange={(e) => set("season", e.target.value)}>
                 <option value="JAN_SEP">Jan – Sep</option>
                 <option value="OCT_DEC">Oct – Dec</option>
               </select>
@@ -724,7 +647,7 @@ export default function AmazonFBAProfitCalculatorTabs() {
   );
 }
 
-function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+function TabButton({ active, onClick, children }) {
   return (
     <button
       onClick={onClick}
@@ -743,7 +666,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
   );
 }
 
-function KV({ k, v, strong }: { k: string; v: any; strong?: boolean }) {
+function KV({ k, v, strong }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", gap: 12, margin: "8px 0" }}>
       <div style={{ opacity: 0.75 }}>{k}</div>
@@ -752,9 +675,9 @@ function KV({ k, v, strong }: { k: string; v: any; strong?: boolean }) {
   );
 }
 
-function Num({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
-  const input: React.CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid #e5e7eb" };
-  const l: React.CSSProperties = { fontSize: 12, opacity: 0.75, marginBottom: 6 };
+function Num({ label, value, onChange }) {
+  const input = { width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid #e5e7eb" };
+  const l = { fontSize: 12, opacity: 0.75, marginBottom: 6 };
   return (
     <div>
       <div style={l}>{label}</div>
