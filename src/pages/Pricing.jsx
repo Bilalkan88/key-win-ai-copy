@@ -50,10 +50,8 @@ export default function Pricing() {
       features: [
         { text: 'Free keyword analysis tool', available: true },
         { text: 'Upload your own CSV files (single file)', available: true },
-        { text: 'Basic filtering options', available: true },
         { text: 'Export results', available: true },
-        { text: 'Community support', available: true },
-        { text: 'Access to keyword database', available: false },
+        { text: 'Access Keyword Goldmine', available: false },
         { text: 'Weekly updates with new keywords', available: false },
         { text: 'Advanced search & filtering', available: false },
         { text: 'Custom AI explanations', available: false },
@@ -69,10 +67,8 @@ export default function Pricing() {
       features: [
         { text: 'Free keyword analysis tool', available: true },
         { text: 'Upload your own CSV files (multiple files)', available: true },
-        { text: 'Basic filtering options', available: true },
         { text: 'Export results', available: true },
-        { text: 'Community support', available: true },
-        { text: 'Access to keyword database', available: true },
+        { text: 'Access Keyword Goldmine', available: true },
         { text: 'Weekly updates with new keywords', available: true },
         { text: 'Advanced search & filtering', available: true },
         { text: 'Custom AI explanations', available: true },
