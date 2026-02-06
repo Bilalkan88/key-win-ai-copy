@@ -36,7 +36,10 @@ export default function Layout({ children, currentPageName }) {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-slate-900">KeywordWinner</span>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-slate-900 leading-tight">Keyword Winner</span>
+                <span className="text-[10px] text-slate-500 leading-tight">Winning Keywords. Real Opportunities.</span>
+              </div>
             </Link>
 
             {/* Navigation Links */}
