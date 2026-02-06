@@ -43,16 +43,16 @@ export default function Pricing() {
 
   const plans = [
     {
-      name: 'Basic',
-      price: 29,
-      icon: TrendingUp,
-      color: 'blue',
+      name: 'Free',
+      price: 0,
+      icon: Sparkles,
+      color: 'emerald',
       features: [
-        'Access to keyword database',
-        'Weekly updates',
-        'Advanced search & filtering',
-        'Save favorite keywords',
-        'Export results'
+        'Free keyword analysis tool',
+        'Upload your own CSV files',
+        'Basic filtering options',
+        'Export results',
+        'Community support'
       ]
     },
     {
@@ -62,24 +62,15 @@ export default function Pricing() {
       color: 'indigo',
       popular: true,
       features: [
-        'All Basic features',
+        'All Free features',
+        'Access to keyword database',
+        'Weekly updates with new keywords',
+        'Advanced search & filtering',
+        'Save favorite keywords',
         'Custom AI explanations',
         'Competitor analysis',
         'Price recommendations',
         'Priority support'
-      ]
-    },
-    {
-      name: 'Pro+',
-      price: 99,
-      icon: Crown,
-      color: 'purple',
-      features: [
-        'All Pro features',
-        '50% off exclusive keywords',
-        'Early access to new keywords',
-        'API integration',
-        'Monthly custom reports'
       ]
     }
   ];
