@@ -137,8 +137,14 @@ export default function Pricing() {
                       <ul className="space-y-3">
                         {plan.features.map((feature, i) => (
                           <li key={i} className="flex items-start gap-2">
-                            <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                            <span className="text-slate-700">{feature}</span>
+                            {feature.available ? (
+                              <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                            ) : (
+                              <X className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                            )}
+                            <span className={feature.available ? "text-slate-700" : "text-slate-400 line-through"}>
+                              {feature.text}
+                            </span>
                           </li>
                         ))}
                       </ul>
