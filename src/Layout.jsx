@@ -15,7 +15,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Analysis', label: 'Keyword Analysis' },
     { name: 'FbaProfitCalculator', label: 'FBA Calculator' },
     { name: 'AmazonSellerToolkit', label: 'Seller Toolkit' },
-    { name: 'AmazonScraper', label: 'Amazon Scraper' }
+    { name: 'AmazonScraper', label: 'Reverse Product' }
   ];
 
   const navLinks = [
