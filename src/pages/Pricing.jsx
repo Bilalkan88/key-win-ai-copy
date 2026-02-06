@@ -93,7 +93,7 @@ export default function Pricing() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {plans.map((plan, index) => {
             const Icon = plan.icon;
             const isCurrentPlan = currentPlan === plan.name.toLowerCase();
