@@ -430,7 +430,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Cards Section */}
-      <section className="py-20 bg-slate-950">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -438,9 +438,10 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Learn how different users make use of our platform
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">
+              تعلم كيف يستفيد المستخدمون من منصتنا
             </h2>
+            <p className="text-xl text-slate-600">حلول مصممة لكل مرحلة من رحلة البيع على أمازون</p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -450,20 +451,17 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+              <Card className="h-full border-2 hover:border-indigo-300 hover:shadow-2xl transition-all bg-gradient-to-br from-yellow-50 to-orange-50">
                 <CardContent className="p-8">
-                  <div className="w-16 h-16 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center mb-6">
-                    <BarChart3 className="w-8 h-8 text-yellow-400" />
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <BarChart3 className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
-                    Find profitable products
+                  <h3 className="text-2xl font-bold text-slate-900 mb-3 text-center">
+                    اكتشف منتجات مربحة
                   </h3>
-                  <p className="text-slate-400 leading-relaxed mb-4">
-                    Discover high-demand, low-competition keywords that convert. Our AI filters out the noise and shows you only winners.
+                  <p className="text-slate-600 leading-relaxed text-center">
+                    اكتشف كلمات مفتاحية ذات طلب عالٍ ومنافسة منخفضة. ذكاؤنا الاصطناعي يصفي الضوضاء ويعرض لك الفائزين فقط.
                   </p>
-                  <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
-                    Learn more →
-                  </Button>
                 </CardContent>
               </Card>
             </motion.div>
@@ -474,20 +472,17 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+              <Card className="h-full border-2 hover:border-indigo-300 hover:shadow-2xl transition-all bg-gradient-to-br from-blue-50 to-indigo-50">
                 <CardContent className="p-8">
-                  <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-6">
-                    <Target className="w-8 h-8 text-orange-400" />
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Target className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
-                    Beat your competition
+                  <h3 className="text-2xl font-bold text-slate-900 mb-3 text-center">
+                    تفوق على منافسيك
                   </h3>
-                  <p className="text-slate-400 leading-relaxed mb-4">
-                    Get detailed competitor insights and market trends. Know exactly what works before you invest.
+                  <p className="text-slate-600 leading-relaxed text-center">
+                    احصل على رؤى تفصيلية عن المنافسين واتجاهات السوق. اعرف بالضبط ما يعمل قبل أن تستثمر.
                   </p>
-                  <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
-                    Learn more →
-                  </Button>
                 </CardContent>
               </Card>
             </motion.div>
@@ -498,20 +493,17 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+              <Card className="h-full border-2 hover:border-indigo-300 hover:shadow-2xl transition-all bg-gradient-to-br from-purple-50 to-pink-50">
                 <CardContent className="p-8">
-                  <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-6">
-                    <Lock className="w-8 h-8 text-purple-400" />
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Lock className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
-                    Exclusive keywords
+                  <h3 className="text-2xl font-bold text-slate-900 mb-3 text-center">
+                    كلمات مفتاحية حصرية
                   </h3>
-                  <p className="text-slate-400 leading-relaxed mb-4">
-                    Access premium keywords sold to one buyer only. Get an unfair advantage in your niche.
+                  <p className="text-slate-600 leading-relaxed text-center">
+                    احصل على كلمات مفتاحية مميزة تُباع لمشترٍ واحد فقط. احصل على ميزة تنافسية غير عادلة.
                   </p>
-                  <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
-                    Learn more →
-                  </Button>
                 </CardContent>
               </Card>
             </motion.div>
