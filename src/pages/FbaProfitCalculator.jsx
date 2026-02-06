@@ -85,16 +85,16 @@ const DISPOSAL_FEES_2026_US = {
     { max: 0.5, fee: 1.04 },
     { max: 1.0, fee: 1.53 },
     { max: 2.0, fee: 2.27 },
-    { max: Infinity, feeFn: (w: number) => 2.89 + (w - 2) * 1.06 },
+    { max: Infinity, feeFn: (w) => 2.89 + (w - 2) * 1.06 },
   ],
   BULKY_XL: [
     { max: 1.0, fee: 3.12 },
     { max: 2.0, fee: 4.30 },
     { max: 4.0, fee: 6.36 },
     { max: 10.0, fee: 10.04 },
-    { max: Infinity, feeFn: (w: number) => 14.32 + (w - 10) * 1.06 },
+    { max: Infinity, feeFn: (w) => 14.32 + (w - 10) * 1.06 },
   ],
-} as const;
+};
 
 // Fulfillment fees (US) starting Jan 15, 2026 (excluding apparel), from your screenshots
 const FBA_FULFILLMENT_FEES_US_2026 = {
