@@ -7,116 +7,157 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Sparkles, TrendingUp, Users, BarChart3, Lock, Star, 
   Search, Target, AlertCircle, CheckCircle, Zap, 
-  Clock, Database, ArrowRight, Shield
+  Clock, Database, ArrowRight, Shield, Award, Rocket,
+  TrendingDown, Eye, AlertTriangle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-slate-950">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-slate-950 to-indigo-900/20" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)'
+      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="absolute inset-0 opacity-40" style={{
+          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%)'
         }} />
         
-        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-28 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="max-w-7xl mx-auto px-6 py-16 sm:py-24 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: Text */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              className="text-center lg:text-right order-2 lg:order-1"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-sm mb-6">
-                <Sparkles className="w-4 h-4" />
-                <span>AI-Powered Keyword Intelligence</span>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 }}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 rounded-full text-indigo-700 text-sm font-medium mb-6"
+              >
+                <Award className="w-4 h-4" />
+                <span>تم اختياره من قبل آلاف البائعين</span>
+              </motion.div>
 
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
-                Find Winning<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400">
-                  Amazon Keywords
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 mb-6 leading-tight"
+              >
+                اكتشف الكلمات المفتاحية{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
+                  الرابحة على أمازون
                 </span>
-              </h1>
+              </motion.h1>
 
-              <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                Stop wasting time on useless keywords. Discover carefully selected, AI-filtered opportunities with real demand and manageable competition — so you can focus on keywords that actually lead to profitable products and sales.
-              </p>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-xl text-slate-600 mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0"
+              >
+                توقف عن إضاعة الوقت على كلمات مفتاحية عديمة الفائدة. اكتشف فرص مُنتقاة بعناية بواسطة الذكاء الاصطناعي مع طلب حقيقي ومنافسة قابلة للإدارة.
+              </motion.p>
 
-              <div className="flex flex-col sm:flex-row gap-4 mb-10">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="flex flex-col sm:flex-row gap-4 mb-8 justify-center lg:justify-start"
+              >
                 <Button
                   size="lg"
                   asChild
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg px-8 py-7 rounded-xl font-semibold shadow-lg shadow-purple-500/30"
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-lg px-10 py-7 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105"
                 >
                   <Link to={createPageUrl('KeywordDatabase')}>
-                    Start Free Trial
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <Rocket className="w-5 h-5 ml-2" />
+                    ابدأ مجاناً الآن
                   </Link>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   asChild
-                  className="border-2 border-slate-700 bg-slate-900/50 hover:bg-slate-800 text-white text-lg px-8 py-7 rounded-xl font-semibold"
+                  className="border-2 border-slate-300 hover:border-indigo-400 hover:bg-indigo-50 text-slate-900 text-lg px-10 py-7 rounded-xl font-bold"
                 >
                   <Link to={createPageUrl('Analysis')}>
-                    See Demo
+                    شاهد العرض التوضيحي
                   </Link>
                 </Button>
-              </div>
+              </motion.div>
 
-              <div className="flex items-center gap-6 text-sm text-slate-400">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="flex items-center gap-6 text-sm text-slate-600 justify-center lg:justify-start"
+              >
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>No credit card required</span>
+                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <span>بدون بطاقة ائتمان</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>15,000+ keywords</span>
+                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <span>+15,000 كلمة مفتاحية</span>
                 </div>
-              </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <span>تحديثات أسبوعية</span>
+                </div>
+              </motion.div>
             </motion.div>
 
             {/* Right: Visual */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="relative"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="relative order-1 lg:order-2"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl blur-3xl opacity-20" />
-              <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-700/50 shadow-2xl">
-                <div className="bg-slate-950 rounded-2xl p-6 border border-slate-700/30">
-                  <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-700/50">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                    <span className="text-slate-500 text-sm ml-auto">Live Data</span>
+              <div className="absolute top-10 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
+              <div className="absolute bottom-10 left-10 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
+              
+              <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-slate-200">
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-xs font-medium text-slate-600">بيانات حية</span>
+                    </div>
+                    <Badge className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">مباشر</Badge>
                   </div>
+                  
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 rounded-xl border border-emerald-500/20">
-                      <span className="text-sm font-medium text-slate-300">Opportunity Score</span>
-                      <Badge className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-3 py-1 text-base font-bold">94</Badge>
+                    <div className="flex items-center justify-between p-5 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl border-2 border-emerald-200 shadow-sm">
+                      <span className="text-sm font-bold text-emerald-900">نقاط الفرصة</span>
+                      <div className="flex items-center gap-2">
+                        <div className="text-3xl font-black text-emerald-600">94</div>
+                        <TrendingUp className="w-5 h-5 text-emerald-600" />
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-xl border border-blue-500/20">
-                      <span className="text-sm font-medium text-slate-300">Search Volume</span>
-                      <span className="font-bold text-blue-400 text-lg">18,240</span>
+                    
+                    <div className="flex items-center justify-between p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200 shadow-sm">
+                      <span className="text-sm font-bold text-blue-900">حجم البحث</span>
+                      <div className="text-2xl font-black text-blue-600">18,240</div>
                     </div>
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500/10 to-purple-600/10 rounded-xl border border-purple-500/20">
-                      <span className="text-sm font-medium text-slate-300">Competition</span>
-                      <span className="font-bold text-purple-400">Very Low</span>
+                    
+                    <div className="flex items-center justify-between p-5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border-2 border-purple-200 shadow-sm">
+                      <span className="text-sm font-bold text-purple-900">المنافسة</span>
+                      <Badge className="bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold">منخفضة جداً</Badge>
                     </div>
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-500/10 to-orange-600/10 rounded-xl border border-orange-500/20">
-                      <span className="text-sm font-medium text-slate-300">Est. Revenue</span>
-                      <span className="font-bold text-orange-400 text-lg">$24,500</span>
+                    
+                    <div className="flex items-center justify-between p-5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl border-2 border-orange-200 shadow-sm">
+                      <span className="text-sm font-bold text-orange-900">الإيرادات المتوقعة</span>
+                      <div className="text-2xl font-black text-orange-600">$24,500</div>
                     </div>
                   </div>
-                  <div className="mt-6 pt-4 border-t border-slate-700/50">
-                    <div className="flex items-center justify-center gap-2 text-emerald-400 text-sm">
-                      <CheckCircle className="w-4 h-4" />
-                      <span className="font-medium">Ready to Launch</span>
+                  
+                  <div className="mt-6 pt-4 border-t border-slate-200">
+                    <div className="flex items-center justify-center gap-2 text-emerald-600">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="font-bold">جاهز للإطلاق</span>
                     </div>
                   </div>
                 </div>
