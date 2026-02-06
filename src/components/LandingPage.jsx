@@ -13,344 +13,91 @@ import { motion } from 'framer-motion';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-slate-950">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-slate-950 to-indigo-900/20" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)'
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900">
+        <div className="absolute inset-0 opacity-30" style={{
+          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)'
         }} />
         
-        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-28 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left: Text */}
+        <div className="max-w-7xl mx-auto px-6 py-24 sm:py-32 relative z-10">
+          <div className="text-center max-w-5xl mx-auto">
+            {/* Headline */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-sm mb-6">
-                <Sparkles className="w-4 h-4" />
-                <span>AI-Powered Keyword Intelligence</span>
-              </div>
-
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
-                Find Winning<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400">
-                  Amazon Keywords
-                </span>
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-6 leading-tight">
+                <span className="text-emerald-400">Discover Smarter.</span>{' '}
+                <span className="text-white">Launch Faster.</span>
               </h1>
 
-              <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                Stop wasting time on useless keywords. Discover carefully selected, AI-filtered opportunities with real demand and manageable competition — so you can focus on keywords that actually lead to profitable products and sales.
+              <p className="text-xl sm:text-2xl text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
+                Keyword Winner empowers Amazon sellers with AI-powered keyword intelligence and data-driven insights to find profitable products, optimize listings, and scale operations across your entire e-commerce journey.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 mb-10">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
                 <Button
                   size="lg"
                   asChild
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg px-8 py-7 rounded-xl font-semibold shadow-lg shadow-purple-500/30"
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white text-lg px-10 py-7 rounded-xl font-semibold shadow-lg"
                 >
                   <Link to={createPageUrl('KeywordDatabase')}>
-                    Start Free Trial
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    Get Started <ArrowRight className="w-5 h-5 ml-2" />
                   </Link>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   asChild
-                  className="border-2 border-slate-700 bg-slate-900/50 hover:bg-slate-800 text-white text-lg px-8 py-7 rounded-xl font-semibold"
+                  className="border-2 border-slate-600 bg-transparent hover:bg-slate-800 text-white text-lg px-10 py-7 rounded-xl font-semibold"
                 >
-                  <Link to={createPageUrl('Analysis')}>
-                    See Demo
+                  <Link to={createPageUrl('Pricing')}>
+                    Book a Demo
                   </Link>
                 </Button>
               </div>
-
-              <div className="flex items-center gap-6 text-sm text-slate-400">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>No credit card required</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>15,000+ keywords</span>
-                </div>
-              </div>
             </motion.div>
 
-            {/* Right: Visual */}
+            {/* Hero Stats */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="relative"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl blur-3xl opacity-20" />
-              <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-700/50 shadow-2xl">
-                <div className="bg-slate-950 rounded-2xl p-6 border border-slate-700/30">
-                  <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-700/50">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                    <span className="text-slate-500 text-sm ml-auto">Live Data</span>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 rounded-xl border border-emerald-500/20">
-                      <span className="text-sm font-medium text-slate-300">Opportunity Score</span>
-                      <Badge className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-3 py-1 text-base font-bold">94</Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-xl border border-blue-500/20">
-                      <span className="text-sm font-medium text-slate-300">Search Volume</span>
-                      <span className="font-bold text-blue-400 text-lg">18,240</span>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500/10 to-purple-600/10 rounded-xl border border-purple-500/20">
-                      <span className="text-sm font-medium text-slate-300">Competition</span>
-                      <span className="font-bold text-purple-400">Very Low</span>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-500/10 to-orange-600/10 rounded-xl border border-orange-500/20">
-                      <span className="text-sm font-medium text-slate-300">Est. Revenue</span>
-                      <span className="font-bold text-orange-400 text-lg">$24,500</span>
-                    </div>
-                  </div>
-                  <div className="mt-6 pt-4 border-t border-slate-700/50">
-                    <div className="flex items-center justify-center gap-2 text-emerald-400 text-sm">
-                      <CheckCircle className="w-4 h-4" />
-                      <span className="font-medium">Ready to Launch</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid Section */}
-      <section className="py-20 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
-            {/* Feature 1 */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <Badge className="mb-4 bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                Amazon Intelligence
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Uncover high-opportunity keywords, simplified.
-              </h2>
-              <p className="text-lg text-slate-400 mb-6 leading-relaxed">
-                Stop wasting time on keywords that don't convert. Our AI filters thousands of keywords to show you only the winners with high search volume, low competition, and real profit potential.
-              </p>
-              <Button asChild className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                <Link to={createPageUrl('KeywordDatabase')}>
-                  Browse Keywords
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700/50"
-            >
-              <img 
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" 
-                alt="Analytics Dashboard"
-                className="rounded-lg shadow-xl w-full border border-slate-700/30"
-              />
-            </motion.div>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Feature 2 - Image First */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700/50 lg:order-1"
-            >
-              <div className="bg-slate-950 rounded-xl p-6 shadow-xl border border-slate-700/30">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                    <div className="text-3xl font-bold text-emerald-400 mb-1">15K+</div>
-                    <div className="text-xs text-slate-400">Keywords Analyzed</div>
-                  </div>
-                  <div className="text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                    <div className="text-3xl font-bold text-blue-400 mb-1">500+</div>
-                    <div className="text-xs text-slate-400">Premium Keywords</div>
-                  </div>
-                  <div className="text-center p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                    <div className="text-3xl font-bold text-purple-400 mb-1">90%</div>
-                    <div className="text-xs text-slate-400">Success Rate</div>
-                  </div>
-                  <div className="text-center p-4 bg-orange-500/10 rounded-lg border border-orange-500/20">
-                    <div className="text-3xl font-bold text-orange-400 mb-1">24/7</div>
-                    <div className="text-xs text-slate-400">Updates</div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="lg:order-2"
-            >
-              <Badge className="mb-4 bg-orange-500/10 text-orange-400 border border-orange-500/20">
-                Amazon profits, maximized.
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Data-driven decisions for every product.
-              </h2>
-              <p className="text-lg text-slate-400 mb-6 leading-relaxed">
-                Get instant competitor analysis, profitability scores, and market insights. Know exactly which keywords to target before you launch.
-              </p>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
-                    <CheckCircle className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <span className="text-slate-300">Real-time market data</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
-                    <CheckCircle className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <span className="text-slate-300">AI-powered opportunity scores</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
-                    <CheckCircle className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <span className="text-slate-300">Weekly fresh keywords</span>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Banner Section */}
-      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900">
-        {/* Animated Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 animate-pulse" />
-          <div className="absolute inset-0 opacity-30" style={{
-            backgroundImage: 'linear-gradient(to right, #ffffff22 1px, transparent 1px), linear-gradient(to bottom, #ffffff22 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
-          }} />
-        </div>
-
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white font-semibold text-sm mb-6 shadow-lg"
+              className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto"
             >
-              <span className="text-xl animate-bounce">🔥</span>
-              <span>Limited Keywords • High Demand</span>
+              <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700">
+                <div className="text-3xl font-bold text-emerald-400 mb-2">15K+</div>
+                <div className="text-sm text-slate-300">Keywords Analyzed</div>
+              </div>
+              <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700">
+                <div className="text-3xl font-bold text-blue-400 mb-2">500+</div>
+                <div className="text-sm text-slate-300">Weekly Updates</div>
+              </div>
+              <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700">
+                <div className="text-3xl font-bold text-purple-400 mb-2">90%</div>
+                <div className="text-sm text-slate-300">Success Rate</div>
+              </div>
+              <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700">
+                <div className="text-3xl font-bold text-orange-400 mb-2">24/7</div>
+                <div className="text-sm text-slate-300">Data Updates</div>
+              </div>
             </motion.div>
-
-            {/* Main Headline */}
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight">
-              Find Winning Amazon Keywords<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-400 to-purple-400">
-                Before Everyone Else
-              </span>
-            </h2>
-
-            {/* Features Grid */}
-            <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-8">
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                <div className="text-3xl mb-2">📈</div>
-                <div className="font-bold text-white mb-1">High Search Volume</div>
-                <div className="text-sm text-indigo-200">Real demand, real sales</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                <div className="text-3xl mb-2">🎯</div>
-                <div className="font-bold text-white mb-1">Low Competition</div>
-                <div className="text-sm text-indigo-200">Easy to rank & win</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                <div className="text-3xl mb-2">✨</div>
-                <div className="font-bold text-white mb-1">AI-Filtered</div>
-                <div className="text-sm text-indigo-200">Pre-analyzed for you</div>
-              </div>
-            </div>
-
-            {/* Value Proposition */}
-            <div className="max-w-3xl mx-auto mb-8">
-              <p className="text-xl md:text-2xl text-white/90 leading-relaxed mb-4">
-                <span className="font-bold text-orange-300">No more guessing.</span> No more wasting time on tools that give you thousands of useless keywords.
-              </p>
-              <div className="bg-gradient-to-r from-orange-500/20 to-pink-500/20 backdrop-blur-sm rounded-2xl p-6 border border-white/30">
-                <p className="text-2xl md:text-3xl font-black text-white">
-                  Get Only Keywords Worth Building Your Product On
-                </p>
-              </div>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                size="lg"
-                asChild
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-lg font-bold px-10 py-7 rounded-xl shadow-2xl hover:scale-105 transition-all"
-              >
-                <Link to={createPageUrl('KeywordDatabase')}>
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Start Free Today
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                asChild
-                className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white/20 text-lg font-bold px-10 py-7 rounded-xl"
-              >
-                <Link to={createPageUrl('Analysis')}>
-                  View Demo
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-8 text-white/80 text-sm">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span>15,000+ Keywords Analyzed</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span>Updated Weekly</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span>No Credit Card Required</span>
-              </div>
-            </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Features Cards Section */}
-      <section className="py-20 bg-slate-950">
+      {/* Trust Banner */}
+      <section className="py-6 bg-slate-50 border-y border-slate-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-center gap-8 text-sm text-slate-600">
+            <span className="font-medium">Trusted by leading Amazon sellers worldwide</span>
+          </div>
+        </div>
+      </section>
+
+      {/* One Dashboard Section */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -358,9 +105,261 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Learn how different users make use of our platform
+            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-4">
+              Grow bigger and faster with visibility<br />across every keyword.
             </h2>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <Badge className="mb-4 bg-emerald-50 text-emerald-700 border border-emerald-200">
+                One Dashboard. Total Visibility.
+              </Badge>
+              <h3 className="text-3xl font-bold text-slate-900 mb-4">
+                Track performance across categories with a unified dashboard built for scale.
+              </h3>
+              <p className="text-lg text-slate-600 mb-6 leading-relaxed">
+                Stop juggling multiple tools. Our platform gives you complete visibility into keyword performance, competition analysis, and market trends—all in one place.
+              </p>
+              <Button asChild className="bg-slate-900 hover:bg-slate-800 text-white">
+                <Link to={createPageUrl('KeywordDatabase')}>
+                  Explore Dashboard <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </Button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl p-8 border border-slate-200"
+            >
+              <img 
+                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" 
+                alt="Analytics Dashboard"
+                className="rounded-xl shadow-xl w-full"
+              />
+            </motion.div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-8 border border-indigo-200 lg:order-2"
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <div className="text-3xl font-bold text-emerald-600 mb-2">15K+</div>
+                  <div className="text-sm text-slate-600">Keywords Analyzed</div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
+                  <div className="text-sm text-slate-600">Premium Keywords</div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <div className="text-3xl font-bold text-purple-600 mb-2">90%</div>
+                  <div className="text-sm text-slate-600">Success Rate</div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <div className="text-3xl font-bold text-orange-600 mb-2">24/7</div>
+                  <div className="text-sm text-slate-600">Updates</div>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="lg:order-1"
+            >
+              <Badge className="mb-4 bg-orange-50 text-orange-700 border border-orange-200">
+                AI Automation Built for Growth
+              </Badge>
+              <h3 className="text-3xl font-bold text-slate-900 mb-4">
+                Use AI to improve efficiency and maximize returns.
+              </h3>
+              <p className="text-lg text-slate-600 mb-6 leading-relaxed">
+                Our AI filters thousands of keywords daily to show you only the winners with high search volume, low competition, and real profit potential.
+              </p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+                  <span className="text-slate-700">Real-time market intelligence</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+                  <span className="text-slate-700">AI-powered opportunity scoring</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+                  <span className="text-slate-700">Weekly fresh keyword updates</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <Badge className="mb-4 bg-purple-50 text-purple-700 border border-purple-200">
+                Reporting That Speaks Your Language
+              </Badge>
+              <h3 className="text-3xl font-bold text-slate-900 mb-4">
+                Understand your bottom line at every level.
+              </h3>
+              <p className="text-lg text-slate-600 mb-6 leading-relaxed">
+                Create customizable reports with detailed metrics. Track what matters most and make decisions based on data that drives your bottom line.
+              </p>
+              <Button asChild variant="outline" className="border-2 border-slate-300 hover:bg-slate-50">
+                <Link to={createPageUrl('Analysis')}>
+                  See How It Works <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </Button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl p-8 border border-slate-200"
+            >
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+                    <span className="text-sm font-medium text-slate-700">Opportunity Score</span>
+                    <Badge className="bg-emerald-600 text-white">94</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <span className="text-sm font-medium text-slate-700">Search Volume</span>
+                    <span className="font-bold text-blue-600">18,240</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-purple-50 rounded-xl border border-purple-200">
+                    <span className="text-sm font-medium text-slate-700">Competition</span>
+                    <span className="font-bold text-purple-600">Very Low</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quote Section */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-5xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <div className="mb-8">
+              <div className="text-6xl text-indigo-600 mb-6">"</div>
+              <p className="text-2xl sm:text-3xl text-slate-900 font-medium leading-relaxed mb-8">
+                As we scaled into profitable products, we needed more than basic keyword tools. Keyword Winner became our decision-making layer. It didn't just help us find keywords, it gave us the clarity to identify winners, allocate time with precision, and move faster across our entire Amazon operation.
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white text-xl font-bold">
+                SM
+              </div>
+              <div className="text-left">
+                <div className="font-bold text-slate-900 text-lg">Sarah Mitchell</div>
+                <div className="text-slate-600">Amazon FBA Seller</div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Banner Section */}
+      <section className="relative py-20 overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-6">
+              Find Winning Amazon Keywords<br />
+              Before Everyone Else
+            </h2>
+
+            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-10">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <div className="text-4xl mb-3">📈</div>
+                <div className="font-bold text-white text-lg mb-2">High Search Volume</div>
+                <div className="text-white/80">Real demand, real sales</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <div className="text-4xl mb-3">🎯</div>
+                <div className="font-bold text-white text-lg mb-2">Low Competition</div>
+                <div className="text-white/80">Easy to rank & win</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <div className="text-4xl mb-3">✨</div>
+                <div className="font-bold text-white text-lg mb-2">AI-Filtered</div>
+                <div className="text-white/80">Pre-analyzed for you</div>
+              </div>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 max-w-3xl mx-auto mb-10 border border-white/20">
+              <p className="text-2xl md:text-3xl font-bold text-white">
+                Get Only Keywords Worth Building Your Product On
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button
+                size="lg"
+                asChild
+                className="bg-white hover:bg-slate-100 text-indigo-600 text-lg font-bold px-10 py-7 rounded-xl shadow-xl"
+              >
+                <Link to={createPageUrl('KeywordDatabase')}>
+                  Start Free Today <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="bg-transparent border-2 border-white text-white hover:bg-white/10 text-lg font-bold px-10 py-7 rounded-xl"
+              >
+                <Link to={createPageUrl('Analysis')}>
+                  View Demo
+                </Link>
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Features Cards Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-4">
+              Power your next phase of growth<br />with strategic solutions
+            </h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Here are more ways Keyword Winner helps your business move faster, scale better, and sell smarter.
+            </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -370,19 +369,21 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+              <Card className="h-full border-2 border-slate-200 hover:border-indigo-300 hover:shadow-lg transition-all">
                 <CardContent className="p-8">
-                  <div className="w-16 h-16 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center mb-6">
-                    <BarChart3 className="w-8 h-8 text-yellow-400" />
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mb-6">
+                    <BarChart3 className="w-8 h-8 text-emerald-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
-                    Find profitable products
+                  <h3 className="text-2xl font-bold text-slate-900 mb-3">
+                    Product Intelligence
                   </h3>
-                  <p className="text-slate-400 leading-relaxed mb-4">
-                    Discover high-demand, low-competition keywords that convert. Our AI filters out the noise and shows you only winners.
+                  <p className="text-slate-600 leading-relaxed mb-6">
+                    Track any ASIN to see historical pricing, sales estimates, revenue trends, and listing quality over time. See what's actually selling versus what just looks popular.
                   </p>
-                  <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
-                    Learn more →
+                  <Button asChild variant="link" className="p-0 h-auto text-indigo-600 hover:text-indigo-700 font-semibold">
+                    <Link to={createPageUrl('KeywordDatabase')}>
+                      Learn More →
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -394,19 +395,21 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+              <Card className="h-full border-2 border-slate-200 hover:border-indigo-300 hover:shadow-lg transition-all">
                 <CardContent className="p-8">
-                  <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-6">
-                    <Target className="w-8 h-8 text-orange-400" />
+                  <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mb-6">
+                    <Sparkles className="w-8 h-8 text-blue-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
-                    Beat your competition
+                  <h3 className="text-2xl font-bold text-slate-900 mb-3">
+                    AI Automation
                   </h3>
-                  <p className="text-slate-400 leading-relaxed mb-4">
-                    Get detailed competitor insights and market trends. Know exactly what works before you invest.
+                  <p className="text-slate-600 leading-relaxed mb-6">
+                    Our AI handles thousands of keyword analyses daily based on what's converting right now. The system processes real-time data so your research optimizes while you handle other parts of your business.
                   </p>
-                  <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
-                    Learn more →
+                  <Button asChild variant="link" className="p-0 h-auto text-indigo-600 hover:text-indigo-700 font-semibold">
+                    <Link to={createPageUrl('Analysis')}>
+                      Learn More →
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -418,19 +421,21 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+              <Card className="h-full border-2 border-slate-200 hover:border-indigo-300 hover:shadow-lg transition-all">
                 <CardContent className="p-8">
-                  <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-6">
-                    <Lock className="w-8 h-8 text-purple-400" />
+                  <div className="w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center mb-6">
+                    <Lock className="w-8 h-8 text-purple-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
-                    Exclusive keywords
+                  <h3 className="text-2xl font-bold text-slate-900 mb-3">
+                    Exclusive Keywords
                   </h3>
-                  <p className="text-slate-400 leading-relaxed mb-4">
-                    Access premium keywords sold to one buyer only. Get an unfair advantage in your niche.
+                  <p className="text-slate-600 leading-relaxed mb-6">
+                    Access premium keywords sold to one buyer only. Our exclusive keyword marketplace gives you an unfair advantage in your niche with opportunities no one else has.
                   </p>
-                  <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
-                    Learn more →
+                  <Button asChild variant="link" className="p-0 h-auto text-indigo-600 hover:text-indigo-700 font-semibold">
+                    <Link to={createPageUrl('ExclusiveKeywords')}>
+                      Learn More →
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -440,7 +445,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-slate-950">
+      <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -448,10 +453,10 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-4">
               What Our Sellers Say
             </h2>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
               Real results from real Amazon sellers using our platform
             </p>
           </motion.div>
@@ -463,25 +468,25 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+              <Card className="h-full border-2 border-slate-200 hover:shadow-xl transition-all bg-white">
                 <CardContent className="p-8">
                   <div className="flex items-center gap-1 mb-4">
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
                   </div>
-                  <p className="text-slate-300 leading-relaxed mb-6">
+                  <p className="text-slate-700 leading-relaxed mb-6 text-lg">
                     "This platform saved me months of research. I found my winning product in just 3 days and it's already generating $5K/month!"
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold">
                       SM
                     </div>
                     <div>
-                      <div className="font-semibold text-white">Sarah Mitchell</div>
-                      <div className="text-sm text-slate-400">Amazon Seller</div>
+                      <div className="font-bold text-slate-900">Sarah Mitchell</div>
+                      <div className="text-sm text-slate-600">Amazon Seller</div>
                     </div>
                   </div>
                 </CardContent>
@@ -494,16 +499,16 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+              <Card className="h-full border-2 border-slate-200 hover:shadow-xl transition-all bg-white">
                 <CardContent className="p-8">
                   <div className="flex items-center gap-1 mb-4">
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
                   </div>
-                  <p className="text-slate-300 leading-relaxed mb-6">
+                  <p className="text-slate-700 leading-relaxed mb-6 text-lg">
                     "The AI filtering is incredible. No more wasting time on bad keywords. Every suggestion has been profitable for me."
                   </p>
                   <div className="flex items-center gap-3">
@@ -511,8 +516,8 @@ export default function LandingPage() {
                       JC
                     </div>
                     <div>
-                      <div className="font-semibold text-white">James Chen</div>
-                      <div className="text-sm text-slate-400">E-commerce Entrepreneur</div>
+                      <div className="font-bold text-slate-900">James Chen</div>
+                      <div className="text-sm text-slate-600">E-commerce Entrepreneur</div>
                     </div>
                   </div>
                 </CardContent>
@@ -525,16 +530,16 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
+              <Card className="h-full border-2 border-slate-200 hover:shadow-xl transition-all bg-white">
                 <CardContent className="p-8">
                   <div className="flex items-center gap-1 mb-4">
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
                   </div>
-                  <p className="text-slate-300 leading-relaxed mb-6">
+                  <p className="text-slate-700 leading-relaxed mb-6 text-lg">
                     "Best investment I made for my Amazon business. The exclusive keywords feature gave me an unfair advantage!"
                   </p>
                   <div className="flex items-center gap-3">
@@ -542,8 +547,8 @@ export default function LandingPage() {
                       AR
                     </div>
                     <div>
-                      <div className="font-semibold text-white">Alex Rodriguez</div>
-                      <div className="text-sm text-slate-400">FBA Seller</div>
+                      <div className="font-bold text-slate-900">Alex Rodriguez</div>
+                      <div className="text-sm text-slate-600">FBA Seller</div>
                     </div>
                   </div>
                 </CardContent>
@@ -554,47 +559,36 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Banner Section */}
-      <section className="py-20 bg-slate-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-orange-600/20" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)'
-        }} />
-        
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center"
+            className="text-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-12 sm:p-16"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-sm mb-6">
-              <Zap className="w-4 h-4" />
-              <span>Limited Time Offer</span>
-            </div>
-            
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
-              Start your Amazon business with confidence
+            <h2 className="text-4xl sm:text-5xl font-black text-white mb-6">
+              Start your Amazon business<br />with confidence
             </h2>
-            <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
               Get instant access to winning keywords and start building your profitable product today
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
               <Button
                 size="lg"
                 asChild
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg px-10 py-7 rounded-xl font-semibold shadow-lg shadow-purple-500/30"
+                className="bg-white hover:bg-slate-100 text-indigo-600 text-lg px-10 py-7 rounded-xl font-bold shadow-xl"
               >
                 <Link to={createPageUrl('KeywordDatabase')}>
-                  Start Free Trial
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  Start Free Trial <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 asChild
-                className="border-2 border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-white text-lg px-10 py-7 rounded-xl font-semibold"
+                className="border-2 border-white bg-transparent hover:bg-white/10 text-white text-lg px-10 py-7 rounded-xl font-bold"
               >
                 <Link to={createPageUrl('Pricing')}>
                   View Pricing
@@ -602,14 +596,18 @@ export default function LandingPage() {
               </Button>
             </div>
 
-            <div className="mt-8 flex items-center justify-center gap-8 text-sm text-slate-400">
+            <div className="flex flex-wrap items-center justify-center gap-6 text-white/90">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <CheckCircle className="w-5 h-5" />
                 <span>No credit card required</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <CheckCircle className="w-5 h-5" />
                 <span>Cancel anytime</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                <span>15,000+ Keywords</span>
               </div>
             </div>
           </motion.div>
@@ -619,7 +617,7 @@ export default function LandingPage() {
 
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-16">
+      <footer className="bg-slate-900 text-slate-400 py-12">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div>
