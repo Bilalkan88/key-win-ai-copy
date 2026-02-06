@@ -167,112 +167,151 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Grid Section */}
-      <section className="py-20 bg-slate-900">
+      {/* Stats Section */}
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
-            {/* Feature 1 */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
+              className="text-center"
             >
-              <Badge className="mb-4 bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                Amazon Intelligence
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Uncover high-opportunity keywords, simplified.
-              </h2>
-              <p className="text-lg text-slate-400 mb-6 leading-relaxed">
-                Stop wasting time on keywords that don't convert. Our AI filters thousands of keywords to show you only the winners with high search volume, low competition, and real profit potential.
-              </p>
-              <Button asChild className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                <Link to={createPageUrl('KeywordDatabase')}>
-                  Browse Keywords
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
+              <div className="text-4xl sm:text-5xl font-black text-indigo-600 mb-2">+15K</div>
+              <div className="text-slate-600 font-medium">كلمة مفتاحية محللة</div>
             </motion.div>
-
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700/50"
+              transition={{ delay: 0.1 }}
+              className="text-center"
             >
-              <img 
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" 
-                alt="Analytics Dashboard"
-                className="rounded-lg shadow-xl w-full border border-slate-700/30"
-              />
+              <div className="text-4xl sm:text-5xl font-black text-purple-600 mb-2">+500</div>
+              <div className="text-slate-600 font-medium">كلمة مفتاحية حصرية</div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-center"
+            >
+              <div className="text-4xl sm:text-5xl font-black text-emerald-600 mb-2">90%</div>
+              <div className="text-slate-600 font-medium">معدل النجاح</div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="text-center"
+            >
+              <div className="text-4xl sm:text-5xl font-black text-orange-600 mb-2">24/7</div>
+              <div className="text-slate-600 font-medium">تحديثات مستمرة</div>
             </motion.div>
           </div>
+        </div>
+      </section>
 
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Feature 2 - Image First */}
+      {/* Problems vs Solutions */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">
+              من الرؤية إلى التأثير - بسرعة
+            </h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              لا يمكنك الفوز بما لا يمكنك رؤيته. استخدم إطار عملنا لدفع النمو القائم على الرؤى
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Problems */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700/50 lg:order-1"
             >
-              <div className="bg-slate-950 rounded-xl p-6 shadow-xl border border-slate-700/30">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                    <div className="text-3xl font-bold text-emerald-400 mb-1">15K+</div>
-                    <div className="text-xs text-slate-400">Keywords Analyzed</div>
+              <Card className="h-full border-2 border-red-100 bg-white hover:shadow-xl transition-all">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                      <AlertTriangle className="w-6 h-6 text-red-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-slate-900">المشاكل التقليدية</h3>
                   </div>
-                  <div className="text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                    <div className="text-3xl font-bold text-blue-400 mb-1">500+</div>
-                    <div className="text-xs text-slate-400">Premium Keywords</div>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3 p-4 bg-red-50 rounded-lg">
+                      <Eye className="w-5 h-5 text-red-600 flex-shrink-0 mt-1" />
+                      <div>
+                        <div className="font-bold text-slate-900 mb-1">نقاط عمياء في الأداء</div>
+                        <div className="text-sm text-slate-600">تجاهل رؤية أداء 1P/3P يؤدي إلى استراتيجية نمو معيبة</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-4 bg-red-50 rounded-lg">
+                      <TrendingDown className="w-5 h-5 text-red-600 flex-shrink-0 mt-1" />
+                      <div>
+                        <div className="font-bold text-slate-900 mb-1">استراتيجية تسعير محفوفة بالمخاطر</div>
+                        <div className="text-sm text-slate-600">عدم فهم حساسية السعر والقوة التسعيرية</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-4 bg-red-50 rounded-lg">
+                      <Target className="w-5 h-5 text-red-600 flex-shrink-0 mt-1" />
+                      <div>
+                        <div className="font-bold text-slate-900 mb-1">ابتكار منتجات متوقف</div>
+                        <div className="text-sm text-slate-600">تجاهل الفرص الجديدة يؤدي إلى ركود النمو</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-center p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                    <div className="text-3xl font-bold text-purple-400 mb-1">90%</div>
-                    <div className="text-xs text-slate-400">Success Rate</div>
-                  </div>
-                  <div className="text-center p-4 bg-orange-500/10 rounded-lg border border-orange-500/20">
-                    <div className="text-3xl font-bold text-orange-400 mb-1">24/7</div>
-                    <div className="text-xs text-slate-400">Updates</div>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </motion.div>
 
+            {/* Solutions */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="lg:order-2"
             >
-              <Badge className="mb-4 bg-orange-500/10 text-orange-400 border border-orange-500/20">
-                Amazon profits, maximized.
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Data-driven decisions for every product.
-              </h2>
-              <p className="text-lg text-slate-400 mb-6 leading-relaxed">
-                Get instant competitor analysis, profitability scores, and market insights. Know exactly which keywords to target before you launch.
-              </p>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
-                    <CheckCircle className="w-5 h-5 text-emerald-400" />
+              <Card className="h-full border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 hover:shadow-xl transition-all">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                      <Sparkles className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-slate-900">حلولنا المبتكرة</h3>
                   </div>
-                  <span className="text-slate-300">Real-time market data</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
-                    <CheckCircle className="w-5 h-5 text-emerald-400" />
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3 p-4 bg-white rounded-lg shadow-sm border border-emerald-200">
+                      <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-1" />
+                      <div>
+                        <div className="font-bold text-slate-900 mb-1">رؤية كاملة للسوق</div>
+                        <div className="text-sm text-slate-600">تتبع شامل لأداء المنتجات والمنافسين في الوقت الفعلي</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-4 bg-white rounded-lg shadow-sm border border-emerald-200">
+                      <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-1" />
+                      <div>
+                        <div className="font-bold text-slate-900 mb-1">تحليل ذكي بالذكاء الاصطناعي</div>
+                        <div className="text-sm text-slate-600">نقاط فرصة محسوبة بدقة وتوصيات استراتيجية</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-4 bg-white rounded-lg shadow-sm border border-emerald-200">
+                      <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-1" />
+                      <div>
+                        <div className="font-bold text-slate-900 mb-1">كلمات حصرية ونادرة</div>
+                        <div className="text-sm text-slate-600">فرص محدودة تمنحك ميزة تنافسية حقيقية</div>
+                      </div>
+                    </div>
                   </div>
-                  <span className="text-slate-300">AI-powered opportunity scores</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
-                    <CheckCircle className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <span className="text-slate-300">Weekly fresh keywords</span>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </motion.div>
           </div>
         </div>
