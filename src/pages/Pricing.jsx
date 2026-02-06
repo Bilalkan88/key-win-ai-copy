@@ -49,7 +49,7 @@ export default function Pricing() {
       color: 'emerald',
       features: [
         { text: 'Free keyword analysis tool', available: true },
-        { text: 'Upload your own CSV files', available: true },
+        { text: 'Upload your own CSV files (single file)', available: true },
         { text: 'Basic filtering options', available: true },
         { text: 'Export results', available: true },
         { text: 'Community support', available: true },
