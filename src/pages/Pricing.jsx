@@ -133,7 +133,13 @@ export default function Pricing() {
                       ))}
                     </ul>
 
-                    {isCurrentPlan ? (
+                    {plan.name === 'Free' ? (
+                      <Button asChild className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800">
+                        <Link to={createPageUrl('Analysis')}>
+                          Start Free
+                        </Link>
+                      </Button>
+                    ) : isCurrentPlan ? (
                       <Button disabled className="w-full bg-slate-400">
                         <CheckCircle className="w-4 h-4 mr-2" />
                         Current Plan
