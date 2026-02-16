@@ -28,6 +28,7 @@ export default function KeywordDatabase() {
   const [pageSize, setPageSize] = useState(100);
   const [customPageSize, setCustomPageSize] = useState('');
   const [smartFilter, setSmartFilter] = useState('all');
+  const [showTop20, setShowTop20] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -68,13 +69,16 @@ export default function KeywordDatabase() {
         (k.search_volume || 0) >= 3000
       );
     } else if (smartFilter === 'hidden_gems') {
-      // Hidden Gems: score >= 85, medium volume, very low competition
+      // Hidden Gems: score >= 85, volume 3000-9999, competition < 350
       data = data.filter(k => 
         (k.score || k.opportunity_score || 0) >= 85 && 
-        (k.search_volume || 0) >= 500 && 
-        (k.search_volume || 0) <= 3000 && 
-        (k.competing_products || 0) <= 300
+        (k.search_volume || 0) >= 3000 && 
+        (k.search_volume || 0) <= 9999 && 
+        (k.competing_products || 0) < 350
       );
+    } else if (smartFilter === 'gold_score') {
+      // Gold Score: score >= 90
+      data = data.filter(k => (k.score || k.opportunity_score || 0) >= 90);
     } else if (smartFilter === 'high_profit') {
       // High Profit: score >= 85, sales >= 700, competition <= 500
       data = data.filter(k => 
@@ -166,8 +170,13 @@ export default function KeywordDatabase() {
         break;
     }
 
+    // Top 20 filter
+    if (showTop20) {
+      data = data.slice(0, 20);
+    }
+
     return data;
-  }, [keywords, searchTerm, categoryFilter, sortBy, minVolume, maxCompetition, maxReviews, beginnerFriendlyOnly, showNewOnly, marketplace, smartFilter]);
+  }, [keywords, searchTerm, categoryFilter, sortBy, minVolume, maxCompetition, maxReviews, beginnerFriendlyOnly, showNewOnly, marketplace, smartFilter, showTop20]);
 
   const categoryCounts = useMemo(() => {
     const counts = {};
@@ -302,7 +311,7 @@ export default function KeywordDatabase() {
               <p className="text-sm text-slate-600 mt-1">Choose a category to see the best opportunities</p>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -417,6 +426,29 @@ export default function KeywordDatabase() {
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={smartFilter === 'gold_score' ? 'default' : 'outline'}
+                        onClick={() => setSmartFilter('gold_score')}
+                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
+                          smartFilter === 'gold_score'
+                            ? 'bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg'
+                            : 'hover:bg-yellow-50 hover:border-yellow-300 border-2'
+                        }`}
+                      >
+                        <span className="text-2xl">⭐</span>
+                        <span className="font-semibold text-sm">Gold Score</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="font-semibold mb-1">Gold Score</p>
+                      <p className="text-xs">Exceptional opportunity score (90+). The absolute best keywords!</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
 
               <div className="mt-4 pt-4 border-t border-slate-200">
@@ -484,17 +516,51 @@ export default function KeywordDatabase() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.35 }}
-          className="mb-6 flex items-center justify-between bg-white/60 backdrop-blur px-6 py-4 rounded-xl border border-slate-100"
+          className="mb-6"
         >
-          <p className="text-slate-700 font-medium">
-            Showing <span className="font-bold text-indigo-600 text-lg">{filteredData.length.toLocaleString()}</span> keywords
-          </p>
-          <div className="flex items-center gap-3">
-            <ExportButtons 
-              data={transformedData} 
-              category={categoryFilter !== 'all' ? categoryFilter : 'All'} 
-            />
-          </div>
+          <Card className="border-none shadow-lg bg-gradient-to-r from-white to-indigo-50/30">
+            <CardContent className="p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  {smartFilter !== 'all' && (
+                    <p className="text-sm text-slate-600 mb-1">
+                      Showing {
+                        smartFilter === 'easy_launch' ? '🚀 Easy to Launch' :
+                        smartFilter === 'hidden_gems' ? '💎 Hidden Gems' :
+                        smartFilter === 'high_profit' ? '💰 High Profit' :
+                        smartFilter === 'high_demand' ? '🔥 High Demand' :
+                        smartFilter === 'low_risk' ? '🛡 Low Risk' :
+                        smartFilter === 'gold_score' ? '⭐ Gold Score' : ''
+                      } opportunities
+                    </p>
+                  )}
+                  <p className="text-slate-700 font-medium">
+                    <span className="font-bold text-indigo-600 text-2xl">{filteredData.length.toLocaleString()}</span>
+                    <span className="text-slate-500 ml-2">results</span>
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant={showTop20 ? "default" : "outline"}
+                    onClick={() => {
+                      setShowTop20(!showTop20);
+                      if (!showTop20) {
+                        setSortBy('opportunity_desc');
+                      }
+                    }}
+                    className={showTop20 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700' : ''}
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Show Top 20 Ideas
+                  </Button>
+                  <ExportButtons 
+                    data={transformedData} 
+                    category={categoryFilter !== 'all' ? categoryFilter : 'All'} 
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Compact Pagination */}
