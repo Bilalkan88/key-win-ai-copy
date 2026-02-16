@@ -252,16 +252,13 @@ export default function KeywordDatabase() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 text-center"
+          className="mb-6 text-center"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 mb-4 shadow-lg">
-            <TrendingUp className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">
             Keyword Goldmine
           </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Discover thousands of winning keywords - updated weekly
+          <p className="text-sm text-slate-600">
+            {keywords.length.toLocaleString()} winning keywords - updated weekly
           </p>
         </motion.div>
 
@@ -271,22 +268,18 @@ export default function KeywordDatabase() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-6"
+          transition={{ delay: 0.1 }}
+          className="mb-4"
         >
-          <Card className="border-none shadow-lg bg-white/90 backdrop-blur">
-            <CardContent className="p-4">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <Input
-                  placeholder="Search for a keyword..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-12 pr-4 h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-base"
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Search for a keyword..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-11 pr-4 h-11 border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white shadow-sm"
+            />
+          </div>
         </motion.div>
 
 
@@ -295,171 +288,113 @@ export default function KeywordDatabase() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="mb-6"
+          transition={{ delay: 0.15 }}
+          className="mb-4"
         >
-          <Card className="border-none shadow-xl bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30">
-            <CardHeader className="pb-3">
+          <Card className="border-slate-200 shadow-sm">
+            <CardHeader className="pb-3 pt-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-xl font-bold">
-                  <Sparkles className="w-6 h-6 text-indigo-600" />
-                  Find Your Perfect Keywords
-                </CardTitle>
-                <Badge className="bg-indigo-100 text-indigo-700 px-3 py-1 text-sm">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-indigo-600" />
+                  <CardTitle className="text-base font-semibold text-slate-900">
+                    Find Your Perfect Keywords
+                  </CardTitle>
+                </div>
+                <Badge variant="secondary" className="text-xs px-2 py-0.5">
                   {filteredData.length.toLocaleString()} results
                 </Badge>
               </div>
-              <p className="text-sm text-slate-600 mt-1">Choose a category to see the best opportunities</p>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={smartFilter === 'easy_launch' ? 'default' : 'outline'}
-                        onClick={() => setSmartFilter('easy_launch')}
-                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
-                          smartFilter === 'easy_launch' 
-                            ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg' 
-                            : 'hover:bg-emerald-50 hover:border-emerald-300 border-2'
-                        }`}
-                      >
-                        <span className="text-2xl">🚀</span>
-                        <span className="font-semibold text-sm">Easy to Launch</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="font-semibold mb-1">Easy to Launch</p>
-                      <p className="text-xs">High opportunity score with manageable competition. Perfect for beginners!</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+            <CardContent className="pb-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                <Button
+                  variant={smartFilter === 'easy_launch' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('easy_launch')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
+                    smartFilter === 'easy_launch' 
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600' 
+                      : 'hover:bg-emerald-50 hover:border-emerald-300'
+                  }`}
+                >
+                  <span className="text-xl">🚀</span>
+                  <span className="font-medium text-xs">Easy Launch</span>
+                </Button>
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={smartFilter === 'hidden_gems' ? 'default' : 'outline'}
-                        onClick={() => setSmartFilter('hidden_gems')}
-                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
-                          smartFilter === 'hidden_gems'
-                            ? 'bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg'
-                            : 'hover:bg-purple-50 hover:border-purple-300 border-2'
-                        }`}
-                      >
-                        <span className="text-2xl">💎</span>
-                        <span className="font-semibold text-sm">Hidden Gems</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="font-semibold mb-1">Hidden Gems</p>
-                      <p className="text-xs">High scores with very low competition. Untapped opportunities!</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  variant={smartFilter === 'hidden_gems' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('hidden_gems')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
+                    smartFilter === 'hidden_gems'
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white border-purple-600'
+                      : 'hover:bg-purple-50 hover:border-purple-300'
+                  }`}
+                >
+                  <span className="text-xl">💎</span>
+                  <span className="font-medium text-xs">Hidden Gems</span>
+                </Button>
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={smartFilter === 'high_profit' ? 'default' : 'outline'}
-                        onClick={() => setSmartFilter('high_profit')}
-                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
-                          smartFilter === 'high_profit'
-                            ? 'bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg'
-                            : 'hover:bg-amber-50 hover:border-amber-300 border-2'
-                        }`}
-                      >
-                        <span className="text-2xl">💰</span>
-                        <span className="font-semibold text-sm">High Profit</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="font-semibold mb-1">High Profit Potential</p>
-                      <p className="text-xs">Strong sales potential with manageable competition. Maximum profit opportunity!</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  variant={smartFilter === 'high_profit' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('high_profit')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
+                    smartFilter === 'high_profit'
+                      ? 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600'
+                      : 'hover:bg-amber-50 hover:border-amber-300'
+                  }`}
+                >
+                  <span className="text-xl">💰</span>
+                  <span className="font-medium text-xs">High Profit</span>
+                </Button>
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={smartFilter === 'high_demand' ? 'default' : 'outline'}
-                        onClick={() => setSmartFilter('high_demand')}
-                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
-                          smartFilter === 'high_demand'
-                            ? 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg'
-                            : 'hover:bg-red-50 hover:border-red-300 border-2'
-                        }`}
-                      >
-                        <span className="text-2xl">🔥</span>
-                        <span className="font-semibold text-sm">High Demand</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="font-semibold mb-1">High Demand</p>
-                      <p className="text-xs">Massive search volume with good scores. High market demand!</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  variant={smartFilter === 'high_demand' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('high_demand')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
+                    smartFilter === 'high_demand'
+                      ? 'bg-red-600 hover:bg-red-700 text-white border-red-600'
+                      : 'hover:bg-red-50 hover:border-red-300'
+                  }`}
+                >
+                  <span className="text-xl">🔥</span>
+                  <span className="font-medium text-xs">High Demand</span>
+                </Button>
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={smartFilter === 'low_risk' ? 'default' : 'outline'}
-                        onClick={() => setSmartFilter('low_risk')}
-                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
-                          smartFilter === 'low_risk'
-                            ? 'bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg'
-                            : 'hover:bg-green-50 hover:border-green-300 border-2'
-                        }`}
-                      >
-                        <span className="text-2xl">🛡</span>
-                        <span className="font-semibold text-sm">Low Risk</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="font-semibold mb-1">Low Risk</p>
-                      <p className="text-xs">Very low competition with decent demand. Safe and reliable entry!</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  variant={smartFilter === 'low_risk' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('low_risk')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
+                    smartFilter === 'low_risk'
+                      ? 'bg-green-600 hover:bg-green-700 text-white border-green-600'
+                      : 'hover:bg-green-50 hover:border-green-300'
+                  }`}
+                >
+                  <span className="text-xl">🛡</span>
+                  <span className="font-medium text-xs">Low Risk</span>
+                </Button>
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={smartFilter === 'gold_score' ? 'default' : 'outline'}
-                        onClick={() => setSmartFilter('gold_score')}
-                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
-                          smartFilter === 'gold_score'
-                            ? 'bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg'
-                            : 'hover:bg-yellow-50 hover:border-yellow-300 border-2'
-                        }`}
-                      >
-                        <span className="text-2xl">⭐</span>
-                        <span className="font-semibold text-sm">Gold Score</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="font-semibold mb-1">Gold Score</p>
-                      <p className="text-xs">Exceptional opportunity score (90+). The absolute best keywords!</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  variant={smartFilter === 'gold_score' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('gold_score')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
+                    smartFilter === 'gold_score'
+                      ? 'bg-yellow-600 hover:bg-yellow-700 text-white border-yellow-600'
+                      : 'hover:bg-yellow-50 hover:border-yellow-300'
+                  }`}
+                >
+                  <span className="text-xl">⭐</span>
+                  <span className="font-medium text-xs">Gold Score</span>
+                </Button>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-slate-200">
+              <div className="mt-3 pt-3 border-t border-slate-200">
                 <Button
                   variant="ghost"
+                  size="sm"
                   onClick={() => {
                     setSmartFilter('all');
                     setShowTop20(false);
                   }}
-                  className={`w-full ${smartFilter === 'all' ? 'bg-slate-100 font-semibold' : 'hover:bg-slate-50'}`}
+                  className={`w-full text-xs ${smartFilter === 'all' ? 'bg-slate-100 font-semibold' : 'hover:bg-slate-50'}`}
                 >
                   Show All Keywords
                 </Button>
@@ -472,14 +407,12 @@ export default function KeywordDatabase() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-6"
+          transition={{ delay: 0.2 }}
+          className="mb-4"
         >
-          <Card className="border-none shadow-md bg-white/80 backdrop-blur">
-            <CardContent className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
+                  <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-sm">
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -495,7 +428,7 @@ export default function KeywordDatabase() {
                 </Select>
 
                 <Select value={marketplace} onValueChange={setMarketplace}>
-                  <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
+                  <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-sm">
                     <SelectValue placeholder="Marketplace" />
                   </SelectTrigger>
                   <SelectContent>
@@ -511,24 +444,22 @@ export default function KeywordDatabase() {
                   </SelectContent>
                 </Select>
               </div>
-            </CardContent>
-          </Card>
         </motion.div>
 
         {/* Results Summary */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.35 }}
-          className="mb-6"
+          transition={{ delay: 0.25 }}
+          className="mb-4"
         >
-          <Card className="border-none shadow-lg bg-gradient-to-r from-white to-indigo-50/30">
-            <CardContent className="p-4">
+          <Card className="border-slate-200 shadow-sm">
+            <CardContent className="p-3">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   {smartFilter !== 'all' ? (
-                    <>
-                      <p className="text-sm text-slate-600 mb-1">
+                    <div>
+                      <p className="text-xs text-slate-500 mb-0.5">
                         {
                           smartFilter === 'easy_launch' ? '🚀 Easy to Launch' :
                           smartFilter === 'hidden_gems' ? '💎 Hidden Gems' :
@@ -538,34 +469,35 @@ export default function KeywordDatabase() {
                           smartFilter === 'gold_score' ? '⭐ Gold Score' : ''
                         } opportunities
                       </p>
-                      <p className="text-slate-700 font-semibold text-lg">
-                        Here are <span className="text-indigo-600 text-2xl">{filteredData.length.toLocaleString()}</span> product opportunities.
+                      <p className="text-slate-900 font-semibold text-base">
+                        Here are <span className="text-indigo-600">{filteredData.length.toLocaleString()}</span> product opportunities.
                       </p>
-                    </>
+                    </div>
                   ) : (
-                    <>
-                      <p className="text-slate-700 font-semibold text-lg">
-                        Here are <span className="text-indigo-600 text-2xl">{filteredData.length.toLocaleString()}</span> product opportunities.
+                    <div>
+                      <p className="text-slate-900 font-semibold text-base">
+                        Here are <span className="text-indigo-600">{filteredData.length.toLocaleString()}</span> product opportunities.
                       </p>
-                      <p className="text-sm text-slate-600 mt-1">
-                        Start with <span className="font-semibold text-emerald-600">'Easy to Launch'</span> if you're new.
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Start with <span className="font-medium text-emerald-600">'Easy to Launch'</span> if you're new.
                       </p>
-                    </>
+                    </div>
                   )}
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <Button
                     variant={showTop20 ? "default" : "outline"}
+                    size="sm"
                     onClick={() => {
                       setShowTop20(!showTop20);
                       if (!showTop20) {
                         setSortBy('opportunity_desc');
                       }
                     }}
-                    className={showTop20 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700' : ''}
+                    className={showTop20 ? 'bg-indigo-600 hover:bg-indigo-700 text-xs h-8' : 'text-xs h-8'}
                   >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Show Top 20 Ideas
+                    <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                    Top 20
                   </Button>
                   <ExportButtons 
                     data={transformedData} 
@@ -581,81 +513,65 @@ export default function KeywordDatabase() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45 }}
-          className="mb-6"
+          transition={{ delay: 0.3 }}
+          className="mb-4"
         >
-          <Card className="border-none shadow-md">
-            <CardContent className="p-3">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
-                <div className="flex items-center gap-3 flex-wrap">
+          <Card className="border-slate-200 shadow-sm">
+            <CardContent className="p-2.5">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2 flex-wrap">
                   <div className="text-xs text-slate-600">
-                    Showing <span className="font-semibold text-slate-900">{startIndex + 1}</span> to{' '}
-                    <span className="font-semibold text-slate-900">{Math.min(endIndex, filteredData.length)}</span> of{' '}
-                    <span className="font-semibold text-slate-900">{filteredData.length}</span> results
+                    <span className="font-medium text-slate-900">{startIndex + 1}</span>-<span className="font-medium text-slate-900">{Math.min(endIndex, filteredData.length)}</span> of{' '}
+                    <span className="font-medium text-slate-900">{filteredData.length}</span>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs text-slate-600 whitespace-nowrap">Per page:</label>
-                    <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
-                      <SelectTrigger className="w-20 h-7 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="25">25</SelectItem>
-                        <SelectItem value="50">50</SelectItem>
-                        <SelectItem value="100">100</SelectItem>
-                        <SelectItem value="200">200</SelectItem>
-                        <SelectItem value="500">500</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+                    <SelectTrigger className="w-16 h-7 text-xs border-slate-200">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                      <SelectItem value="200">200</SelectItem>
+                      <SelectItem value="500">500</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      placeholder="Custom"
-                      value={customPageSize}
-                      onChange={(e) => setCustomPageSize(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleCustomPageSizeApply()}
-                      className="w-20 h-7 text-xs"
-                      min="1"
-                      max="10000"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCustomPageSizeApply}
-                      disabled={!customPageSize}
-                      className="h-7 px-2 text-xs"
-                    >
-                      Apply
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5">
+                  <Input
+                    type="number"
+                    placeholder="#"
+                    value={customPageSize}
+                    onChange={(e) => setCustomPageSize(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleCustomPageSizeApply()}
+                    className="w-14 h-7 text-xs border-slate-200"
+                    min="1"
+                    max="10000"
+                  />
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(1)}
-                    disabled={currentPage === 1}
+                    onClick={handleCustomPageSizeApply}
+                    disabled={!customPageSize}
                     className="h-7 px-2 text-xs"
                   >
-                    First
+                    Go
                   </Button>
+                </div>
+
+                <div className="flex items-center gap-1">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="h-7 px-2 text-xs"
+                    className="h-7 px-2.5 text-xs"
                   >
-                    Previous
+                    ‹
                   </Button>
 
                   <div className="text-xs text-slate-600 px-2">
-                    Page <span className="font-semibold text-slate-900">{currentPage}</span> of{' '}
-                    <span className="font-semibold text-slate-900">{totalPages || 1}</span>
+                    <span className="font-medium text-slate-900">{currentPage}</span> / {totalPages || 1}
                   </div>
 
                   <Button
@@ -663,18 +579,9 @@ export default function KeywordDatabase() {
                     size="sm"
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage >= totalPages}
-                    className="h-7 px-2 text-xs"
+                    className="h-7 px-2.5 text-xs"
                   >
-                    Next
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(totalPages)}
-                    disabled={currentPage >= totalPages}
-                    className="h-7 px-2 text-xs"
-                  >
-                    Last
+                    ›
                   </Button>
                 </div>
               </div>
