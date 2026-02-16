@@ -45,11 +45,11 @@ const isProfitableKeyword = (row) => {
 const calculateRiskScore = (row) => {
   let riskScore = 0;
   
-  // Competition risk
+  // Competition risk (thousands scale)
   const competition = row.competingProducts || 0;
-  if (competition > 550) riskScore += 3;
-  else if (competition >= 400) riskScore += 2;
-  else if (competition >= 300) riskScore += 1;
+  if (competition >= 5000) riskScore += 3;
+  else if (competition >= 2000) riskScore += 2;
+  else if (competition >= 800) riskScore += 1;
   
   // Demand risk (Volume)
   const volume = row.searchVolume || 0;
@@ -60,6 +60,14 @@ const calculateRiskScore = (row) => {
   const score = row.opportunityScore || 0;
   if (score < 70) riskScore += 2;
   else if (score < 80) riskScore += 1;
+  
+  // Sales discount (reduce risk)
+  const sales = row.keywordSales || 0;
+  if (sales >= 1000) riskScore -= 2;
+  else if (sales >= 500) riskScore -= 1;
+  
+  // Clamp to prevent negative
+  if (riskScore < 0) riskScore = 0;
   
   return riskScore;
 };
