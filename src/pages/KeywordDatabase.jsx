@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Filter, Sparkles, Star, Lock, TrendingUp, BarChart3, Bookmark } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import KeywordTable from '@/components/KeywordTable';
@@ -59,36 +60,41 @@ export default function KeywordDatabase() {
     let data = [...keywords];
 
     // Smart Filters
-    if (smartFilter === 'fast_launch') {
-      // منافسة ضعيفة + مبيعات جاهزة
+    if (smartFilter === 'easy_launch') {
+      // Easy to Launch: score >= 80, competition <= 500, volume >= 3000
       data = data.filter(k => 
+        (k.score || k.opportunity_score || 0) >= 80 && 
         (k.competing_products || 0) <= 500 && 
-        (k.keyword_sales || 0) >= 100
+        (k.search_volume || 0) >= 3000
       );
     } else if (smartFilter === 'hidden_gems') {
-      // بحث متوسط + منافسة ضعيفة جدًا
+      // Hidden Gems: score >= 85, medium volume, very low competition
       data = data.filter(k => 
+        (k.score || k.opportunity_score || 0) >= 85 && 
         (k.search_volume || 0) >= 500 && 
         (k.search_volume || 0) <= 3000 && 
         (k.competing_products || 0) <= 300
       );
-    } else if (smartFilter === 'high_margin') {
-      // مبيعات جيدة + منافسة مقبولة
+    } else if (smartFilter === 'high_profit') {
+      // High Profit: score >= 85, sales >= 700, competition <= 500
       data = data.filter(k => 
-        (k.keyword_sales || 0) >= 200 && 
-        (k.competing_products || 0) <= 800
+        (k.score || k.opportunity_score || 0) >= 85 && 
+        (k.keyword_sales || 0) >= 700 && 
+        (k.competing_products || 0) <= 500
       );
-    } else if (smartFilter === 'gold_score') {
-      // Score ≥ 80
-      data = data.filter(k => (k.score || 0) >= 80);
+    } else if (smartFilter === 'high_demand') {
+      // High Demand: volume >= 10000, score >= 75
+      data = data.filter(k => 
+        (k.search_volume || 0) >= 10000 && 
+        (k.score || k.opportunity_score || 0) >= 75
+      );
     } else if (smartFilter === 'low_risk') {
-      // منافسة قليلة
-      data = data.filter(k => (k.competing_products || 0) <= 500);
-    } else if (smartFilter === 'newly_added') {
-      // كلمات جديدة خلال 7 أيام
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-      data = data.filter(k => new Date(k.created_date) >= oneWeekAgo);
+      // Low Risk: competition < 350, score >= 75, volume >= 3000
+      data = data.filter(k => 
+        (k.competing_products || 0) < 350 && 
+        (k.score || k.opportunity_score || 0) >= 75 && 
+        (k.search_volume || 0) >= 3000
+      );
     }
 
     if (searchTerm) {
@@ -251,26 +257,191 @@ export default function KeywordDatabase() {
 
 
 
-        {/* Filters */}
+        {/* Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-6"
+        >
+          <Card className="border-none shadow-lg bg-white/90 backdrop-blur">
+            <CardContent className="p-4">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  placeholder="Search for a keyword..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-12 pr-4 h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-base"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+
+
+        {/* Smart Filters - Primary Interface */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
           className="mb-6"
         >
+          <Card className="border-none shadow-xl bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                  <Sparkles className="w-6 h-6 text-indigo-600" />
+                  Find Your Perfect Keywords
+                </CardTitle>
+                <Badge className="bg-indigo-100 text-indigo-700 px-3 py-1 text-sm">
+                  {filteredData.length.toLocaleString()} results
+                </Badge>
+              </div>
+              <p className="text-sm text-slate-600 mt-1">Choose a category to see the best opportunities</p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={smartFilter === 'easy_launch' ? 'default' : 'outline'}
+                        onClick={() => setSmartFilter('easy_launch')}
+                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
+                          smartFilter === 'easy_launch' 
+                            ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg' 
+                            : 'hover:bg-emerald-50 hover:border-emerald-300 border-2'
+                        }`}
+                      >
+                        <span className="text-2xl">🚀</span>
+                        <span className="font-semibold text-sm">Easy to Launch</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="font-semibold mb-1">Easy to Launch</p>
+                      <p className="text-xs">High opportunity score with manageable competition. Perfect for beginners!</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={smartFilter === 'hidden_gems' ? 'default' : 'outline'}
+                        onClick={() => setSmartFilter('hidden_gems')}
+                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
+                          smartFilter === 'hidden_gems'
+                            ? 'bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg'
+                            : 'hover:bg-purple-50 hover:border-purple-300 border-2'
+                        }`}
+                      >
+                        <span className="text-2xl">💎</span>
+                        <span className="font-semibold text-sm">Hidden Gems</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="font-semibold mb-1">Hidden Gems</p>
+                      <p className="text-xs">High scores with very low competition. Untapped opportunities!</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={smartFilter === 'high_profit' ? 'default' : 'outline'}
+                        onClick={() => setSmartFilter('high_profit')}
+                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
+                          smartFilter === 'high_profit'
+                            ? 'bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg'
+                            : 'hover:bg-amber-50 hover:border-amber-300 border-2'
+                        }`}
+                      >
+                        <span className="text-2xl">💰</span>
+                        <span className="font-semibold text-sm">High Profit</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="font-semibold mb-1">High Profit Potential</p>
+                      <p className="text-xs">Strong sales potential with manageable competition. Maximum profit opportunity!</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={smartFilter === 'high_demand' ? 'default' : 'outline'}
+                        onClick={() => setSmartFilter('high_demand')}
+                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
+                          smartFilter === 'high_demand'
+                            ? 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg'
+                            : 'hover:bg-red-50 hover:border-red-300 border-2'
+                        }`}
+                      >
+                        <span className="text-2xl">🔥</span>
+                        <span className="font-semibold text-sm">High Demand</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="font-semibold mb-1">High Demand</p>
+                      <p className="text-xs">Massive search volume with good scores. High market demand!</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={smartFilter === 'low_risk' ? 'default' : 'outline'}
+                        onClick={() => setSmartFilter('low_risk')}
+                        className={`h-auto py-4 flex flex-col items-center gap-2 ${
+                          smartFilter === 'low_risk'
+                            ? 'bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg'
+                            : 'hover:bg-green-50 hover:border-green-300 border-2'
+                        }`}
+                      >
+                        <span className="text-2xl">🛡</span>
+                        <span className="font-semibold text-sm">Low Risk</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="font-semibold mb-1">Low Risk</p>
+                      <p className="text-xs">Very low competition with decent demand. Safe and reliable entry!</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <Button
+                  variant="ghost"
+                  onClick={() => setSmartFilter('all')}
+                  className={`w-full ${smartFilter === 'all' ? 'bg-slate-100 font-semibold' : 'hover:bg-slate-50'}`}
+                >
+                  Show All Keywords
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Secondary Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-6"
+        >
           <Card className="border-none shadow-md bg-white/80 backdrop-blur">
             <CardContent className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
-                    placeholder="Search for a keyword..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 h-9 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
-                  />
-                </div>
-
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
                     <SelectValue placeholder="Category" />
@@ -308,7 +479,7 @@ export default function KeywordDatabase() {
           </Card>
         </motion.div>
 
-        {/* Results Count */}
+        {/* Results Summary */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -319,87 +490,11 @@ export default function KeywordDatabase() {
             Showing <span className="font-bold text-indigo-600 text-lg">{filteredData.length.toLocaleString()}</span> keywords
           </p>
           <div className="flex items-center gap-3">
-            {showNewOnly && (
-              <Badge className="bg-emerald-100 text-emerald-700 px-3 py-1">
-                <Sparkles className="w-3 h-3 mr-1" />
-                New This Week Only
-              </Badge>
-            )}
             <ExportButtons 
               data={transformedData} 
               category={categoryFilter !== 'all' ? categoryFilter : 'All'} 
             />
           </div>
-        </motion.div>
-
-        {/* Smart Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mb-6"
-        >
-          <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Sparkles className="w-5 h-5 text-indigo-600" />
-                🧠 Smart Filters
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-                <Button
-                  variant={smartFilter === 'all' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('all')}
-                  className={smartFilter === 'all' ? 'bg-indigo-600 hover:bg-indigo-700' : 'hover:bg-white'}
-                >
-                  All Keywords
-                </Button>
-                <Button
-                  variant={smartFilter === 'fast_launch' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('fast_launch')}
-                  className={smartFilter === 'fast_launch' ? 'bg-emerald-600 hover:bg-emerald-700' : 'hover:bg-white'}
-                >
-                  🚀 Fast Launch
-                </Button>
-                <Button
-                  variant={smartFilter === 'hidden_gems' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('hidden_gems')}
-                  className={smartFilter === 'hidden_gems' ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-white'}
-                >
-                  💎 Hidden Gems
-                </Button>
-                <Button
-                  variant={smartFilter === 'high_margin' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('high_margin')}
-                  className={smartFilter === 'high_margin' ? 'bg-amber-600 hover:bg-amber-700' : 'hover:bg-white'}
-                >
-                  💰 High Margin
-                </Button>
-                <Button
-                  variant={smartFilter === 'gold_score' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('gold_score')}
-                  className={smartFilter === 'gold_score' ? 'bg-yellow-600 hover:bg-yellow-700' : 'hover:bg-white'}
-                >
-                  ⭐ Gold Score
-                </Button>
-                <Button
-                  variant={smartFilter === 'low_risk' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('low_risk')}
-                  className={smartFilter === 'low_risk' ? 'bg-green-600 hover:bg-green-700' : 'hover:bg-white'}
-                >
-                  🟢 Low Risk
-                </Button>
-                <Button
-                  variant={smartFilter === 'newly_added' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('newly_added')}
-                  className={smartFilter === 'newly_added' ? 'bg-blue-600 hover:bg-blue-700' : 'hover:bg-white'}
-                >
-                  🆕 New
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </motion.div>
 
         {/* Compact Pagination */}
