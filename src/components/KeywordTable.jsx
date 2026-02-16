@@ -42,6 +42,33 @@ const isProfitableKeyword = (row) => {
   return row.searchVolume >= 1500 && row.competingProducts <= 800 && row.titleDensity <= 15;
 };
 
+const calculateRiskScore = (row) => {
+  let riskScore = 0;
+  
+  // Competition risk
+  const competition = row.competingProducts || 0;
+  if (competition > 800) riskScore += 3;
+  else if (competition > 500) riskScore += 2;
+  
+  // Volume risk
+  const volume = row.searchVolume || 0;
+  if (volume < 2000) riskScore += 2;
+  else if (volume < 5000) riskScore += 1;
+  
+  // Score risk
+  const score = row.opportunityScore || 0;
+  if (score < 60) riskScore += 2;
+  else if (score < 80) riskScore += 1;
+  
+  return riskScore;
+};
+
+const getRiskLevel = (riskScore) => {
+  if (riskScore <= 2) return { level: 'Low', emoji: '🟢', color: 'bg-emerald-100 text-emerald-700' };
+  if (riskScore <= 4) return { level: 'Medium', emoji: '🟡', color: 'bg-amber-100 text-amber-700' };
+  return { level: 'High', emoji: '🔴', color: 'bg-red-100 text-red-700' };
+};
+
 export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange, sortBy, onSortChange, onDeleteRow, startIndex = 0, savedKeywords = new Set(), onToggleSaveKeyword }) {
   const [keywordColumnWidth, setKeywordColumnWidth] = React.useState(() => {
     const saved = localStorage.getItem('keywordColumnWidth');
@@ -196,6 +223,21 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs">
                           <p>A Score Reflecting Search Demand, Sales Volume, and Competition Level: Higher Scores Mean Stronger Demand and Sales with Fewer Competitors</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <span>Risk</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Risk level based on competition, search volume, and opportunity score</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -403,6 +445,25 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                         <TooltipContent>
                           <p className="text-xs max-w-xs">
                             AI-driven opportunity score (0-100) based on search volume (35%), competition (35%), title density (20%), and sales potential (10%)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${getRiskLevel(calculateRiskScore(row)).color}`}>
+                            <span>{getRiskLevel(calculateRiskScore(row)).emoji}</span>
+                            <span>{getRiskLevel(calculateRiskScore(row)).level}</span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-xs max-w-xs font-semibold mb-1">Risk Assessment</p>
+                          <p className="text-xs max-w-xs">
+                            Based on competition level, search volume, and opportunity score.
+                            Lower risk = safer entry point.
                           </p>
                         </TooltipContent>
                       </Tooltip>
