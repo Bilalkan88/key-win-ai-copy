@@ -26,7 +26,7 @@ export default function KeywordDatabase() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   const [customPageSize, setCustomPageSize] = useState('');
-  const [smartFilter, setSmartFilter] = useState('market_overview');
+  const [smartFilter, setSmartFilter] = useState('all');
 
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -55,54 +55,11 @@ export default function KeywordDatabase() {
 
   const hasAccess = user?.role === 'admin' || (subscription && subscription.length > 0);
 
-  const calculateDemandScore = (volume) => {
-    if (volume < 1000) return 2;
-    if (volume < 3000) return 4;
-    if (volume < 8000) return 6;
-    if (volume < 20000) return 8;
-    return 10;
-  };
-
-  const calculateCompetitionScore = (competition) => {
-    if (competition >= 5000) return 2;
-    if (competition >= 2000) return 4;
-    if (competition >= 1000) return 6;
-    if (competition >= 500) return 8;
-    return 10;
-  };
-
-  const calculateRevenueScore = (sales) => {
-    if (sales < 50) return 2;
-    if (sales < 150) return 4;
-    if (sales < 300) return 6;
-    if (sales < 500) return 8;
-    return 10;
-  };
-
-  const getScoreLabel = (score) => {
-    if (score <= 3) return 'Low';
-    if (score <= 6) return 'Med';
-    return 'High';
-  };
-
   const filteredData = useMemo(() => {
     let data = [...keywords];
 
     // Smart Filters
-    if (smartFilter === 'market_overview') {
-      // Market Overview: حساب Demand/Competition/Revenue وإضافتها للبيانات
-      data = data.map(k => ({
-        ...k,
-        demandScore: calculateDemandScore(k.search_volume || 0),
-        competitionScore: calculateCompetitionScore(k.competing_products || 0),
-        revenueScore: calculateRevenueScore(k.keyword_sales || 0),
-      })).map(k => ({
-        ...k,
-        demandLevel: getScoreLabel(k.demandScore),
-        competitionLevel: getScoreLabel(k.competitionScore),
-        revenueLevel: getScoreLabel(k.revenueScore),
-      }));
-    } else if (smartFilter === 'fast_launch') {
+    if (smartFilter === 'fast_launch') {
       // منافسة ضعيفة + مبيعات جاهزة
       data = data.filter(k => 
         (k.competing_products || 0) <= 500 && 
@@ -392,11 +349,11 @@ export default function KeywordDatabase() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
                 <Button
-                  variant={smartFilter === 'market_overview' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('market_overview')}
-                  className={smartFilter === 'market_overview' ? 'bg-indigo-600 hover:bg-indigo-700' : 'hover:bg-white'}
+                  variant={smartFilter === 'all' ? 'default' : 'outline'}
+                  onClick={() => setSmartFilter('all')}
+                  className={smartFilter === 'all' ? 'bg-indigo-600 hover:bg-indigo-700' : 'hover:bg-white'}
                 >
-                  📊 Market Overview
+                  All Keywords
                 </Button>
                 <Button
                   variant={smartFilter === 'fast_launch' ? 'default' : 'outline'}
