@@ -47,25 +47,26 @@ const calculateRiskScore = (row) => {
   
   // Competition risk
   const competition = row.competingProducts || 0;
-  if (competition > 800) riskScore += 3;
-  else if (competition > 500) riskScore += 2;
+  if (competition > 550) riskScore += 3;
+  else if (competition >= 400) riskScore += 2;
+  else if (competition >= 300) riskScore += 1;
   
-  // Volume risk
+  // Demand risk (Volume)
   const volume = row.searchVolume || 0;
-  if (volume < 2000) riskScore += 2;
-  else if (volume < 5000) riskScore += 1;
+  if (volume < 3000) riskScore += 2;
+  else if (volume < 8000) riskScore += 1;
   
   // Score risk
   const score = row.opportunityScore || 0;
-  if (score < 60) riskScore += 2;
+  if (score < 70) riskScore += 2;
   else if (score < 80) riskScore += 1;
   
   return riskScore;
 };
 
 const getRiskLevel = (riskScore) => {
-  if (riskScore <= 2) return { level: 'Low', emoji: '🟢', color: 'bg-emerald-100 text-emerald-700' };
-  if (riskScore <= 4) return { level: 'Medium', emoji: '🟡', color: 'bg-amber-100 text-amber-700' };
+  if (riskScore <= 1) return { level: 'Low', emoji: '🟢', color: 'bg-emerald-100 text-emerald-700' };
+  if (riskScore <= 3) return { level: 'Moderate', emoji: '🟡', color: 'bg-amber-100 text-amber-700' };
   return { level: 'High', emoji: '🔴', color: 'bg-red-100 text-red-700' };
 };
 
