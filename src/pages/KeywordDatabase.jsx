@@ -27,6 +27,9 @@ export default function KeywordDatabase() {
   const [pageSize, setPageSize] = useState(100);
   const [customPageSize, setCustomPageSize] = useState('');
   const [smartFilter, setSmartFilter] = useState('all');
+  const [marketOverview, setMarketOverview] = useState('all');
+  const [confidenceLevel, setConfidenceLevel] = useState('all');
+  const [riskLevel, setRiskLevel] = useState('all');
 
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -123,6 +126,37 @@ export default function KeywordDatabase() {
       data = data.filter(k => k.marketplace === marketplace);
     }
 
+    // Custom Filters
+    if (marketOverview === 'high_demand') {
+      data = data.filter(k => (k.search_volume || 0) >= 2000);
+    } else if (marketOverview === 'low_competition') {
+      data = data.filter(k => (k.competing_products || 0) <= 500);
+    } else if (marketOverview === 'high_revenue') {
+      data = data.filter(k => (k.keyword_sales || 0) >= 300);
+    }
+
+    if (confidenceLevel === 'high') {
+      data = data.filter(k => (k.score || k.opportunity_score || 0) >= 70);
+    } else if (confidenceLevel === 'medium') {
+      data = data.filter(k => {
+        const score = k.score || k.opportunity_score || 0;
+        return score >= 40 && score < 70;
+      });
+    } else if (confidenceLevel === 'low') {
+      data = data.filter(k => (k.score || k.opportunity_score || 0) < 40);
+    }
+
+    if (riskLevel === 'low') {
+      data = data.filter(k => (k.competing_products || 0) <= 500 && (k.search_volume || 0) >= 1000);
+    } else if (riskLevel === 'medium') {
+      data = data.filter(k => {
+        const comp = k.competing_products || 0;
+        return comp > 500 && comp <= 1500;
+      });
+    } else if (riskLevel === 'high') {
+      data = data.filter(k => (k.competing_products || 0) > 1500);
+    }
+
     // Sorting
     switch (sortBy) {
       case 'opportunity_desc':
@@ -161,7 +195,7 @@ export default function KeywordDatabase() {
     }
 
     return data;
-  }, [keywords, searchTerm, categoryFilter, sortBy, minVolume, maxCompetition, maxReviews, beginnerFriendlyOnly, showNewOnly, marketplace, smartFilter]);
+  }, [keywords, searchTerm, categoryFilter, sortBy, minVolume, maxCompetition, maxReviews, beginnerFriendlyOnly, showNewOnly, marketplace, smartFilter, marketOverview, confidenceLevel, riskLevel]);
 
   const categoryCounts = useMemo(() => {
     const counts = {};
@@ -303,6 +337,71 @@ export default function KeywordDatabase() {
                     <SelectItem value="amazon.fr">🇫🇷 www.amazon.fr</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Custom Filter */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-6"
+        >
+          <Card className="border-none shadow-md bg-gradient-to-br from-slate-50 to-blue-50">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Filter className="w-5 h-5 text-indigo-600" />
+                فلتر مخصص
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-700 mb-1.5 block">Market Overview</label>
+                  <Select value={marketOverview} onValueChange={setMarketOverview}>
+                    <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="high_demand">📈 High Demand (Vol ≥ 2000)</SelectItem>
+                      <SelectItem value="low_competition">🎯 Low Competition (Comp ≤ 500)</SelectItem>
+                      <SelectItem value="high_revenue">💰 High Revenue (Sales ≥ 300)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-slate-700 mb-1.5 block">Confidence</label>
+                  <Select value={confidenceLevel} onValueChange={setConfidenceLevel}>
+                    <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="high">🟢 High (Score ≥ 70)</SelectItem>
+                      <SelectItem value="medium">🟡 Medium (Score 40-69)</SelectItem>
+                      <SelectItem value="low">🔴 Low (Score &lt; 40)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-slate-700 mb-1.5 block">Risk</label>
+                  <Select value={riskLevel} onValueChange={setRiskLevel}>
+                    <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="low">🟢 Low Risk (Vol ≥ 1000 & Comp ≤ 500)</SelectItem>
+                      <SelectItem value="medium">🟡 Medium Risk (Comp 501-1500)</SelectItem>
+                      <SelectItem value="high">🔴 High Risk (Comp &gt; 1500)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </CardContent>
           </Card>

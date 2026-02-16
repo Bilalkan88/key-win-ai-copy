@@ -53,9 +53,9 @@ import Analysis from './pages/Analysis';
 import ExclusiveKeywords from './pages/ExclusiveKeywords';
 import FbaProfitCalculator from './pages/FbaProfitCalculator';
 import Home from './pages/Home';
-import KeywordDatabase from './pages/KeywordDatabase';
 import KeywordDetails from './pages/KeywordDetails';
 import Pricing from './pages/Pricing';
+import KeywordDatabase from './pages/KeywordDatabase';
 import __Layout from './Layout.jsx';
 
 
@@ -66,9 +66,9 @@ export const PAGES = {
     "ExclusiveKeywords": ExclusiveKeywords,
     "FbaProfitCalculator": FbaProfitCalculator,
     "Home": Home,
-    "KeywordDatabase": KeywordDatabase,
     "KeywordDetails": KeywordDetails,
     "Pricing": Pricing,
+    "KeywordDatabase": KeywordDatabase,
 }
 
 export const pagesConfig = {
