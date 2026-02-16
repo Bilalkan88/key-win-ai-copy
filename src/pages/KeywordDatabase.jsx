@@ -29,6 +29,7 @@ export default function KeywordDatabase() {
   const [customPageSize, setCustomPageSize] = useState('');
   const [smartFilter, setSmartFilter] = useState('all');
   const [showTop20, setShowTop20] = useState(false);
+  const [selectedKeywords, setSelectedKeywords] = useState(new Set());
 
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -454,7 +455,10 @@ export default function KeywordDatabase() {
               <div className="mt-4 pt-4 border-t border-slate-200">
                 <Button
                   variant="ghost"
-                  onClick={() => setSmartFilter('all')}
+                  onClick={() => {
+                    setSmartFilter('all');
+                    setShowTop20(false);
+                  }}
                   className={`w-full ${smartFilter === 'all' ? 'bg-slate-100 font-semibold' : 'hover:bg-slate-50'}`}
                 >
                   Show All Keywords
@@ -697,6 +701,8 @@ export default function KeywordDatabase() {
               onToggleSaveKeyword={(row) => {
                 toast.success('Save feature coming soon');
               }}
+              selectedKeywords={selectedKeywords}
+              onSelectionChange={setSelectedKeywords}
             />
 
             {/* Pagination */}
