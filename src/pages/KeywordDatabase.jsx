@@ -126,13 +126,34 @@ export default function KeywordDatabase() {
     // Sorting
     switch (sortBy) {
       case 'opportunity_desc':
-        data.sort((a, b) => b.opportunity_score - a.opportunity_score);
+        data.sort((a, b) => (b.score || b.opportunity_score || 0) - (a.score || a.opportunity_score || 0));
         break;
-      case 'competition_asc':
-        data.sort((a, b) => a.competing_products - b.competing_products);
+      case 'opportunity_asc':
+        data.sort((a, b) => (a.score || a.opportunity_score || 0) - (b.score || b.opportunity_score || 0));
         break;
-      case 'volume_desc':
-        data.sort((a, b) => b.search_volume - a.search_volume);
+      case 'search_volume_desc':
+        data.sort((a, b) => (b.search_volume || 0) - (a.search_volume || 0));
+        break;
+      case 'search_volume_asc':
+        data.sort((a, b) => (a.search_volume || 0) - (b.search_volume || 0));
+        break;
+      case 'competing_desc':
+        data.sort((a, b) => (b.competing_products || 0) - (a.competing_products || 0));
+        break;
+      case 'competing_asc':
+        data.sort((a, b) => (a.competing_products || 0) - (b.competing_products || 0));
+        break;
+      case 'title_density_desc':
+        data.sort((a, b) => (b.title_density || 0) - (a.title_density || 0));
+        break;
+      case 'title_density_asc':
+        data.sort((a, b) => (a.title_density || 0) - (b.title_density || 0));
+        break;
+      case 'keyword_sales_desc':
+        data.sort((a, b) => (b.keyword_sales || 0) - (a.keyword_sales || 0));
+        break;
+      case 'keyword_sales_asc':
+        data.sort((a, b) => (a.keyword_sales || 0) - (b.keyword_sales || 0));
         break;
       case 'newest':
         data.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
