@@ -522,22 +522,32 @@ export default function KeywordDatabase() {
             <CardContent className="p-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  {smartFilter !== 'all' && (
-                    <p className="text-sm text-slate-600 mb-1">
-                      Showing {
-                        smartFilter === 'easy_launch' ? '🚀 Easy to Launch' :
-                        smartFilter === 'hidden_gems' ? '💎 Hidden Gems' :
-                        smartFilter === 'high_profit' ? '💰 High Profit' :
-                        smartFilter === 'high_demand' ? '🔥 High Demand' :
-                        smartFilter === 'low_risk' ? '🛡 Low Risk' :
-                        smartFilter === 'gold_score' ? '⭐ Gold Score' : ''
-                      } opportunities
-                    </p>
+                  {smartFilter !== 'all' ? (
+                    <>
+                      <p className="text-sm text-slate-600 mb-1">
+                        {
+                          smartFilter === 'easy_launch' ? '🚀 Easy to Launch' :
+                          smartFilter === 'hidden_gems' ? '💎 Hidden Gems' :
+                          smartFilter === 'high_profit' ? '💰 High Profit' :
+                          smartFilter === 'high_demand' ? '🔥 High Demand' :
+                          smartFilter === 'low_risk' ? '🛡 Low Risk' :
+                          smartFilter === 'gold_score' ? '⭐ Gold Score' : ''
+                        } opportunities
+                      </p>
+                      <p className="text-slate-700 font-semibold text-lg">
+                        Here are <span className="text-indigo-600 text-2xl">{filteredData.length.toLocaleString()}</span> product opportunities.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-slate-700 font-semibold text-lg">
+                        Here are <span className="text-indigo-600 text-2xl">{filteredData.length.toLocaleString()}</span> product opportunities.
+                      </p>
+                      <p className="text-sm text-slate-600 mt-1">
+                        Start with <span className="font-semibold text-emerald-600">'Easy to Launch'</span> if you're new.
+                      </p>
+                    </>
                   )}
-                  <p className="text-slate-700 font-medium">
-                    <span className="font-bold text-indigo-600 text-2xl">{filteredData.length.toLocaleString()}</span>
-                    <span className="text-slate-500 ml-2">results</span>
-                  </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <Button

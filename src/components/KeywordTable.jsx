@@ -392,10 +392,10 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
+                            row.opportunityScore >= 90 ? 'bg-emerald-600 text-white shadow-sm' :
                             row.opportunityScore >= 75 ? 'bg-emerald-100 text-emerald-800' :
-                            row.opportunityScore >= 50 ? 'bg-blue-100 text-blue-800' :
-                            row.opportunityScore >= 25 ? 'bg-amber-100 text-amber-800' :
-                            'bg-slate-100 text-slate-600'
+                            row.opportunityScore >= 60 ? 'bg-amber-100 text-amber-700' :
+                            'bg-slate-200 text-slate-600'
                           }`}>
                             {row.opportunityScore || 0}
                           </div>
