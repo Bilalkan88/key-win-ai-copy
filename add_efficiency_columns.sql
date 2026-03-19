@@ -1,0 +1,3 @@
+ALTER TABLE public.exclusive_keywords 
+ADD COLUMN IF NOT EXISTS avg_oos TEXT DEFAULT '6%',
+ADD COLUMN IF NOT EXISTS conv_rate TEXT DEFAULT '1.75%';

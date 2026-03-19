@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { AlertCircle, Sparkles, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { TabsContent } from "@/components/ui/tabs";
 
 import NavigationTabs from '@/components/NavigationTabs';
 import UploadSection from '@/components/sections/UploadSection';
@@ -57,14 +56,14 @@ export default function Analysis() {
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
     if (lines.length < 2) return [];
-    
+
     const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-    
+
     return lines.slice(1).map(line => {
       const values = [];
       let current = '';
       let inQuotes = false;
-      
+
       for (let char of line) {
         if (char === '"') {
           inQuotes = !inQuotes;
@@ -76,7 +75,7 @@ export default function Analysis() {
         }
       }
       values.push(current.trim());
-      
+
       const row = {};
       headers.forEach((header, i) => {
         row[header] = values[i] || '';
@@ -116,7 +115,7 @@ export default function Analysis() {
     for (const file of filesArray) {
       const text = await file.text();
       const data = parseCSV(text);
-      
+
       const validation = validateColumns(data);
       if (!validation.valid) {
         setError(`Invalid CSV file (${file.name}). Missing required columns: ${validation.missing.join(', ')}`);
@@ -159,7 +158,7 @@ export default function Analysis() {
     // Step 1: Single-pass filtering with deduplication and caching
     const keywordMap = new Map();
     const normalizedCache = new Map(); // Cache normalized keywords
-    
+
     rawData.forEach(row => {
       const phrase = row['Keyword Phrase'];
       if (!phrase) return;
@@ -168,11 +167,11 @@ export default function Analysis() {
       const searchVolume = parseNumber(row['Search Volume']);
       const titleDensity = parseNumber(row['Title Density']);
       const competingProducts = parseNumber(row['Competing Products']);
-      
+
       // Skip invalid or filtered rows
       if (searchVolume === null || titleDensity === null || competingProducts === null) return;
       if (searchVolume < minVol || titleDensity > maxTD || competingProducts > maxComp) return;
-      
+
       // Get or compute normalized keyword (cached)
       let normalized = normalizedCache.get(phrase);
       if (!normalized) {
@@ -183,25 +182,25 @@ export default function Analysis() {
         };
         normalizedCache.set(phrase, normalized);
       }
-      
+
       // Check word count
       if (normalized.wordCount < minWords) {
         excludedShort++;
         excluded.short.push({ keyword: phrase, searchVolume, titleDensity, competingProducts });
         return;
       }
-      
+
       // Check brand
       if (normalized.isBranded) {
         excludedBranded++;
         excluded.branded.push({ keyword: phrase, searchVolume, titleDensity, competingProducts });
         return;
       }
-      
+
       // Deduplicate: keep best version
       const existing = keywordMap.get(normalized.lower);
-      if (!existing || searchVolume > existing.searchVolume || 
-          (searchVolume === existing.searchVolume && competingProducts < existing.competingProducts)) {
+      if (!existing || searchVolume > existing.searchVolume ||
+        (searchVolume === existing.searchVolume && competingProducts < existing.competingProducts)) {
         keywordMap.set(normalized.lower, {
           ...row,
           searchVolume,
@@ -212,7 +211,7 @@ export default function Analysis() {
         });
       }
     });
-    
+
     // Calculate opportunity score for each keyword
     const calculateOpportunityScore = (keyword) => {
       const volume = keyword.searchVolume || 0;
@@ -247,7 +246,7 @@ export default function Analysis() {
       ...keyword,
       opportunityScore: calculateOpportunityScore(keyword)
     }));
-    
+
     const afterNumericFilter = finalKeywords.length + excludedShort + excludedBranded;
     const excludedUnclear = 0; // No semantic filtering
 
@@ -306,7 +305,7 @@ export default function Analysis() {
     const newProcessedData = processedData.filter(
       row => !selectedKeywords.has(row['Keyword Phrase'])
     );
-    
+
     setProcessedData(newProcessedData);
     setStats(prev => ({
       ...prev,
@@ -365,7 +364,7 @@ Return JSON:`,
         description: cluster.summary,
         groupType: cluster.clusterType,
         keywords: cluster.keywords
-          .map(kw => keywords.find(d => 
+          .map(kw => keywords.find(d =>
             d['Keyword Phrase'].toLowerCase().trim() === kw.toLowerCase().trim()
           ))
           .filter(Boolean)
@@ -384,7 +383,7 @@ Return JSON:`,
     setSavedKeywords(prev => {
       const newSet = new Set(prev);
       const keywordPhrase = keyword['Keyword Phrase'];
-      
+
       if (newSet.has(keywordPhrase)) {
         newSet.delete(keywordPhrase);
         toast.success('Removed from saved keywords');
@@ -392,7 +391,7 @@ Return JSON:`,
         newSet.add(keywordPhrase);
         toast.success('Saved keyword');
       }
-      
+
       localStorage.setItem('savedKeywords', JSON.stringify([...newSet]));
       return newSet;
     });
@@ -419,15 +418,15 @@ Return JSON:`,
 
   const groupKeywords = async (selectedKeywords) => {
     if (processedData.length === 0) return;
-    
+
     setIsGrouping(true);
-    
+
     try {
       const dataToGroup = selectedKeywords.size > 0
         ? processedData.filter(row => selectedKeywords.has(row['Keyword Phrase']))
         : processedData;
 
-      const criteriaPrompt = groupingCriteria 
+      const criteriaPrompt = groupingCriteria
         ? `Group keywords based on: ${groupingCriteria}`
         : `Analyze and group these keywords intelligently. Consider:
 - Product features or attributes (e.g., material, size, color, functionality)
@@ -477,7 +476,7 @@ Return JSON:`,
       const groups = response.groups.map(group => ({
         ...group,
         keywords: group.keywords
-          .map(kw => dataToGroup.find(d => 
+          .map(kw => dataToGroup.find(d =>
             d['Keyword Phrase'].toLowerCase().trim() === kw.toLowerCase().trim()
           ))
           .filter(Boolean)
@@ -497,7 +496,7 @@ Return JSON:`,
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
       <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Header */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
@@ -507,7 +506,7 @@ Return JSON:`,
             AI-Powered Analysis
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight mb-4">
-            Keyword Winner Finder
+            Vetted Niche Finder
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
             Upload your Helium 10 CSV and discover high-potential Amazon keywords with AI-powered semantic analysis
@@ -520,8 +519,8 @@ Return JSON:`,
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <NavigationTabs 
-            activeTab={activeTab} 
+          <NavigationTabs
+            activeTab={activeTab}
             onTabChange={setActiveTab}
             showAnalysis={analysisComplete}
           />
@@ -535,9 +534,9 @@ Return JSON:`,
             transition={{ delay: 0.15 }}
             className="mb-6"
           >
-            <FilterSettings 
-              filters={filterSettings} 
-              onFilterChange={setFilterSettings} 
+            <FilterSettings
+              filters={filterSettings}
+              onFilterChange={setFilterSettings}
             />
           </motion.div>
         )}

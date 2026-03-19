@@ -47,6 +47,11 @@ const AuthenticatedApp = () => {
           <MainPage />
         </LayoutWrapper>
       } />
+      <Route path="/ExclusiveKeywords/listig/:keywordId" element={
+        <LayoutWrapper currentPageName="ExclusiveKeywords">
+          <Pages.ExclusiveKeywords />
+        </LayoutWrapper>
+      } />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}

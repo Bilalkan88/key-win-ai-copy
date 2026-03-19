@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles, TrendingUp, Zap, Crown, Loader2, CheckCircle, X } from 'lucide-react';
+import { Check, Sparkles, Zap, Loader2, CheckCircle, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { motion } from 'framer-motion';
@@ -51,7 +51,7 @@ export default function Pricing() {
         { text: 'Free keyword analysis tool', available: true },
         { text: 'Upload your own CSV files (single file)', available: true },
         { text: 'Export results', available: true },
-        { text: 'Access Keyword Goldmine', available: false },
+        { text: 'Access Opportunity Engine', available: false },
         { text: 'Weekly updates with new keywords', available: false },
         { text: 'Advanced search & filtering', available: false },
         { text: 'Custom AI explanations', available: false },
@@ -68,7 +68,7 @@ export default function Pricing() {
         { text: 'Free keyword analysis tool', available: true },
         { text: 'Upload your own CSV files (multiple files)', available: true },
         { text: 'Export results', available: true },
-        { text: 'Access Keyword Goldmine', available: true },
+        { text: 'Access Opportunity Engine', available: true },
         { text: 'Weekly updates with new keywords', available: true },
         { text: 'Advanced search & filtering', available: true },
         { text: 'Custom AI explanations', available: true },
@@ -329,7 +329,7 @@ export default function Pricing() {
                   Can I cancel anytime?
                 </h3>
                 <p className="text-slate-600">
-                  Yes, you can change or cancel your plan anytime from the billing menu in your Keyword Winner account.
+                  Yes, you can change or cancel your plan anytime from the billing menu in your Vetted Niche account.
                 </p>
               </CardContent>
             </Card>
@@ -337,7 +337,7 @@ export default function Pricing() {
             <Card className="border-2 hover:border-indigo-200 transition-colors">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                  How long does it take to set up Keyword Winner?
+                  How long does it take to set up Vetted Niche?
                 </h3>
                 <p className="text-slate-600">
                   Instant. Create your account and start using the free Analysis and exploring winning keywords right away.
@@ -351,7 +351,7 @@ export default function Pricing() {
                   Which markets do you support?
                 </h3>
                 <p className="text-slate-600">
-                  Currently, Keyword Winner supports only Amazon US but we have plans to expand in other large markets.
+                  Currently, Vetted Niche supports only Amazon US but we have plans to expand in other large markets.
                 </p>
               </CardContent>
             </Card>
@@ -369,7 +369,7 @@ export default function Pricing() {
           </motion.div>
         </div>
 
-        </div>
-        </div>
-        );
-        }
+      </div>
+    </div>
+  );
+}

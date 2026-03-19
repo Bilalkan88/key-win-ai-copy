@@ -47,28 +47,34 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AdminDashboard from './pages/AdminDashboard';
 import AmazonScraper from './pages/AmazonScraper';
 import AmazonSellerToolkit from './pages/AmazonSellerToolkit';
 import Analysis from './pages/Analysis';
+import Auth from './pages/Auth';
 import ExclusiveKeywords from './pages/ExclusiveKeywords';
 import FbaProfitCalculator from './pages/FbaProfitCalculator';
 import Home from './pages/Home';
 import KeywordDatabase from './pages/KeywordDatabase';
 import KeywordDetails from './pages/KeywordDetails';
 import Pricing from './pages/Pricing';
+import Profile from './pages/Profile';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AdminDashboard": AdminDashboard,
     "AmazonScraper": AmazonScraper,
     "AmazonSellerToolkit": AmazonSellerToolkit,
     "Analysis": Analysis,
+    "Auth": Auth,
     "ExclusiveKeywords": ExclusiveKeywords,
     "FbaProfitCalculator": FbaProfitCalculator,
     "Home": Home,
     "KeywordDatabase": KeywordDatabase,
     "KeywordDetails": KeywordDetails,
     "Pricing": Pricing,
+    "Profile": Profile,
 }
 
 export const pagesConfig = {

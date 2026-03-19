@@ -4,10 +4,8 @@ import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Sparkles, TrendingUp, Users, BarChart3, Lock, Star, 
-  Search, Target, AlertCircle, CheckCircle, Zap, 
-  Clock, Database, ArrowRight, Shield
+import {
+  Sparkles, BarChart3, Lock, Star, Target, CheckCircle, Zap, ArrowRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -20,7 +18,7 @@ export default function LandingPage() {
         <div className="absolute inset-0" style={{
           backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)'
         }} />
-        
+
         <div className="max-w-7xl mx-auto px-6 py-20 sm:py-28 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left: Text */}
@@ -30,18 +28,18 @@ export default function LandingPage() {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-sm mb-6">
                 <Sparkles className="w-4 h-4" />
-                <span>AI-Powered Keyword Intelligence</span>
+                <span>AI-Powered Niche Intelligence</span>
               </div>
 
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
-                Find Winning<br />
+                Discover Highly Profitable<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400">
-                  Amazon Keywords
+                  Vetted Niches
                 </span>
               </h1>
 
               <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                Stop wasting time on useless keywords. Discover carefully selected, AI-filtered opportunities with real demand and manageable competition — so you can focus on keywords that actually lead to profitable products and sales.
+                Stop wasting time guessing. Discover premium, AI-filtered market opportunities with real demand and low competition — so you can launch products with confidence in highly vetted niches.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-10">
@@ -74,7 +72,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>15,000+ keywords</span>
+                  <span>15,000+ niches analyzed</span>
                 </div>
               </div>
             </motion.div>
@@ -137,17 +135,17 @@ export default function LandingPage() {
               viewport={{ once: true }}
             >
               <Badge className="mb-4 bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                Amazon Intelligence
+                Opportunity Engine
               </Badge>
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Uncover high-opportunity keywords, simplified.
+                Uncover high-potential niches, simplified.
               </h2>
               <p className="text-lg text-slate-400 mb-6 leading-relaxed">
-                Stop wasting time on keywords that don't convert. Our AI filters thousands of keywords to show you only the winners with high search volume, low competition, and real profit potential.
+                Stop sifting through endless data. Our Opportunity Engine analyzes thousands of market segments to reveal hidden gems with high demand, low competition, and clear profit markers.
               </p>
               <Button asChild className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
                 <Link to={createPageUrl('KeywordDatabase')}>
-                  Browse Keywords
+                  Explore Opportunity Engine
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
@@ -159,8 +157,8 @@ export default function LandingPage() {
               viewport={{ once: true }}
               className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700/50"
             >
-              <img 
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" 
+              <img
+                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop"
                 alt="Analytics Dashboard"
                 className="rounded-lg shadow-xl w-full border border-slate-700/30"
               />
@@ -179,11 +177,11 @@ export default function LandingPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                     <div className="text-3xl font-bold text-emerald-400 mb-1">15K+</div>
-                    <div className="text-xs text-slate-400">Keywords Analyzed</div>
+                    <div className="text-xs text-slate-400">Niches Analyzed</div>
                   </div>
                   <div className="text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
                     <div className="text-3xl font-bold text-blue-400 mb-1">500+</div>
-                    <div className="text-xs text-slate-400">Premium Keywords</div>
+                    <div className="text-xs text-slate-400">Vetted Opportunities</div>
                   </div>
                   <div className="text-center p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
                     <div className="text-3xl font-bold text-purple-400 mb-1">90%</div>
@@ -210,7 +208,7 @@ export default function LandingPage() {
                 Data-driven decisions for every product.
               </h2>
               <p className="text-lg text-slate-400 mb-6 leading-relaxed">
-                Get instant competitor analysis, profitability scores, and market insights. Know exactly which keywords to target before you launch.
+                Leverage our Free Analysis and reverse-product tools to get instant competitor insights, profitability scores, and market data.
               </p>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -229,7 +227,7 @@ export default function LandingPage() {
                   <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
                     <CheckCircle className="w-5 h-5 text-emerald-400" />
                   </div>
-                  <span className="text-slate-300">Weekly fresh keywords</span>
+                  <span className="text-slate-300">Weekly fresh vetted niches</span>
                 </div>
               </div>
             </motion.div>
@@ -263,14 +261,14 @@ export default function LandingPage() {
               className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white font-semibold text-sm mb-6 shadow-lg"
             >
               <span className="text-xl animate-bounce">🔥</span>
-              <span>Limited Keywords • High Demand</span>
+              <span>Exclusive Opportunities • High Demand</span>
             </motion.div>
 
             {/* Main Headline */}
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight">
-              Find Winning Amazon Keywords<br />
+              Access Vetted Opportunities<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-400 to-purple-400">
-                Before Everyone Else
+                Before The Competition Does
               </span>
             </h2>
 
@@ -296,11 +294,11 @@ export default function LandingPage() {
             {/* Value Proposition */}
             <div className="max-w-3xl mx-auto mb-8">
               <p className="text-xl md:text-2xl text-white/90 leading-relaxed mb-4">
-                <span className="font-bold text-orange-300">No more guessing.</span> No more wasting time on tools that give you thousands of useless keywords.
+                <span className="font-bold text-orange-300">No more saturation.</span> Stop fighting in crowded markets.
               </p>
               <div className="bg-gradient-to-r from-orange-500/20 to-pink-500/20 backdrop-blur-sm rounded-2xl p-6 border border-white/30">
                 <p className="text-2xl md:text-3xl font-black text-white">
-                  Get Only Keywords Worth Building Your Product On
+                  Exclusive Niches Sold to Only ONE Seller.
                 </p>
               </div>
             </div>
@@ -334,7 +332,7 @@ export default function LandingPage() {
             <div className="mt-10 flex flex-wrap items-center justify-center gap-8 text-white/80 text-sm">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span>15,000+ Keywords Analyzed</span>
+                <span>15,000+ Niches Analyzed</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-emerald-400" />
@@ -376,10 +374,10 @@ export default function LandingPage() {
                     <BarChart3 className="w-8 h-8 text-yellow-400" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">
-                    Find profitable products
+                    Opportunity Engine
                   </h3>
                   <p className="text-slate-400 leading-relaxed mb-4">
-                    Discover high-demand, low-competition keywords that convert. Our AI filters out the noise and shows you only winners.
+                    Instantly browse through thousands of rigorously filtered niches. Our engine reveals high-demand, low-competition product avenues.
                   </p>
                   <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
                     Learn more →
@@ -400,10 +398,10 @@ export default function LandingPage() {
                     <Target className="w-8 h-8 text-orange-400" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">
-                    Beat your competition
+                    Free Analysis Tools
                   </h3>
                   <p className="text-slate-400 leading-relaxed mb-4">
-                    Get detailed competitor insights and market trends. Know exactly what works before you invest.
+                    Analyze any market with our Free Keyword Analysis and Amazon Scraper. Get instant insights before investing.
                   </p>
                   <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
                     Learn more →
@@ -424,10 +422,10 @@ export default function LandingPage() {
                     <Lock className="w-8 h-8 text-purple-400" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">
-                    Exclusive keywords
+                    Vetted Opportunities
                   </h3>
                   <p className="text-slate-400 leading-relaxed mb-4">
-                    Access premium keywords sold to one buyer only. Get an unfair advantage in your niche.
+                    Access premium opportunity data, sold exclusively to one buyer. Obtain a comprehensive business plan to dominate entirely.
                   </p>
                   <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
                     Learn more →
@@ -504,7 +502,7 @@ export default function LandingPage() {
                     <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                   </div>
                   <p className="text-slate-300 leading-relaxed mb-6">
-                    "The AI filtering is incredible. No more wasting time on bad keywords. Every suggestion has been profitable for me."
+                    "The Opportunity Engine is incredible. No more wasting time on saturated markets. Entering a vetted niche made all the difference."
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold">
@@ -535,7 +533,7 @@ export default function LandingPage() {
                     <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                   </div>
                   <p className="text-slate-300 leading-relaxed mb-6">
-                    "Best investment I made for my Amazon business. The exclusive keywords feature gave me an unfair advantage!"
+                    "Best investment I made for my Amazon business. The vetted opportunities feature gave me an unfair advantage!"
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
@@ -559,7 +557,7 @@ export default function LandingPage() {
         <div className="absolute inset-0" style={{
           backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)'
         }} />
-        
+
         <div className="max-w-6xl mx-auto px-6 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -571,14 +569,14 @@ export default function LandingPage() {
               <Zap className="w-4 h-4" />
               <span>Limited Time Offer</span>
             </div>
-            
+
             <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
               Start your Amazon business with confidence
             </h2>
             <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-              Get instant access to winning keywords and start building your profitable product today
+              Get instant access to high-potential niches and start building your profitable product today
             </p>
-            
+
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 size="lg"
@@ -625,18 +623,18 @@ export default function LandingPage() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="w-6 h-6 text-indigo-400" />
-                <span className="text-white font-bold text-lg">Keyword Winner AI</span>
+                <span className="text-white font-bold text-lg">Vetted Niche AI</span>
               </div>
               <p className="text-sm leading-relaxed">
-                The smartest way to find profitable Amazon keywords. Trusted by thousands of sellers worldwide.
+                The smartest way to find highly profitable Amazon niches. Trusted by thousands of sellers worldwide.
               </p>
             </div>
             <div>
               <h3 className="text-white font-semibold mb-4">Product</h3>
               <div className="space-y-2 text-sm">
                 <div><Link to={createPageUrl('Analysis')} className="hover:text-white transition-colors">Free Analysis</Link></div>
-                <div><Link to={createPageUrl('KeywordDatabase')} className="hover:text-white transition-colors">Keyword Database</Link></div>
-                <div><Link to={createPageUrl('ExclusiveKeywords')} className="hover:text-white transition-colors">Exclusive Keywords</Link></div>
+                <div><Link to={createPageUrl('KeywordDatabase')} className="hover:text-white transition-colors">Opportunity Engine</Link></div>
+                <div><Link to={createPageUrl('ExclusiveKeywords')} className="hover:text-white transition-colors">Vetted Opportunities</Link></div>
                 <div><Link to={createPageUrl('Pricing')} className="hover:text-white transition-colors">Pricing</Link></div>
               </div>
             </div>
@@ -660,7 +658,7 @@ export default function LandingPage() {
           </div>
           <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-sm">
-              © 2026 Keyword Winner AI. All rights reserved.
+              © 2026 Vetted Niche AI. All rights reserved.
             </div>
             <div className="flex items-center gap-6 text-sm">
               <a href="#" className="hover:text-white transition-colors">Twitter</a>

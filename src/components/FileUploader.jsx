@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Upload, FileSpreadsheet, CheckCircle2, X } from 'lucide-react';
+import { Upload, FileSpreadsheet, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function FileUploader({ onFileUpload, hasFile, fileName, fileCount }) {

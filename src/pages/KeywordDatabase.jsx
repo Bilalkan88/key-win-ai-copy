@@ -5,14 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, Filter, Sparkles, Star, Lock, TrendingUp, BarChart3, Bookmark } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { Loader2, Search, Sparkles, Star, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import KeywordTable from '@/components/KeywordTable';
 import ExportButtons from '@/components/ExportButtons';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function KeywordDatabase() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,32 +30,33 @@ export default function KeywordDatabase() {
   const [showTop20, setShowTop20] = useState(false);
   const [selectedKeywords, setSelectedKeywords] = useState(new Set());
 
-  const { data: user } = useQuery({
-    queryKey: ['user'],
-    queryFn: () => base44.auth.me(),
-  });
-
-  const { data: subscription } = useQuery({
-    queryKey: ['subscription', user?.email],
-    queryFn: () => base44.entities.Subscription.filter({ user_email: user.email, status: 'active' }),
-    enabled: !!user?.email,
-  });
+  const { isAuthenticated, profile, deductCredit, isLoadingAuth } = useAuth();
 
   const { data: keywords = [], isLoading } = useQuery({
     queryKey: ['keywords-database'],
-    queryFn: () => base44.entities.keywords.list('-search_volume', 10000),
-  });
-
-  const { data: savedKeywords = new Set() } = useQuery({
-    queryKey: ['saved-keywords', user?.email],
     queryFn: async () => {
-      const userProfile = await base44.entities.User.filter({ email: user.email });
-      return new Set(userProfile[0]?.saved_keywords || []);
+      // Fetch results
+      const results = await base44.entities.keywords.list('-search_volume', 10000);
+      return results;
     },
-    enabled: !!user?.email,
   });
 
-  const hasAccess = user?.role === 'admin' || (subscription && subscription.length > 0);
+  const handleFilterClick = async (type, value) => {
+    const success = await deductCredit();
+    if (success) {
+      if (type === 'smart') setSmartFilter(value);
+      if (type === 'category') setCategoryFilter(value);
+      if (type === 'marketplace') setMarketplace(value);
+      setCurrentPage(1);
+    }
+  };
+
+  // Deduction on search
+  const handleSearchKeyPress = async (e) => {
+    if (e.key === 'Enter' && searchTerm) {
+      await deductCredit();
+    }
+  };
 
   const filteredData = useMemo(() => {
     let data = [...keywords];
@@ -64,17 +64,17 @@ export default function KeywordDatabase() {
     // Smart Filters
     if (smartFilter === 'easy_launch') {
       // Easy to Launch: score >= 80, competition <= 500, volume >= 3000
-      data = data.filter(k => 
-        (k.score || k.opportunity_score || 0) >= 80 && 
-        (k.competing_products || 0) <= 500 && 
+      data = data.filter(k =>
+        (k.score || k.opportunity_score || 0) >= 80 &&
+        (k.competing_products || 0) <= 500 &&
         (k.search_volume || 0) >= 3000
       );
     } else if (smartFilter === 'hidden_gems') {
       // Hidden Gems: score >= 85, volume 3000-9999, competition < 350
-      data = data.filter(k => 
-        (k.score || k.opportunity_score || 0) >= 85 && 
-        (k.search_volume || 0) >= 3000 && 
-        (k.search_volume || 0) <= 9999 && 
+      data = data.filter(k =>
+        (k.score || k.opportunity_score || 0) >= 85 &&
+        (k.search_volume || 0) >= 3000 &&
+        (k.search_volume || 0) <= 9999 &&
         (k.competing_products || 0) < 350
       );
     } else if (smartFilter === 'gold_score') {
@@ -82,28 +82,28 @@ export default function KeywordDatabase() {
       data = data.filter(k => (k.score || k.opportunity_score || 0) >= 90);
     } else if (smartFilter === 'high_profit') {
       // High Profit: score >= 85, sales >= 700, competition <= 500
-      data = data.filter(k => 
-        (k.score || k.opportunity_score || 0) >= 85 && 
-        (k.keyword_sales || 0) >= 700 && 
+      data = data.filter(k =>
+        (k.score || k.opportunity_score || 0) >= 85 &&
+        (k.keyword_sales || 0) >= 700 &&
         (k.competing_products || 0) <= 500
       );
     } else if (smartFilter === 'high_demand') {
       // High Demand: volume >= 10000, score >= 75
-      data = data.filter(k => 
-        (k.search_volume || 0) >= 10000 && 
+      data = data.filter(k =>
+        (k.search_volume || 0) >= 10000 &&
         (k.score || k.opportunity_score || 0) >= 75
       );
     } else if (smartFilter === 'low_risk') {
       // Low Risk: competition < 350, score >= 75, volume >= 3000
-      data = data.filter(k => 
-        (k.competing_products || 0) < 350 && 
-        (k.score || k.opportunity_score || 0) >= 75 && 
+      data = data.filter(k =>
+        (k.competing_products || 0) < 350 &&
+        (k.score || k.opportunity_score || 0) >= 75 &&
         (k.search_volume || 0) >= 3000
       );
     }
 
     if (searchTerm) {
-      data = data.filter(k => k.keyword_phrase.toLowerCase().includes(searchTerm.toLowerCase()));
+      data = data.filter(k => k.keyword_phrase?.toLowerCase().includes(searchTerm.toLowerCase()));
     }
 
     if (categoryFilter !== 'all') {
@@ -221,26 +221,32 @@ export default function KeywordDatabase() {
     amazonLink: k.amazon_link || `https://www.amazon.com/s?k=${encodeURIComponent(k.keyword_phrase)}`
   }));
 
-  if (!hasAccess) {
+  if (isLoadingAuth) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
-        <div className="max-w-4xl mx-auto pt-20">
-          <Card className="text-center">
-            <CardContent className="p-12">
-              <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-6">
-                <Lock className="w-10 h-10 text-indigo-600" />
-              </div>
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">Keyword Database</h2>
-              <p className="text-lg text-slate-600 mb-8">
-                Get thousands of winning keywords updated weekly
-              </p>
-              <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700">
-                <Sparkles className="w-5 h-5 mr-2" />
-                Subscribe Now
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
+        <Card className="max-w-md w-full border-slate-800 bg-slate-900 shadow-2xl">
+          <CardContent className="p-8 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-8 h-8 text-indigo-500" />
+            </div>
+            <h2 className="text-2xl font-black text-white mb-2">Exclusive Access</h2>
+            <p className="text-slate-400 mb-8 font-medium">The Opportunity Engine is reserved for registered members. Sign in to start discovering niches.</p>
+            <Button
+              onClick={() => window.location.href = '/Auth'}
+              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
+            >
+              Sign In to Unlock
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -252,14 +258,30 @@ export default function KeywordDatabase() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 text-center"
+          className="mb-6"
         >
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
-            Keyword Goldmine
-          </h1>
-          <p className="text-sm text-slate-600">
-            {keywords.length.toLocaleString()} winning keywords - updated weekly
-          </p>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6 mb-6">
+            <div className="text-center md:text-left">
+              <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tight">
+                Discover <span className="text-indigo-600">High-Potential Niches</span>
+              </h1>
+              <p className="text-slate-500 font-medium">
+                {keywords.length.toLocaleString()} winning keywords - updated weekly
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-4">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-4 shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-amber-500 fill-amber-500" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Your Balance</div>
+                  <div className="text-xl font-black text-slate-900">{profile?.credits || 0} Credits</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
 
@@ -274,9 +296,10 @@ export default function KeywordDatabase() {
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
-              placeholder="Search for a keyword..."
+              placeholder="Search for a keyword... (Press Enter to use 1 credit)"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleSearchKeyPress}
               className="pl-11 pr-4 h-11 border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white shadow-sm"
             />
           </div>
@@ -309,12 +332,11 @@ export default function KeywordDatabase() {
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                 <Button
                   variant={smartFilter === 'easy_launch' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('easy_launch')}
-                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
-                    smartFilter === 'easy_launch' 
-                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600' 
-                      : 'hover:bg-emerald-50 hover:border-emerald-300'
-                  }`}
+                  onClick={() => handleFilterClick('smart', 'easy_launch')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${smartFilter === 'easy_launch'
+                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600'
+                    : 'hover:bg-emerald-50 hover:border-emerald-300'
+                    }`}
                 >
                   <span className="text-xl">🚀</span>
                   <span className="font-medium text-xs">Easy Launch</span>
@@ -322,12 +344,11 @@ export default function KeywordDatabase() {
 
                 <Button
                   variant={smartFilter === 'hidden_gems' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('hidden_gems')}
-                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
-                    smartFilter === 'hidden_gems'
-                      ? 'bg-purple-600 hover:bg-purple-700 text-white border-purple-600'
-                      : 'hover:bg-purple-50 hover:border-purple-300'
-                  }`}
+                  onClick={() => handleFilterClick('smart', 'hidden_gems')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${smartFilter === 'hidden_gems'
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white border-purple-600'
+                    : 'hover:bg-purple-50 hover:border-purple-300'
+                    }`}
                 >
                   <span className="text-xl">💎</span>
                   <span className="font-medium text-xs">Hidden Gems</span>
@@ -335,12 +356,11 @@ export default function KeywordDatabase() {
 
                 <Button
                   variant={smartFilter === 'high_profit' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('high_profit')}
-                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
-                    smartFilter === 'high_profit'
-                      ? 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600'
-                      : 'hover:bg-amber-50 hover:border-amber-300'
-                  }`}
+                  onClick={() => handleFilterClick('smart', 'high_profit')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${smartFilter === 'high_profit'
+                    ? 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600'
+                    : 'hover:bg-amber-50 hover:border-amber-300'
+                    }`}
                 >
                   <span className="text-xl">💰</span>
                   <span className="font-medium text-xs">High Profit</span>
@@ -348,12 +368,11 @@ export default function KeywordDatabase() {
 
                 <Button
                   variant={smartFilter === 'high_demand' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('high_demand')}
-                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
-                    smartFilter === 'high_demand'
-                      ? 'bg-red-600 hover:bg-red-700 text-white border-red-600'
-                      : 'hover:bg-red-50 hover:border-red-300'
-                  }`}
+                  onClick={() => handleFilterClick('smart', 'high_demand')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${smartFilter === 'high_demand'
+                    ? 'bg-red-600 hover:bg-red-700 text-white border-red-600'
+                    : 'hover:bg-red-50 hover:border-red-300'
+                    }`}
                 >
                   <span className="text-xl">🔥</span>
                   <span className="font-medium text-xs">High Demand</span>
@@ -361,12 +380,11 @@ export default function KeywordDatabase() {
 
                 <Button
                   variant={smartFilter === 'low_risk' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('low_risk')}
-                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
-                    smartFilter === 'low_risk'
-                      ? 'bg-green-600 hover:bg-green-700 text-white border-green-600'
-                      : 'hover:bg-green-50 hover:border-green-300'
-                  }`}
+                  onClick={() => handleFilterClick('smart', 'low_risk')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${smartFilter === 'low_risk'
+                    ? 'bg-green-600 hover:bg-green-700 text-white border-green-600'
+                    : 'hover:bg-green-50 hover:border-green-300'
+                    }`}
                 >
                   <span className="text-xl">🛡</span>
                   <span className="font-medium text-xs">Low Risk</span>
@@ -374,12 +392,11 @@ export default function KeywordDatabase() {
 
                 <Button
                   variant={smartFilter === 'gold_score' ? 'default' : 'outline'}
-                  onClick={() => setSmartFilter('gold_score')}
-                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${
-                    smartFilter === 'gold_score'
-                      ? 'bg-yellow-600 hover:bg-yellow-700 text-white border-yellow-600'
-                      : 'hover:bg-yellow-50 hover:border-yellow-300'
-                  }`}
+                  onClick={() => handleFilterClick('smart', 'gold_score')}
+                  className={`h-auto py-2.5 flex flex-col items-center gap-1.5 transition-all ${smartFilter === 'gold_score'
+                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white border-yellow-600'
+                    : 'hover:bg-yellow-50 hover:border-yellow-300'
+                    }`}
                 >
                   <span className="text-xl">⭐</span>
                   <span className="font-medium text-xs">Gold Score</span>
@@ -411,39 +428,39 @@ export default function KeywordDatabase() {
           className="mb-4"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-sm">
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(cat => {
-                      const count = cat === 'All Categories' ? keywords.length : (categoryCounts[cat] || 0);
-                      return (
-                        <SelectItem key={cat} value={cat === 'All Categories' ? 'all' : cat}>
-                          {cat} ({count})
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+            <Select value={categoryFilter} onValueChange={(v) => handleFilterClick('category', v)}>
+              <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-sm">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map(cat => {
+                  const count = cat === 'All Categories' ? keywords.length : (categoryCounts[cat] || 0);
+                  return (
+                    <SelectItem key={cat} value={cat === 'All Categories' ? 'all' : cat}>
+                      {cat} ({count})
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
 
-                <Select value={marketplace} onValueChange={setMarketplace}>
-                  <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-sm">
-                    <SelectValue placeholder="Marketplace" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Marketplaces</SelectItem>
-                    <SelectItem value="amazon.com">🇺🇸 www.amazon.com</SelectItem>
-                    <SelectItem value="amazon.co.uk">🇬🇧 www.amazon.co.uk</SelectItem>
-                    <SelectItem value="amazon.ca">🇨🇦 www.amazon.ca</SelectItem>
-                    <SelectItem value="amazon.com.mx">🇲🇽 www.amazon.com.mx</SelectItem>
-                    <SelectItem value="amazon.de">🇩🇪 www.amazon.de</SelectItem>
-                    <SelectItem value="amazon.es">🇪🇸 www.amazon.es</SelectItem>
-                    <SelectItem value="amazon.it">🇮🇹 www.amazon.it</SelectItem>
-                    <SelectItem value="amazon.fr">🇫🇷 www.amazon.fr</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <Select value={marketplace} onValueChange={(v) => handleFilterClick('marketplace', v)}>
+              <SelectTrigger className="h-9 border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-sm">
+                <SelectValue placeholder="Marketplace" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Marketplaces</SelectItem>
+                <SelectItem value="amazon.com">🇺🇸 www.amazon.com</SelectItem>
+                <SelectItem value="amazon.co.uk">🇬🇧 www.amazon.co.uk</SelectItem>
+                <SelectItem value="amazon.ca">🇨🇦 www.amazon.ca</SelectItem>
+                <SelectItem value="amazon.com.mx">🇲🇽 www.amazon.com.mx</SelectItem>
+                <SelectItem value="amazon.de">🇩🇪 www.amazon.de</SelectItem>
+                <SelectItem value="amazon.es">🇪🇸 www.amazon.es</SelectItem>
+                <SelectItem value="amazon.it">🇮🇹 www.amazon.it</SelectItem>
+                <SelectItem value="amazon.fr">🇫🇷 www.amazon.fr</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </motion.div>
 
         {/* Results Summary */}
@@ -462,11 +479,11 @@ export default function KeywordDatabase() {
                       <p className="text-xs text-slate-500 mb-0.5">
                         {
                           smartFilter === 'easy_launch' ? '🚀 Easy to Launch' :
-                          smartFilter === 'hidden_gems' ? '💎 Hidden Gems' :
-                          smartFilter === 'high_profit' ? '💰 High Profit' :
-                          smartFilter === 'high_demand' ? '🔥 High Demand' :
-                          smartFilter === 'low_risk' ? '🛡 Low Risk' :
-                          smartFilter === 'gold_score' ? '⭐ Gold Score' : ''
+                            smartFilter === 'hidden_gems' ? '💎 Hidden Gems' :
+                              smartFilter === 'high_profit' ? '💰 High Profit' :
+                                smartFilter === 'high_demand' ? '🔥 High Demand' :
+                                  smartFilter === 'low_risk' ? '🛡 Low Risk' :
+                                    smartFilter === 'gold_score' ? '⭐ Gold Score' : ''
                         } opportunities
                       </p>
                       <p className="text-slate-900 font-semibold text-base">
@@ -499,9 +516,9 @@ export default function KeywordDatabase() {
                     <Sparkles className="w-3.5 h-3.5 mr-1.5" />
                     Top 20
                   </Button>
-                  <ExportButtons 
-                    data={transformedData} 
-                    category={categoryFilter !== 'all' ? categoryFilter : 'All'} 
+                  <ExportButtons
+                    data={transformedData}
+                    category={categoryFilter !== 'all' ? categoryFilter : 'All'}
                   />
                 </div>
               </div>
@@ -599,15 +616,16 @@ export default function KeywordDatabase() {
           </Card>
         ) : (
           <>
-            <KeywordTable 
+            <KeywordTable
               data={transformedData}
               sortBy={sortBy}
               onSortChange={setSortBy}
               startIndex={startIndex}
-              savedKeywords={savedKeywords}
+              savedKeywords={new Set()}
               onToggleSaveKeyword={(row) => {
                 toast.success('Save feature coming soon');
               }}
+              onDeleteRow={() => { }}
               selectedKeywords={selectedKeywords}
               onSelectionChange={setSelectedKeywords}
             />
@@ -709,7 +727,7 @@ export default function KeywordDatabase() {
             </div>
           </>
         )}
-        </div>
-        </div>
-        );
-        }
+      </div>
+    </div>
+  );
+}

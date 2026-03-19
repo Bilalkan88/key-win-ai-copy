@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { TrendingUp, Users, Hash, Target, Sparkles, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
 

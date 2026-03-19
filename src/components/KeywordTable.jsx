@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown, Star, Sparkles, Trash2, Bookmark } from 'lucide-react';
+import { ExternalLink, TrendingUp, Users, BarChart3, Hash, ShoppingCart, Copy, Search, ArrowUpDown, ArrowUp, ArrowDown, Sparkles, Trash2, Bookmark } from 'lucide-react';
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -43,39 +43,114 @@ const isProfitableKeyword = (row) => {
 };
 
 const calculateRiskScore = (row) => {
-  let riskScore = 0;
-  
-  // Competition risk (thousands scale)
-  const competition = row.competingProducts || 0;
-  if (competition >= 5000) riskScore += 3;
-  else if (competition >= 2000) riskScore += 2;
-  else if (competition >= 800) riskScore += 1;
-  
-  // Demand risk (Volume)
-  const volume = row.searchVolume || 0;
-  if (volume < 3000) riskScore += 2;
-  else if (volume < 8000) riskScore += 1;
-  
-  // Score risk
-  const score = row.opportunityScore || 0;
-  if (score < 70) riskScore += 2;
-  else if (score < 80) riskScore += 1;
-  
-  // Sales discount (reduce risk)
-  const sales = row.keywordSales || 0;
-  if (sales >= 1000) riskScore -= 2;
-  else if (sales >= 500) riskScore -= 1;
-  
-  // Clamp to prevent negative
-  if (riskScore < 0) riskScore = 0;
-  
-  return riskScore;
+  const volume = row.searchVolume;
+  let score = row.opportunityScore || 0;
+  let competition = row.competingProducts || 0;
+  let title_density = row.titleDensity || 0;
+  let sales = row.keywordSales || 0;
+
+  // Guards
+  if (volume == null || volume <= 0) return 100; // High
+  if (volume < 200) return 100; // High
+
+  const ratio = competition / volume;
+  let points = 0;
+
+  // 1) Competition pressure (رفع الحدود)
+  if (ratio >= 0.60) points += 3;
+  else if (ratio >= 0.35) points += 2;
+  else if (ratio >= 0.15) points += 1;
+
+  // 2) Title density (خففها: 0..40)
+  if (title_density >= 30) points += 1;
+  else if (title_density <= 4) points -= 1;
+
+  // 3) Demand (خفف عقوبة الـvolume)
+  if (volume < 800) points += 2;
+  else if (volume < 2000) points += 1;
+
+  // 4) Score effect (قوّي الحماية)
+  if (score >= 90) points -= 2;
+  else if (score >= 85) points -= 1;
+  else if (score < 70) points += 2;
+  else if (score < 80) points += 1;
+
+  // 5) Sales discount (قوّيها)
+  if (sales >= 1000) points -= 2;
+  else if (sales >= 500) points -= 1;
+
+  return Math.max(0, points);
 };
 
 const getRiskLevel = (riskScore) => {
-  if (riskScore <= 1) return { level: 'Low', emoji: '🟢', color: 'bg-emerald-100 text-emerald-700' };
-  if (riskScore <= 3) return { level: 'Moderate', emoji: '🟡', color: 'bg-amber-100 text-amber-700' };
+  if (riskScore >= 100) return { level: 'High', emoji: '🔴', color: 'bg-red-100 text-red-700' };
+  if (riskScore <= 2) return { level: 'Low', emoji: '🟢', color: 'bg-emerald-100 text-emerald-700' };
+  if (riskScore <= 4) return { level: 'Moderate', emoji: '🟡', color: 'bg-amber-100 text-amber-700' };
   return { level: 'High', emoji: '🔴', color: 'bg-red-100 text-red-700' };
+};
+
+const calculateCompetition = (volume, competition, title_density) => {
+  // Guards
+  if (volume == null || volume <= 0) {
+    return { level: "High", color: "red" };
+  }
+
+  if (competition == null || competition < 0) {
+    competition = 0;
+  }
+
+  if (title_density == null) {
+    title_density = 0;
+  }
+
+  // Very tiny markets are unstable
+  if (volume < 300) {
+    return { level: "High", color: "red" };
+  }
+
+  // 1) Base pressure from ratio
+  const ratio = competition / volume;
+
+  // 2) Convert title_density (0..40) into adjustment points
+  // Low density = easier competition, high density = harder
+  let td_points = 0;
+  if (title_density >= 26) {
+    td_points = 2;
+  } else if (title_density >= 16) {
+    td_points = 1;
+  } else if (title_density <= 5) {
+    td_points = -1;
+  }
+  // else (6..15) = 0
+
+  // 3) Convert ratio into base points
+  let base_points = 0;
+  if (ratio >= 0.35) {
+    base_points = 3;
+  } else if (ratio >= 0.18) {
+    base_points = 2;
+  } else if (ratio >= 0.08) {
+    base_points = 1;
+  } else {
+    base_points = 0;
+  }
+
+  // 4) Optional safety: if competition is extremely low, don't label High easily
+  if (competition <= 80 && ratio < 0.20 && title_density <= 20) {
+    return { level: "Low", color: "green" };
+  }
+
+  // 5) Total points
+  const points = base_points + td_points;
+
+  // 6) Map to level
+  if (points <= 0) {
+    return { level: "Low", color: "green" };
+  } else if (points <= 2) {
+    return { level: "Moderate", color: "orange" };
+  } else {
+    return { level: "High", color: "red" };
+  }
 };
 
 export default function KeywordTable({ data, selectedKeywords = new Set(), onSelectionChange, sortBy, onSortChange, onDeleteRow, startIndex = 0, savedKeywords = new Set(), onToggleSaveKeyword }) {
@@ -201,7 +276,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                     />
                   </TableHead>
                 )}
-                <TableHead 
+                <TableHead
                   className={`font-semibold text-slate-700 relative group ${COLUMN_CLASSES.keyword}`}
                   style={{ width: `${keywordColumnWidth}px`, minWidth: `${keywordColumnWidth}px`, maxWidth: `${keywordColumnWidth}px` }}
                 >
@@ -217,7 +292,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                 <TableHead className="font-semibold text-slate-700 text-center w-16">Save</TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.score}`}>
                   <div className="flex items-center justify-center gap-1">
-                    <button 
+                    <button
                       onClick={() => handleSort('opportunity')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
                     >
@@ -254,7 +329,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.volume}`}>
                   <div className="flex items-center justify-center gap-1">
-                    <button 
+                    <button
                       onClick={() => handleSort('search_volume')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
                     >
@@ -276,7 +351,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.competition}`}>
                   <div className="flex items-center justify-center gap-1">
-                    <button 
+                    <button
                       onClick={() => handleSort('competing')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
                     >
@@ -298,7 +373,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.titleDensity}`}>
                   <div className="flex items-center justify-center gap-1">
-                    <button 
+                    <button
                       onClick={() => handleSort('title_density')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
                     >
@@ -320,7 +395,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.sales}`}>
                   <div className="flex items-center justify-center gap-1">
-                    <button 
+                    <button
                       onClick={() => handleSort('keyword_sales')}
                       className="group flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
                     >
@@ -342,219 +417,232 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
                 </TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.serp}`}>SERP</TableHead>
                 <TableHead className={`font-semibold text-slate-700 text-center ${COLUMN_CLASSES.amazon}`}>Amazon</TableHead>
-                </TableRow>
-                </TableHeader>
+              </TableRow>
+            </TableHeader>
             <TableBody>
               {data.map((row, index) => {
                 const isProfitable = isProfitableKeyword(row);
                 const isSelected = selectedKeywords.has(row['Keyword Phrase']);
                 const globalIndex = startIndex + index + 1;
                 return (
-                <TableRow 
-                  key={index} 
-                  className={`group hover:bg-indigo-50/50 transition-colors ${isProfitable ? 'bg-emerald-50/40' : ''} ${isSelected ? 'bg-indigo-50' : ''}`}
-                >
-                  <TableCell className={`w-16 text-center text-slate-500 font-medium ${COLUMN_CLASSES.number}`}>
-                    {globalIndex}
-                  </TableCell>
-                  {onSelectionChange && (
-                    <TableCell className={`w-12 ${COLUMN_CLASSES.checkbox}`}>
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => toggleSelection(row['Keyword Phrase'])}
-                        aria-label={`Select ${row['Keyword Phrase']}`}
-                      />
-                    </TableCell>
-                  )}
-                  <TableCell 
-                    className={`${isProfitable ? 'font-bold text-emerald-800' : 'font-medium text-slate-900'} ${COLUMN_CLASSES.keyword}`}
-                    style={{ width: `${keywordColumnWidth}px`, minWidth: `${keywordColumnWidth}px`, maxWidth: `${keywordColumnWidth}px` }}
+                  <TableRow
+                    key={index}
+                    className={`group hover:bg-indigo-50/50 transition-colors ${isProfitable ? 'bg-emerald-50/40' : ''} ${isSelected ? 'bg-indigo-50' : ''}`}
                   >
-                    <div className="flex items-center gap-2">
-                      {onDeleteRow && (
+                    <TableCell className={`w-16 text-center text-slate-500 font-medium ${COLUMN_CLASSES.number}`}>
+                      {globalIndex}
+                    </TableCell>
+                    {onSelectionChange && (
+                      <TableCell className={`w-12 ${COLUMN_CLASSES.checkbox}`}>
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleSelection(row['Keyword Phrase'])}
+                          aria-label={`Select ${row['Keyword Phrase']}`}
+                        />
+                      </TableCell>
+                    )}
+                    <TableCell
+                      className={`${isProfitable ? 'font-bold text-emerald-800' : 'font-medium text-slate-900'} ${COLUMN_CLASSES.keyword}`}
+                      style={{ width: `${keywordColumnWidth}px`, minWidth: `${keywordColumnWidth}px`, maxWidth: `${keywordColumnWidth}px` }}
+                    >
+                      <div className="flex items-center gap-2">
+                        {onDeleteRow && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDeleteRow(row['Keyword Phrase']);
+                                  }}
+                                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-red-100 text-red-500 hover:text-red-600 transition-all"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Delete keyword</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onDeleteRow(row['Keyword Phrase']);
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(row['Keyword Phrase']);
+                                  toast.success('Copied');
                                 }}
-                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-red-100 text-red-500 hover:text-red-600 transition-all"
+                                className="text-left cursor-pointer hover:text-indigo-600 transition-all duration-200 flex items-center gap-2 group/kw flex-1"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
+                                {isProfitable && <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />}
+                                <span className="line-clamp-2 group-hover/kw:scale-110 group-hover/kw:font-semibold transition-all duration-200 origin-left">
+                                  {row['Keyword Phrase']}
+                                </span>
+                                <Copy className="w-3.5 h-3.5 ml-3 opacity-0 group-hover/kw:opacity-100 text-blue-600 transition-opacity flex-shrink-0" />
+                              </button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>Delete keyword</p>
+                              <p className="max-w-sm">{isProfitable ? '⭐ Top Pick! ' : ''}Click to copy: {row['Keyword Phrase']}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                      )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center w-16">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <button
-                              onClick={() => {
-                                navigator.clipboard.writeText(row['Keyword Phrase']);
-                                toast.success('Copied');
-                              }}
-                              className="text-left cursor-pointer hover:text-indigo-600 transition-all duration-200 flex items-center gap-2 group/kw flex-1"
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onToggleSaveKeyword && onToggleSaveKeyword(row)}
+                              className={savedKeywords.has(row['Keyword Phrase'])
+                                ? 'text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100'
+                                : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-100'}
                             >
-                              {isProfitable && <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />}
-                              <span className="line-clamp-2 group-hover/kw:scale-110 group-hover/kw:font-semibold transition-all duration-200 origin-left">
-                                {row['Keyword Phrase']}
-                              </span>
-                              <Copy className="w-3.5 h-3.5 ml-3 opacity-0 group-hover/kw:opacity-100 text-blue-600 transition-opacity flex-shrink-0" />
-                            </button>
+                              <Bookmark className={`w-4 h-4 ${savedKeywords.has(row['Keyword Phrase']) ? 'fill-current' : ''}`} />
+                            </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p className="max-w-sm">{isProfitable ? '⭐ Top Pick! ' : ''}Click to copy: {row['Keyword Phrase']}</p>
+                            <p>{savedKeywords.has(row['Keyword Phrase']) ? 'Remove from saved' : 'Save keyword'}</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center w-16">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onToggleSaveKeyword && onToggleSaveKeyword(row)}
-                            className={savedKeywords.has(row['Keyword Phrase']) 
-                              ? 'text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100' 
-                              : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-100'}
-                          >
-                            <Bookmark className={`w-4 h-4 ${savedKeywords.has(row['Keyword Phrase']) ? 'fill-current' : ''}`} />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{savedKeywords.has(row['Keyword Phrase']) ? 'Remove from saved' : 'Save keyword'}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell className={`text-center ${COLUMN_CLASSES.score}`}>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
-                            row.opportunityScore >= 90 ? 'bg-emerald-600 text-white shadow-sm' :
-                            row.opportunityScore >= 75 ? 'bg-emerald-100 text-emerald-800' :
-                            row.opportunityScore >= 60 ? 'bg-amber-100 text-amber-700' :
-                            'bg-slate-200 text-slate-600'
+                    </TableCell>
+                    <TableCell className={`text-center ${COLUMN_CLASSES.score}`}>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${row.opportunityScore >= 90 ? 'bg-emerald-600 text-white shadow-sm' :
+                              row.opportunityScore >= 75 ? 'bg-emerald-100 text-emerald-800' :
+                                row.opportunityScore >= 60 ? 'bg-amber-100 text-amber-700' :
+                                  'bg-slate-200 text-slate-600'
+                              }`}>
+                              {row.opportunityScore || 0}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-xs max-w-xs">
+                              AI-driven opportunity score (0-100) based on search volume (35%), competition (35%), title density (20%), and sales potential (10%)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${getRiskLevel(calculateRiskScore(row)).color}`}>
+                              <span>{getRiskLevel(calculateRiskScore(row)).emoji}</span>
+                              <span>{getRiskLevel(calculateRiskScore(row)).level}</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-xs max-w-xs font-semibold mb-1">Risk Assessment</p>
+                            <p className="text-xs max-w-xs">
+                              Based on competition level, search volume, and opportunity score.
+                              Lower risk = safer entry point.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell className={`text-center ${COLUMN_CLASSES.volume}`}>
+                      <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 font-semibold">
+                        {formatNumber(row.searchVolume)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className={`text-center ${COLUMN_CLASSES.competition}`}>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className={`font-medium ${calculateCompetition(row.searchVolume, row.competingProducts, row.titleDensity).color === 'green' ? 'text-emerald-600' :
+                          calculateCompetition(row.searchVolume, row.competingProducts, row.titleDensity).color === 'orange' ? 'text-amber-600' :
+                            'text-red-600'
                           }`}>
-                            {row.opportunityScore || 0}
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs max-w-xs">
-                            AI-driven opportunity score (0-100) based on search volume (35%), competition (35%), title density (20%), and sales potential (10%)
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${getRiskLevel(calculateRiskScore(row)).color}`}>
-                            <span>{getRiskLevel(calculateRiskScore(row)).emoji}</span>
-                            <span>{getRiskLevel(calculateRiskScore(row)).level}</span>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs max-w-xs font-semibold mb-1">Risk Assessment</p>
-                          <p className="text-xs max-w-xs">
-                            Based on competition level, search volume, and opportunity score.
-                            Lower risk = safer entry point.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell className={`text-center ${COLUMN_CLASSES.volume}`}>
-                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 font-semibold">
-                      {formatNumber(row.searchVolume)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className={`text-center ${COLUMN_CLASSES.competition}`}>
-                    <span className={`font-medium ${row.competingProducts <= 500 ? 'text-emerald-600' : row.competingProducts <= 1000 ? 'text-amber-600' : 'text-slate-600'}`}>
-                      {formatNumber(row.competingProducts)}
-                    </span>
-                  </TableCell>
-                  <TableCell className={`text-center ${COLUMN_CLASSES.titleDensity}`}>
-                    <span className={`font-medium ${row.titleDensity <= 10 ? 'text-emerald-600' : row.titleDensity <= 20 ? 'text-amber-600' : 'text-slate-600'}`}>
-                      {formatNumber(row.titleDensity)}
-                    </span>
-                  </TableCell>
-                  <TableCell className={`text-center text-slate-600 ${COLUMN_CLASSES.sales}`}>
-                    {row.keywordSales ? formatNumber(row.keywordSales) : '-'}
-                  </TableCell>
-                  <TableCell className={`text-center ${COLUMN_CLASSES.serp}`}>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            asChild
-                            className="text-purple-600 hover:text-purple-700 hover:bg-purple-100"
-                          >
-                            <a 
-                              href={`https://www.google.com/search?q=${encodeURIComponent(row['Keyword Phrase'])}`} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
+                          {formatNumber(row.competingProducts)}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] px-1.5 py-0 h-4 ${calculateCompetition(row.searchVolume, row.competingProducts, row.titleDensity).color === 'green' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' :
+                            calculateCompetition(row.searchVolume, row.competingProducts, row.titleDensity).color === 'orange' ? 'border-amber-200 bg-amber-50 text-amber-700' :
+                              'border-red-200 bg-red-50 text-red-700'
+                            }`}
+                        >
+                          {calculateCompetition(row.searchVolume, row.competingProducts, row.titleDensity).level}
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell className={`text-center ${COLUMN_CLASSES.titleDensity}`}>
+                      <span className={`font-medium ${row.titleDensity <= 10 ? 'text-emerald-600' : row.titleDensity <= 20 ? 'text-amber-600' : 'text-slate-600'}`}>
+                        {formatNumber(row.titleDensity)}
+                      </span>
+                    </TableCell>
+                    <TableCell className={`text-center text-slate-600 ${COLUMN_CLASSES.sales}`}>
+                      {row.keywordSales ? formatNumber(row.keywordSales) : '-'}
+                    </TableCell>
+                    <TableCell className={`text-center ${COLUMN_CLASSES.serp}`}>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              asChild
+                              className="text-purple-600 hover:text-purple-700 hover:bg-purple-100"
                             >
-                              <Search className="w-4 h-4" />
-                            </a>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>View Google SERP</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell className={`text-center ${COLUMN_CLASSES.amazon}`}>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            asChild
-                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100"
-                          >
-                            <a 
-                              href={row.amazonLink} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
+                              <a
+                                href={`https://www.google.com/search?q=${encodeURIComponent(row['Keyword Phrase'])}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Search className="w-4 h-4" />
+                              </a>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View Google SERP</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell className={`text-center ${COLUMN_CLASSES.amazon}`}>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              asChild
+                              className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100"
                             >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>View on Amazon</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
+                              <a
+                                href={row.amazonLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View on Amazon</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
                   </TableRow>
-              );
+                );
               })}
             </TableBody>
           </Table>
         </div>
-        
+
         <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
           <p className="text-sm text-slate-500">
             Showing <span className="font-medium text-slate-700">{data.length}</span> profitable keywords
@@ -565,27 +653,27 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
             </p>
           )}
         </div>
-        </Card>
-        </motion.div>
-        );
-        }
+      </Card>
+    </motion.div >
+  );
+}
 
-        export function KeywordTablePagination({ 
-        currentPage, 
-        totalPages, 
-        pageSize, 
-        startIndex, 
-        endIndex, 
-        totalResults,
-        onPageChange, 
-        onPageSizeChange,
-        customPageSize,
-        onCustomPageSizeChange,
-        onCustomPageSizeApply
-        }) {
-        return (
-        <Card>
-        <CardContent className="p-4">
+export function KeywordTablePagination({
+  currentPage,
+  totalPages,
+  pageSize,
+  startIndex,
+  endIndex,
+  totalResults,
+  onPageChange,
+  onPageSizeChange,
+  customPageSize,
+  onCustomPageSizeChange,
+  onCustomPageSizeApply
+}) {
+  return (
+    <Card>
+      <CardContent className="p-4">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="text-sm text-slate-600">
@@ -673,7 +761,7 @@ export default function KeywordTable({ data, selectedKeywords = new Set(), onSel
             </Button>
           </div>
         </div>
-        </CardContent>
-        </Card>
-        );
-        }
+      </CardContent>
+    </Card>
+  );
+}
