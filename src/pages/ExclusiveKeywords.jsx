@@ -395,72 +395,70 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
       <Card className={`overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white group/card
         ${isSold ? 'opacity-90 grayscale-[0.5]' : ''}
       `}>
-        <div className="flex flex-col lg:flex-row p-4 md:p-6 gap-6">
-          {/* Top Section Image & Mobile Details */}
-          <div className="flex items-start gap-5 lg:w-56 flex-shrink-0">
-            {/* Product Image */}
-            <div className="w-28 h-24 sm:w-36 sm:h-28 lg:w-full lg:h-auto lg:aspect-square flex-shrink-0 relative rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
-              <img
-                src={keyword.image_url || `https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop`}
-                alt={keyword.category}
-                className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
-              />
-              {isSold && (
-                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
-                  <span className="text-white font-black text-xs lg:text-xl lg:rotate-[-12deg] border-2 border-white px-2 py-0.5 lg:px-4 lg:py-1 uppercase tracking-widest">SOLD</span>
+        <div className="flex flex-col lg:flex-row p-4 gap-4 lg:gap-6">
+          {/* Left: Product Image & Mobile Price */}
+          <div className="flex justify-between items-start gap-4 lg:w-56 lg:flex-shrink-0">
+            {/* Image */}
+            <div className="w-28 sm:w-36 lg:w-full aspect-square flex-shrink-0 relative">
+              <div className="w-full h-full rounded-xl overflow-hidden bg-slate-50 border border-slate-100 relative">
+                <div className="absolute top-2 left-2 z-10">
+                  <div className="bg-indigo-600 text-white font-black px-2 py-1 rounded text-[10px] shadow-lg tracking-wider">
+                    #{keyword.id?.slice(-5).toUpperCase() || '89855'}
+                  </div>
                 </div>
-              )}
+                <img
+                  src={keyword.image_url || `https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop`}
+                  alt={keyword.category}
+                  className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
+                />
+                {isSold && (
+                  <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
+                    <span className="text-white font-black text-xl rotate-[-12deg] border-2 border-white px-4 py-1 uppercase tracking-widest">SOLD</span>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Mobile ID & Status (beside image) */}
-            <div className="flex flex-col gap-2.5 lg:hidden pt-2">
-               <div className="bg-[#4a72d4] text-white font-bold px-3 py-1.5 rounded text-xs tracking-wider w-fit shadow-sm shadow-blue-900/10">
-                 #{keyword.id?.slice(-5).toUpperCase() || '89855'}
-               </div>
-               <div className="flex items-center gap-2">
-                 <div className="w-2.5 h-2.5 rounded-full bg-slate-400"></div>
-                 <span className="text-xs font-medium text-slate-500">For Sale</span>
-               </div>
+            {/* Mobile ONLY: Price Block */}
+            <div className="flex flex-col items-end text-right lg:hidden pt-1">
+              <div className="text-2xl font-black text-indigo-600 mb-0.5">
+                <span className="text-sm mr-0.5">$</span>{keyword.price}
+              </div>
+              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">One-time payment</div>
+              <div className="bg-amber-50 text-amber-600 border border-amber-100 px-2 py-1 rounded shadow-sm text-right flex flex-col items-end">
+                <span className="text-[8px] font-black uppercase tracking-wider block">Sold to</span>
+                <span className="text-[8px] font-black uppercase tracking-wider block">one buyer only</span>
+              </div>
             </div>
           </div>
 
           {/* Center/Right: Info & Metrics */}
-          <div className="flex-1 flex flex-col justify-between">
-            {/* Top Row: Details */}
-            <div className="flex flex-col mb-4">
-              
-              {/* Desktop ID & Status (hidden on mobile) */}
-              <div className="hidden lg:flex items-center gap-3 mb-3">
-                <div className="bg-[#4a72d4] text-white font-bold px-2 py-1 rounded text-[10px] shadow-sm shadow-blue-900/10 tracking-wider">
-                  #{keyword.id?.slice(-5).toUpperCase() || '89855'}
-                </div>
-                <div className="flex items-center gap-2">
+          <div className="flex-1 flex flex-col justify-between min-w-0">
+            {/* Top Row: Title & Price */}
+            <div className="flex justify-between items-start mb-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 mb-1">
                   <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
                   <span className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Verified Exclusive Opportunity</span>
                 </div>
-              </div>
-
-              {/* Title & Price on the same line */}
-              <div className="flex justify-between items-center gap-4 mb-2 pb-2 border-b border-slate-100 lg:border-none lg:pb-0">
-                <h3 className="text-xl md:text-2xl font-black text-slate-900 leading-tight">
+                <h3 className="text-lg md:text-2xl font-black text-slate-900 leading-tight">
                   {keyword.category || 'Home & Kitchen'}
                 </h3>
-                <div className="text-xl md:text-3xl font-black text-indigo-600 whitespace-nowrap">
+                <p className="text-slate-500 text-[11px] lg:text-[10px] font-medium leading-relaxed max-w-2xl mt-1">
+                  {keyword.description || 'This niche has experienced substantial growth with search volume increasing 185.1%+ year-over-year.'}
+                </p>
+              </div>
+
+              {/* Desktop ONLY: Price Block */}
+              <div className="hidden lg:block text-right">
+                <div className="flex items-center justify-end text-3xl font-black text-indigo-600 mb-1">
                   <span className="text-sm mr-0.5">$</span>
                   {keyword.price}
                 </div>
-              </div>
-
-              <p className="text-slate-500 text-[11.5px] lg:text-[10px] font-medium leading-relaxed max-w-2xl mt-1 mb-4 lg:mt-0">
-                {keyword.description || 'This niche has experienced substantial growth with search volume increasing 185.1%+ year-over-year.'}
-              </p>
-
-              {/* Badges/One-Time Payment details */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 lg:justify-end">
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">One-time payment</div>
-                <div className="bg-amber-50/80 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-md inline-flex items-center gap-1.5 shadow-sm">
-                  <Target className="w-3.5 h-3.5" />
-                  <span className="text-[9px] font-black uppercase tracking-wider">Sold to one buyer only</span>
+                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">One-time payment</div>
+                <div className="bg-amber-50 text-amber-600 border border-amber-100 px-2.5 py-1 rounded-full inline-flex items-center gap-1 shadow-sm">
+                  <Target className="w-3 h-3" />
+                  <span className="text-[8.5px] font-black uppercase tracking-wider">Sold to one buyer only</span>
                 </div>
               </div>
             </div>
@@ -584,7 +582,7 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
             {/* Bottom Row / Footer */}
             <div className="flex flex-col lg:flex-row justify-between items-center mt-4 gap-4">
               {/* Secondary Metrics */}
-              <div className="flex flex-wrap lg:flex-nowrap justify-center lg:justify-start gap-y-2 gap-x-4 text-[10px] text-slate-400 font-bold">
+              <div className="flex gap-4 text-[10px] text-slate-400 font-bold whitespace-nowrap">
                 <div className="flex items-center gap-1">
                   Revenue (12 M) <span className={`${keyword.revenue_12m_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center gap-0.5`}>{keyword.revenue_12m_trend === 'down' ? '▼' : '▲'} ${keyword.revenue_12m || '180K'}</span>
                 </div>
