@@ -397,7 +397,7 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
       `}>
         <div className="flex flex-col lg:flex-row p-4 gap-6">
           {/* Left: Product Image */}
-          <div className="w-full lg:w-56 aspect-square flex-shrink-0 relative">
+          <div className="w-full lg:w-56 aspect-video lg:aspect-square flex-shrink-0 relative">
             <div className="w-full h-full rounded-xl overflow-hidden bg-slate-50 border border-slate-100 relative">
               <div className="absolute top-2 left-2 z-10">
                 <div className="bg-indigo-600 text-white font-black px-2 py-1 rounded text-[10px] shadow-lg tracking-wider">
@@ -565,7 +565,7 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
             {/* Bottom Row / Footer */}
             <div className="flex flex-col lg:flex-row justify-between items-center mt-4 gap-4">
               {/* Secondary Metrics */}
-              <div className="flex gap-4 text-[10px] text-slate-400 font-bold whitespace-nowrap">
+              <div className="flex flex-wrap lg:flex-nowrap justify-center lg:justify-start gap-y-2 gap-x-4 text-[10px] text-slate-400 font-bold">
                 <div className="flex items-center gap-1">
                   Revenue (12 M) <span className={`${keyword.revenue_12m_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center gap-0.5`}>{keyword.revenue_12m_trend === 'down' ? '▼' : '▲'} ${keyword.revenue_12m || '180K'}</span>
                 </div>
