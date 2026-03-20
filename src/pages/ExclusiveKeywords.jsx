@@ -396,12 +396,12 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
         ${isSold ? 'opacity-90 grayscale-[0.5]' : ''}
       `}>
         <div className="flex flex-col lg:flex-row p-4 gap-4 lg:gap-6">
-          {/* Left: Product Image & Mobile Price */}
-          <div className="flex justify-between items-start gap-4 lg:w-56 lg:flex-shrink-0">
+          {/* Left: Product Image & Mobile ID */}
+          <div className="flex flex-row items-center lg:items-start justify-start gap-4 lg:w-56 lg:flex-shrink-0">
             {/* Image */}
             <div className="w-28 sm:w-36 lg:w-full aspect-square flex-shrink-0 relative">
               <div className="w-full h-full rounded-xl overflow-hidden bg-slate-50 border border-slate-100 relative">
-                <div className="absolute top-2 left-2 z-10">
+                <div className="hidden lg:block absolute top-2 left-2 z-10">
                   <div className="bg-indigo-600 text-white font-black px-2 py-1 rounded text-[10px] shadow-lg tracking-wider">
                     #{keyword.id?.slice(-5).toUpperCase() || '89855'}
                   </div>
@@ -419,15 +419,14 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
               </div>
             </div>
 
-            {/* Mobile ONLY: Price Block */}
-            <div className="flex flex-col items-end text-right lg:hidden pt-1">
-              <div className="text-2xl font-black text-indigo-600 mb-0.5">
-                <span className="text-sm mr-0.5">$</span>{keyword.price}
+            {/* Mobile ONLY: ID Block */}
+            <div className="flex flex-col lg:hidden items-start pt-1 gap-2 border-l-2 border-indigo-100 pl-3">
+              <div className="bg-[#4a72d4] text-white font-black px-3 py-1.5 rounded-md text-[12px] shadow-sm tracking-wider">
+                #{keyword.id?.slice(-5).toUpperCase() || '89855'}
               </div>
-              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">One-time payment</div>
-              <div className="bg-amber-50 text-amber-600 border border-amber-100 px-2 py-1 rounded shadow-sm text-right flex flex-col items-end">
-                <span className="text-[8px] font-black uppercase tracking-wider block">Sold to</span>
-                <span className="text-[8px] font-black uppercase tracking-wider block">one buyer only</span>
+              <div className="flex flex-col items-start gap-1.5 mt-1">
+                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <span className="text-[9px] font-black uppercase text-slate-500 tracking-widest leading-snug">Verified<br/>Exclusive<br/>Opportunity</span>
               </div>
             </div>
           </div>
@@ -449,22 +448,22 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
                 </p>
               </div>
 
-              {/* Desktop ONLY: Price Block */}
-              <div className="hidden lg:block text-right">
-                <div className="flex items-center justify-end text-3xl font-black text-indigo-600 mb-1">
-                  <span className="text-sm mr-0.5">$</span>
+              {/* Price Block (Centered on mobile, right on desktop) */}
+              <div className="w-full lg:w-auto flex flex-col items-center lg:items-end text-center lg:text-right bg-slate-50 lg:bg-transparent p-4 lg:p-0 rounded-xl lg:rounded-none lg:mt-0 mt-2">
+                <div className="flex items-center justify-center lg:justify-end text-3xl md:text-4xl lg:text-3xl font-black text-indigo-600 mb-1 lg:mb-1">
+                  <span className="text-lg lg:text-sm mr-0.5">$</span>
                   {keyword.price}
                 </div>
-                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">One-time payment</div>
-                <div className="bg-amber-50 text-amber-600 border border-amber-100 px-2.5 py-1 rounded-full inline-flex items-center gap-1 shadow-sm">
-                  <Target className="w-3 h-3" />
-                  <span className="text-[8.5px] font-black uppercase tracking-wider">Sold to one buyer only</span>
+                <div className="text-[10px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 lg:mb-1">One-time payment</div>
+                <div className="bg-amber-50 text-amber-600 border border-amber-100 px-4 lg:px-2.5 py-1.5 lg:py-1 rounded-full inline-flex items-center gap-1 shadow-sm mt-1 lg:mt-0">
+                  <Target className="w-3.5 h-3.5 lg:w-3 lg:h-3" />
+                  <span className="text-[9px] lg:text-[8.5px] font-black uppercase tracking-wider mb-[1px]">Sold to one buyer only</span>
                 </div>
               </div>
             </div>
 
             {/* Metrics Row */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 py-6 border-y border-slate-50">
+            <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 lg:gap-4 py-6 border-y border-slate-50">
               {/* Opp Score */}
               <motion.div
                 whileHover={{ y: -2 }}
@@ -580,24 +579,33 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
             </div>
 
             {/* Bottom Row / Footer */}
-            <div className="flex flex-col lg:flex-row justify-between items-center mt-4 gap-4">
+            <div className="flex flex-col lg:flex-row justify-between items-center mt-6 lg:mt-4 gap-6 lg:gap-4">
               {/* Secondary Metrics */}
-              <div className="flex gap-4 text-[10px] text-slate-400 font-bold whitespace-nowrap">
-                <div className="flex items-center gap-1">
-                  Revenue (12 M) <span className={`${keyword.revenue_12m_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center gap-0.5`}>{keyword.revenue_12m_trend === 'down' ? '▼' : '▲'} ${keyword.revenue_12m || '180K'}</span>
+              <div className="grid grid-cols-3 w-full lg:w-auto lg:flex lg:flex-row lg:gap-4 text-center lg:text-left text-[9px] lg:text-[10px] text-slate-400 font-bold whitespace-nowrap">
+                <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1.5 lg:gap-1">
+                  <span>Revenue (12 M)</span> 
+                  <span className={`${keyword.revenue_12m_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center justify-center font-black text-sm lg:text-[10px]`}>
+                    {keyword.revenue_12m_trend === 'down' ? '▼' : '▲'} ${keyword.revenue_12m || '180K'}
+                  </span>
                 </div>
-                <div className="h-3 w-[1px] bg-slate-200 hidden lg:block" />
-                <div className="flex items-center gap-1">
-                  Search Volume (6 M) <span className={`${keyword.click_share_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center gap-0.5`}>{keyword.click_share_trend === 'down' ? '▼' : '▲'} {keyword.click_share || '7%'}</span>
+                <div className="hidden lg:block h-3 w-[1px] bg-slate-200" />
+                <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1.5 lg:gap-1">
+                  <span>Search Vol (6 M)</span> 
+                  <span className={`${keyword.click_share_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center justify-center font-black text-sm lg:text-[10px]`}>
+                    {keyword.click_share_trend === 'down' ? '▼' : '▲'} {keyword.click_share || '7%'}
+                  </span>
                 </div>
-                <div className="h-3 w-[1px] bg-slate-200 hidden lg:block" />
-                <div className="flex items-center gap-1">
-                  Units Sold (12 M) <span className={`${keyword.units_sold_12m_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center gap-0.5`}>{keyword.units_sold_12m_trend === 'down' ? '▼' : '▲'} {keyword.units_sold_12m || '500-750'}</span>
+                <div className="hidden lg:block h-3 w-[1px] bg-slate-200" />
+                <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1.5 lg:gap-1">
+                  <span>Units Sold (12 M)</span> 
+                  <span className={`${keyword.units_sold_12m_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center justify-center font-black text-sm lg:text-[10px]`}>
+                    {keyword.units_sold_12m_trend === 'down' ? '▼' : '▲'} {keyword.units_sold_12m || '500'}
+                  </span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-2 w-full lg:w-auto">
+              <div className="flex items-center gap-2 w-full lg:w-auto mt-2 lg:mt-0">
                 <Button
                   variant="outline"
                   onClick={onView}
