@@ -395,9 +395,9 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
       <Card className={`overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white group/card
         ${isSold ? 'opacity-90 grayscale-[0.5]' : ''}
       `}>
-        <div className="flex flex-row flex-wrap lg:flex-nowrap p-4 gap-4 lg:gap-6">
+        <div className="flex flex-row p-4 gap-3 lg:gap-6 items-start">
           {/* Left: Product Image */}
-          <div className="w-28 sm:w-36 lg:w-56 aspect-square flex-shrink-0 relative mt-1">
+          <div className="w-24 sm:w-32 lg:w-56 aspect-square flex-shrink-0 relative">
             <div className="w-full h-full rounded-xl overflow-hidden bg-slate-50 border border-slate-100 relative">
               <div className="absolute top-2 left-2 z-10">
                 <div className="bg-indigo-600 text-white font-black px-2 py-1 rounded text-[10px] shadow-lg tracking-wider">
@@ -418,36 +418,36 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
           </div>
 
           {/* Center/Right: Info & Metrics */}
-          <div className="flex-1 flex flex-col justify-between min-w-[200px]">
+          <div className="flex-1 flex flex-col justify-between min-w-0">
             {/* Top Row: Title & Price */}
             <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-2">
               <div className="space-y-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                  <span className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Verified Exclusive Opportunity</span>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                  <span className="text-[8px] sm:text-[10px] font-bold uppercase text-slate-400 tracking-wider">Verified Exclusive</span>
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 leading-tight">
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-slate-900 leading-tight">
                   {keyword.category || 'Home & Kitchen'}
                 </h3>
-                <p className="text-slate-500 text-[10px] sm:text-[11px] font-medium leading-relaxed max-w-2xl mt-1">
+                <p className="text-slate-500 text-[9px] sm:text-[11px] font-medium leading-relaxed max-w-2xl mt-1 line-clamp-2 lg:line-clamp-none">
                   {keyword.description || 'This niche has experienced substantial growth with search volume increasing 185.1%+ year-over-year.'}
                 </p>
               </div>
 
-              <div className="text-left sm:text-right w-full sm:w-auto mt-2 sm:mt-0">
-                <div className="flex items-center sm:justify-end text-3xl font-black text-indigo-600">
-                  <span className="text-sm mr-0.5">$</span>
+              <div className="text-left sm:text-right w-full sm:w-auto mt-1 sm:mt-0">
+                <div className="flex items-center sm:justify-end text-lg sm:text-xl lg:text-3xl font-black text-indigo-600">
+                  <span className="text-[10px] lg:text-sm mr-0.5">$</span>
                   {keyword.price}
                 </div>
-                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 mt-1">One-time payment</div>
-                <div className="bg-amber-50/80 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-md inline-flex items-center gap-1.5 mt-1 shadow-sm w-fit">
-                  <span className="text-[9px] font-black uppercase tracking-wider">Sold to one buyer only</span>
+                <div className="text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 mt-0.5">One-time payment</div>
+                <div className="bg-amber-50/80 text-amber-700 border border-amber-200 px-2 lg:px-3 py-1 lg:py-1.5 rounded inline-flex items-center gap-1 shadow-sm w-fit mt-0.5">
+                  <span className="text-[8px] lg:text-[9px] font-black uppercase tracking-wider">Sold to one buyer only</span>
                 </div>
               </div>
             </div>
 
             {/* Metrics Row */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 py-6 border-y border-slate-50">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 lg:gap-4 py-4 lg:py-6 border-y border-slate-50">
               {/* Opp Score */}
               <motion.div
                 whileHover={{ y: -2 }}
@@ -563,9 +563,9 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
             </div>
 
             {/* Bottom Row / Footer */}
-            <div className="flex flex-col lg:flex-row justify-between items-center mt-4 gap-4">
+            <div className="flex flex-col lg:flex-row justify-between items-center mt-4 lg:mt-6 gap-4">
               {/* Secondary Metrics */}
-              <div className="flex flex-wrap lg:flex-nowrap justify-center lg:justify-start gap-y-2 gap-x-4 text-[10px] text-slate-400 font-bold">
+              <div className="flex flex-wrap lg:flex-nowrap justify-center lg:justify-start gap-y-2 gap-x-4 text-[9px] lg:text-[10px] text-slate-400 font-bold">
                 <div className="flex items-center gap-1">
                   Revenue (12 M) <span className={`${keyword.revenue_12m_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center gap-0.5`}>{keyword.revenue_12m_trend === 'down' ? '▼' : '▲'} ${keyword.revenue_12m || '180K'}</span>
                 </div>
