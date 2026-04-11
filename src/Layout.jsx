@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function Layout({ children, currentPageName }) {
-  const { isAuthenticated, profile } = useAuth();
+  const { isAuthenticated, profile, logout } = useAuth();
   const freeToolsLinks = [
     { name: 'Analysis', label: 'Keyword Analysis' },
     { name: 'AmazonScraper', label: 'Reverse Product' }
@@ -31,9 +31,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-16">
             {/* Logo - Always visible */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
+              <img src="/favicon.png" alt="Vetted Niche" className="w-9 h-9 object-contain" />
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-slate-900 leading-tight">Vetted Niche</span>
                 <span className="text-[10px] text-slate-500 leading-tight">Vetted Niches. Real Opportunities.</span>
@@ -140,10 +138,7 @@ export default function Layout({ children, currentPageName }) {
 
                     <DropdownMenuItem
                       onSelect={() => {
-                        // Logout requires access to useAuth, handle gracefully 
-                        // we can trigger a custom event or redirect to a logout route if needed. 
-                        // Best practice: trigger the real AuthContext logout
-                        window.dispatchEvent(new CustomEvent('USER_LOGOUT'));
+                        logout();
                       }}
                       className="rounded-lg cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50"
                     >
@@ -167,7 +162,52 @@ export default function Layout({ children, currentPageName }) {
       </nav>
 
       {/* Content */}
-      {children}
+      <main className="flex-1">
+        {children}
+      </main>
+
+      {/* Global Footer */}
+      <footer className="bg-slate-900 text-slate-400 py-16 border-t border-slate-800">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div>
+              <h3 className="text-white font-semibold mb-4">Product</h3>
+              <div className="space-y-2 text-sm">
+                <Link to={createPageUrl('Analysis')} className="block hover:text-white transition-colors">Free Analysis</Link>
+                <Link to={createPageUrl('KeywordDatabase')} className="block hover:text-white transition-colors">Opportunity Engine</Link>
+                <Link to={createPageUrl('ExclusiveKeywords')} className="block hover:text-white transition-colors">Vetted Opportunities</Link>
+                <Link to={createPageUrl('Pricing')} className="block hover:text-white transition-colors">Pricing</Link>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-4">Resources</h3>
+              <div className="space-y-2 text-sm">
+                <Link to={createPageUrl('Blog')} className="block hover:text-white transition-colors">Blog</Link>
+                <a href="#" className="block hover:text-white transition-colors">API Docs</a>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-4">Company</h3>
+              <div className="space-y-2 text-sm">
+                <Link to={createPageUrl('AboutUs')} className="block hover:text-white transition-colors">About Us</Link>
+                <Link to={createPageUrl('Contact')} className="block hover:text-white transition-colors">Contact</Link>
+                <Link to={createPageUrl('PrivacyPolicy')} className="block hover:text-white transition-colors">Privacy Policy</Link>
+                <Link to={createPageUrl('TermsAndConditions')} className="block hover:text-white transition-colors">Terms & Conditions</Link>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-sm">
+              © 2026 Vetted Niche. All rights reserved.
+            </div>
+            <div className="flex items-center gap-6 text-sm">
+              <a href="mailto:support@vettedniche.com" className="hover:text-white transition-colors">support@vettedniche.com</a>
+              <Link to={createPageUrl('PrivacyPolicy')} className="hover:text-white transition-colors">Privacy Policy</Link>
+              <Link to={createPageUrl('TermsAndConditions')} className="hover:text-white transition-colors">Terms & Conditions</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
 
       <Toaster position="top-center" richColors />
     </div>

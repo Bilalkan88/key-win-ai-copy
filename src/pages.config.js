@@ -22,6 +22,7 @@
  *   export const pagesConfig = {
  *       mainPage: "HomePage",
  *       Pages: PAGES,
+ *       Layout: __Layout,
  *   };
  * 
  * Example with Layout (wraps all pages):
@@ -47,34 +48,44 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AboutUs from './pages/AboutUs';
 import AdminDashboard from './pages/AdminDashboard';
 import AmazonScraper from './pages/AmazonScraper';
 import AmazonSellerToolkit from './pages/AmazonSellerToolkit';
 import Analysis from './pages/Analysis';
 import Auth from './pages/Auth';
+import Blog from './pages/Blog';
+import Contact from './pages/Contact';
 import ExclusiveKeywords from './pages/ExclusiveKeywords';
 import FbaProfitCalculator from './pages/FbaProfitCalculator';
 import Home from './pages/Home';
 import KeywordDatabase from './pages/KeywordDatabase';
 import KeywordDetails from './pages/KeywordDetails';
 import Pricing from './pages/Pricing';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import Profile from './pages/Profile';
+import TermsAndConditions from './pages/TermsAndConditions';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AboutUs": AboutUs,
     "AdminDashboard": AdminDashboard,
     "AmazonScraper": AmazonScraper,
     "AmazonSellerToolkit": AmazonSellerToolkit,
     "Analysis": Analysis,
     "Auth": Auth,
+    "Blog": Blog,
+    "Contact": Contact,
     "ExclusiveKeywords": ExclusiveKeywords,
     "FbaProfitCalculator": FbaProfitCalculator,
     "Home": Home,
     "KeywordDatabase": KeywordDatabase,
     "KeywordDetails": KeywordDetails,
     "Pricing": Pricing,
+    "PrivacyPolicy": PrivacyPolicy,
     "Profile": Profile,
+    "TermsAndConditions": TermsAndConditions,
 }
 
 export const pagesConfig = {

@@ -617,57 +617,6 @@ export default function LandingPage() {
 
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-6 h-6 text-indigo-400" />
-                <span className="text-white font-bold text-lg">Vetted Niche AI</span>
-              </div>
-              <p className="text-sm leading-relaxed">
-                The smartest way to find highly profitable Amazon niches. Trusted by thousands of sellers worldwide.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-4">Product</h3>
-              <div className="space-y-2 text-sm">
-                <div><Link to={createPageUrl('Analysis')} className="hover:text-white transition-colors">Free Analysis</Link></div>
-                <div><Link to={createPageUrl('KeywordDatabase')} className="hover:text-white transition-colors">Opportunity Engine</Link></div>
-                <div><Link to={createPageUrl('ExclusiveKeywords')} className="hover:text-white transition-colors">Vetted Opportunities</Link></div>
-                <div><Link to={createPageUrl('Pricing')} className="hover:text-white transition-colors">Pricing</Link></div>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-4">Resources</h3>
-              <div className="space-y-2 text-sm">
-                <div><a href="#" className="hover:text-white transition-colors">Blog</a></div>
-                <div><a href="#" className="hover:text-white transition-colors">Help Center</a></div>
-                <div><a href="#" className="hover:text-white transition-colors">API Docs</a></div>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-4">Company</h3>
-              <div className="space-y-2 text-sm">
-                <div><a href="#" className="hover:text-white transition-colors">About Us</a></div>
-                <div><a href="#" className="hover:text-white transition-colors">Contact</a></div>
-                <div><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></div>
-                <div><a href="#" className="hover:text-white transition-colors">Terms of Service</a></div>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-sm">
-              © 2026 Vetted Niche AI. All rights reserved.
-            </div>
-            <div className="flex items-center gap-6 text-sm">
-              <a href="#" className="hover:text-white transition-colors">Twitter</a>
-              <a href="#" className="hover:text-white transition-colors">LinkedIn</a>
-              <a href="#" className="hover:text-white transition-colors">Facebook</a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

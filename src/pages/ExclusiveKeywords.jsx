@@ -358,12 +358,7 @@ export default function ExclusiveKeywords() {
       {/* 4.1.4 Pagination/Footer placeholder */}
       <div className="max-w-6xl mx-auto px-6 pb-20 pt-10 border-t border-slate-100 mt-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-slate-500 text-sm italic">
-          <p>© 2026 Vetted Niche. All keywords are verified for maximum opportunity.</p>
-          <div className="flex gap-4 not-italic font-semibold text-slate-900">
-            <a href="#" className="hover:text-indigo-600 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-indigo-600 transition-colors">Terms</a>
-            <a href="#" className="hover:text-indigo-600 transition-colors">Support</a>
-          </div>
+          <p>© 2026 Vetted Niche AI. All keywords are verified for maximum opportunity.</p>
         </div>
       </div>
     </div>
@@ -439,7 +434,7 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
                 <div className="bg-[#5b5fff] text-white font-black px-2 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-[11px] tracking-wider shadow-sm">
                   #{keyword.id?.slice(-5).toUpperCase() || '89855'}
                 </div>
-                
+
                 <div className="flex flex-col items-center text-center -mt-1 sm:mt-0">
                   <div className="flex items-start text-[26px] sm:text-[30px] font-black text-[#5b5fff] leading-none mb-1">
                     <span className="text-[10px] sm:text-[12px] font-bold mr-0.5 mt-1 sm:mt-1.5">$</span>
@@ -452,7 +447,7 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-1.5 mt-auto">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
                 <span className="text-[8px] sm:text-[9px] font-bold uppercase text-slate-400 tracking-wider">Verified Exclusive Opportunity</span>
