@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
       payment_method_types: ['card'],
       line_items: line_items,
       success_url: `${req.headers.get('origin')}?exclusive_purchase_success=true`,
-      cancel_url: `${req.headers.get('origin')}/exclusive-keywords?canceled=true`,
+      cancel_url: `${req.headers.get('origin')}/ExclusiveKeywords?canceled=true`,
       metadata: {
         base44_app_id: Deno.env.get("BASE44_APP_ID") || '',
         keyword_ids: selectedKeywords.map(k => k.id).join(','),

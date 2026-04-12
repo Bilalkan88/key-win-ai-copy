@@ -113,8 +113,11 @@ export const createStandaloneClient = () => {
 
                 // Mock specific functions
                 if (name === 'createExclusiveCheckout') {
-                    // Simulate Stripe redirect by just marking the item as sold locally in 2 seconds
-                    return { data: { checkout_url: `${window.location.origin}/exclusive-keywords?mock_success=true&keyword_id=${payload.keyword_id}` } };
+                    // Simulate Stripe redirect
+                    return { data: { 
+                        message: 'MOCK',
+                        checkout_url: `${window.location.origin}/ExclusiveKeywords?mock_success=true&keyword_ids=${payload.keyword_ids}` 
+                    } };
                 }
 
                 return { data: { success: true, message: 'Fuction executed locally (MOCK)' } };
