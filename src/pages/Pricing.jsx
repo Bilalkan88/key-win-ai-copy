@@ -40,8 +40,10 @@ export default function Pricing() {
         mutationFn: async (planType) => {
             const toastId = toast.loading('Preparing checkout...');
             try {
-                const { data, error } = await base44.functions.invoke('createSubscriptionCheckout', {
-                    plan_type: planType
+                const { data, error } = await supabase.functions.invoke('createSubscriptionCheckout', {
+                    body: {
+                        plan_type: planType
+                    }
                 });
                 
                 toast.dismiss(toastId);
