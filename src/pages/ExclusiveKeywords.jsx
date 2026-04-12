@@ -64,6 +64,7 @@ export default function ExclusiveKeywords() {
       const toastId = toast.loading('Preparing secure checkout...');
       try {
         const { data, error } = await base44.functions.invoke('createExclusiveCheckout', {
+          keyword_id: ids[0],
           keyword_ids: ids
         });
 
