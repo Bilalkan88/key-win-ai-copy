@@ -66,7 +66,8 @@ export default function ExclusiveKeywords() {
         const { data, error } = await supabase.functions.invoke('createExclusiveCheckout', {
           body: {
             keyword_id: ids[0],
-            keyword_ids: ids
+            keyword_ids: ids,
+            user_email: user?.email || 'guest@example.com'
           }
         });
 

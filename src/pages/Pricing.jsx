@@ -42,7 +42,8 @@ export default function Pricing() {
             try {
                 const { data, error } = await supabase.functions.invoke('createSubscriptionCheckout', {
                     body: {
-                        plan_type: planType
+                        plan_type: planType,
+                        user_email: user?.email || 'guest@example.com'
                     }
                 });
                 
