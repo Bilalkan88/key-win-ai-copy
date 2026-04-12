@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '@/lib/supabase';
 import { createPageUrl } from '../utils';
 import { 
     Check, 
@@ -39,8 +40,10 @@ export default function Pricing() {
         mutationFn: async (planType) => {
             const toastId = toast.loading('Preparing checkout...');
             try {
-                const { data, error } = await base44.functions.invoke('createSubscriptionCheckout', {
-                    plan_type: planType
+                const { data, error } = await supabase.functions.invoke('createSubscriptionCheckout', {
+                    body: {
+                        plan_type: planType
+                    }
                 });
                 
                 toast.dismiss(toastId);
