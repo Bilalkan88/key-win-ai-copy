@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
+import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from "@/components/ui/card";
@@ -60,30 +61,39 @@ export default function ExclusiveKeywords() {
     mutationFn: async (keywordIds) => {
       const ids = Array.isArray(keywordIds) ? keywordIds : [keywordIds];
 
-      const { data, error } = await supabase
-        .from('exclusive_keywords')
-        .update({
-          status: 'sold',
-          sold_at: new Date().toISOString(),
-          buyer_id: user?.id
-        })
-        .in('id', ids)
-        .eq('status', 'available')
-        .select();
+      const toastId = toast.loading('Preparing secure checkout...');
+      try {
+        const { data, error } = await base44.functions.invoke('createExclusiveCheckout', {
+          keyword_ids: ids
+        });
 
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: (data) => {
-      if (data && data.length > 0) {
-        toast.success(`Congratulations! ${data.length} keyword${data.length > 1 ? 's' : ''} purchased successfully.`);
-        queryClient.invalidateQueries({ queryKey: ['exclusive-keywords'] });
-        setCart([]); // Clear cart after purchase
-        navigate('/Profile?tab=assets');
+        toast.dismiss(toastId);
+
+        if (error || data?.error) {
+          throw new Error(error?.message || data?.error || 'Server error occurred');
+        }
+
+        return data; // returns { checkout_url: string }
+      } catch (err) {
+        toast.dismiss(toastId);
+        throw err;
       }
     },
-    onError: () => {
-      toast.error('Purchase error occurred');
+    onSuccess: (data) => {
+      if (data?.message?.includes('MOCK')) {
+        toast.success('Simulation Mode: Checkout initiated!');
+        setTimeout(() => {
+          navigate('/Profile?tab=assets&mock_success=true');
+        }, 1500);
+        return;
+      }
+      
+      if (data?.checkout_url) {
+        window.location.href = data.checkout_url;
+      }
+    },
+    onError: (err) => {
+      toast.error(err.message || 'Purchase error occurred');
     }
   });
 

@@ -48,94 +48,101 @@ Deno.serve(async (req) => {
 
       // Handle exclusive keyword purchase
       if (metadata.purchase_type === 'exclusive_keyword') {
-        // 1. Mark keyword as sold in Base44 / Supabase
-        await base44.asServiceRole.entities.ExclusiveKeyword.update(metadata.keyword_id, {
-          status: 'sold',
-          sold_at: new Date().toISOString(),
-          sold_to: metadata.user_email,
-          stripe_payment_intent_id: session.payment_intent
-        });
+        const keywordIds = metadata.keyword_ids ? metadata.keyword_ids.split(',') : [metadata.keyword_id];
 
-        console.log('Exclusive keyword sold:', metadata.keyword_id);
+        for (const kId of keywordIds) {
+          if (!kId) continue;
+          
+          // 1. Mark keyword as sold in Base44 / Supabase
+          await base44.asServiceRole.entities.ExclusiveKeyword.update(kId, {
+            status: 'sold',
+            sold_at: new Date().toISOString(),
+            sold_to: metadata.user_email,
+            stripe_payment_intent_id: session.payment_intent
+          });
 
-        // 2. Automated PDF Delivery Logic
-        try {
-          // Initialize Supabase admin client for secure access
-          const supabaseAdmin = createClient(
-            Deno.env.get('SUPABASE_URL') || 'https://nqgdzfsydjvshisncuzc.supabase.co',
-            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-          );
+          console.log('Exclusive keyword sold:', kId);
 
-          // Get Keyword details including PDF info
-          const { data: kwData, error: kwError } = await supabaseAdmin
-            .from('exclusive_keywords')
-            .select('keyword_phrase, report_pdf_url, report_pdf_name')
-            .eq('id', metadata.keyword_id)
-            .single();
+          // 2. Automated PDF Delivery Logic
+          try {
+            // Initialize Supabase admin client for secure access
+            const supabaseAdmin = createClient(
+              Deno.env.get('SUPABASE_URL') || 'https://nqgdzfsydjvshisncuzc.supabase.co',
+              Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+            );
 
-          if (!kwError && kwData && kwData.report_pdf_url) {
-            // Check delivery records to prevent duplicate emails
-            const { data: deliveryRecord } = await supabaseAdmin
-              .from('delivery_records')
-              .select('id')
-              .eq('order_id', session.id)
-              .maybeSingle();
+            // Get Keyword details including PDF info
+            const { data: kwData, error: kwError } = await supabaseAdmin
+              .from('exclusive_keywords')
+              .select('keyword_phrase, report_pdf_url, report_pdf_name')
+              .eq('id', kId)
+              .single();
 
-            if (!deliveryRecord) {
-              // Generate signed URL valid for 7 days (604800 seconds)
-              const { data: signedUrlData, error: urlError } = await supabaseAdmin
-                .storage
-                .from('keyword_reports')
-                .createSignedUrl(kwData.report_pdf_url, 604800);
+            if (!kwError && kwData && kwData.report_pdf_url) {
+              // Check delivery records to prevent duplicate emails
+              const { data: deliveryRecord } = await supabaseAdmin
+                .from('delivery_records')
+                .select('id')
+                .eq('order_id', session.id)
+                .eq('keyword_id', kId)
+                .maybeSingle();
 
-              if (!urlError && signedUrlData) {
-                // Send email via Resend
-                const resendApiKey = Deno.env.get('RESEND_API_KEY');
-                if (resendApiKey) {
-                  const resend = new Resend(resendApiKey);
-                  const downloadUrl = signedUrlData.signedUrl;
+              if (!deliveryRecord) {
+                // Generate signed URL valid for 7 days (604800 seconds)
+                const { data: signedUrlData, error: urlError } = await supabaseAdmin
+                  .storage
+                  .from('keyword_reports')
+                  .createSignedUrl(kwData.report_pdf_url, 604800);
 
-                  await resend.emails.send({
-                    from: 'Vetted Niche <support@vettedniche.com>', // Replace with your verified sender
-                    to: metadata.user_email,
-                    subject: `Your Exclusive Report for: ${kwData.keyword_phrase}`,
-                    html: `
-                      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                        <h2>Thank you for your purchase!</h2>
-                        <p>Your exclusive keyword listing for <strong>${kwData.keyword_phrase}</strong> has been secured.</p>
-                        <p>As promised, you can download your confidential Keyword Report (PDF) using the link below. This secure link will remain active for 7 days.</p>
-                        <div style="text-align: center; margin: 30px 0;">
-                          <a href="${downloadUrl}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                            Download Confidential Report
-                          </a>
+                if (!urlError && signedUrlData) {
+                  // Send email via Resend
+                  const resendApiKey = Deno.env.get('RESEND_API_KEY');
+                  if (resendApiKey) {
+                    const resend = new Resend(resendApiKey);
+                    const downloadUrl = signedUrlData.signedUrl;
+
+                    await resend.emails.send({
+                      from: 'Vetted Niche <support@vettedniche.com>', // Replace with your verified sender
+                      to: metadata.user_email,
+                      subject: `Your Exclusive Report for: ${kwData.keyword_phrase}`,
+                      html: `
+                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                          <h2>Thank you for your purchase!</h2>
+                          <p>Your exclusive keyword listing for <strong>${kwData.keyword_phrase}</strong> has been secured.</p>
+                          <p>As promised, you can download your confidential Keyword Report (PDF) using the link below. This secure link will remain active for 7 days.</p>
+                          <div style="text-align: center; margin: 30px 0;">
+                            <a href="${downloadUrl}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                              Download Confidential Report
+                            </a>
+                          </div>
+                          <p style="color: #666; font-size: 14px;">If the button doesn't work, copy and paste this URL into your browser:<br/>
+                          <a href="${downloadUrl}" style="word-break: break-all;">${downloadUrl}</a></p>
+                          <p>Order Reference: ${session.id}</p>
                         </div>
-                        <p style="color: #666; font-size: 14px;">If the button doesn't work, copy and paste this URL into your browser:<br/>
-                        <a href="${downloadUrl}" style="word-break: break-all;">${downloadUrl}</a></p>
-                        <p>Order Reference: ${session.id}</p>
-                      </div>
-                    `
-                  });
+                      `
+                    });
 
-                  // Log delivery to prevent duplicates
-                  await supabaseAdmin.from('delivery_records').insert({
-                    order_id: session.id,
-                    keyword_id: metadata.keyword_id,
-                    buyer_email: metadata.user_email
-                  });
+                    // Log delivery to prevent duplicates
+                    await supabaseAdmin.from('delivery_records').insert({
+                      order_id: session.id,
+                      keyword_id: kId,
+                      buyer_email: metadata.user_email
+                    });
 
-                  console.log('PDF Report email sent successfully to', metadata.user_email);
+                    console.log('PDF Report email sent successfully to', metadata.user_email);
+                  } else {
+                    console.warn('RESEND_API_KEY is not configured. Email not sent.');
+                  }
                 } else {
-                  console.warn('RESEND_API_KEY is not configured. Email not sent.');
+                  console.error('Failed to generate signed URL:', urlError);
                 }
               } else {
-                console.error('Failed to generate signed URL:', urlError);
+                console.log('Email already sent for this order, skipping delivery.');
               }
-            } else {
-              console.log('Email already sent for this order, skipping delivery.');
             }
+          } catch (deliveryError) {
+            console.error('Error in PDF Delivery flow:', deliveryError);
           }
-        } catch (deliveryError) {
-          console.error('Error in PDF Delivery flow:', deliveryError);
         }
       }
     }
