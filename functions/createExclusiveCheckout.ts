@@ -1,22 +1,31 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import Stripe from 'npm:stripe@17.5.0';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '');
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
     if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
     const { keyword_id, keyword_ids } = await req.json();
     const idsToProcess = keyword_ids || (keyword_id ? [keyword_id] : []);
 
     if (idsToProcess.length === 0) {
-      return Response.json({ error: 'No keywords provided' }, { status: 400 });
+      return Response.json({ error: 'No keywords provided' }, { status: 400, headers: corsHeaders });
     }
 
     const selectedKeywords = [];
@@ -28,7 +37,7 @@ Deno.serve(async (req) => {
     }
 
     if (selectedKeywords.length === 0) {
-      return Response.json({ error: 'Keywords not found or not available' }, { status: 404 });
+      return Response.json({ error: 'Keywords not found or not available' }, { status: 404, headers: corsHeaders });
     }
 
     // Check for Pro+ discount
@@ -68,9 +77,9 @@ Deno.serve(async (req) => {
       }
     });
 
-    return Response.json({ checkout_url: session.url });
+    return Response.json({ checkout_url: session.url }, { headers: corsHeaders });
   } catch (error) {
     console.error('Exclusive checkout error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500, headers: corsHeaders });
   }
 });
