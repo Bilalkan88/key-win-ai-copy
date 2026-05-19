@@ -23,12 +23,32 @@ import { useAuth } from '@/lib/AuthContext';
 
 export default function Pricing() {
     const navigate = useNavigate();
-    const { user, isAuthenticated } = useAuth();
+    const { user, profile, isAuthenticated } = useAuth();
 
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }, []);
+
+    if (!isAuthenticated || profile?.role !== 'admin') {
+        return (
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 selection:bg-indigo-500/20">
+                <div className="max-w-md w-full border border-slate-800 bg-slate-900 shadow-2xl rounded-3xl p-8 sm:p-10 text-center relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+                    <h2 className="text-3xl font-black text-white mb-3 tracking-tight">Coming Soon</h2>
+                    <p className="text-slate-400 mb-8 font-medium leading-relaxed">
+                        We are currently updating our subscription tiers and enterprise pricing models. This section will reopen soon.
+                    </p>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 transition-all hover:-translate-y-0.5"
+                    >
+                        Return to Homepage
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     const { data: subscription } = useQuery({
         queryKey: ['subscription', user?.email],

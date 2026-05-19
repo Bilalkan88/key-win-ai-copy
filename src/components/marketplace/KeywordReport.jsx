@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/lib/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, TrendingUp, Users,
     BarChart3, ShieldCheck, Globe, Zap, ShoppingBag, Lock,
     ArrowUpRight, DollarSign, Activity, PieChart as PieChartIcon,
-    Calendar, AlertCircle, AlertTriangle, CheckCircle2, ShoppingCart, Clock, Star, Check, Download, FileText
+    Calendar, AlertCircle, AlertTriangle, CheckCircle2, ShoppingCart, Clock, Star, Check, Download, FileText, Target, Search, BotOff
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -67,7 +69,10 @@ const formatVolumeToK = (val) => {
     return val;
 };
 
-export default function KeywordReport({ keyword, onBack, onBuy }) {
+export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
     if (!keyword) return null;
 
     // Harmonize Trend Data (prioritizing the JSON field from Admin Dashboard)
@@ -94,20 +99,30 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
     };
 
     const searchTrends = getTrendData();
+    const [localEco, setLocalEco] = useState({
+        salePrice: Number(keyword.economics_sale_price) || 0,
+        cogs: Number(keyword.economics_cogs) || 0,
+        shipping: Number(keyword.economics_shipping) || 0,
+        referral: Number(keyword.economics_referral_fee) || 0,
+        fba: Number(keyword.economics_fba_fee) || 0,
+        ads: Number(keyword.economics_ads_spend) || 0,
+        investment: Number(keyword.initial_investment) || 0
+    });
 
-    // Financial calculations based on Admin Dashboard Unit Economics
-    const ecoSalePrice = Number(keyword.economics_sale_price) || 35.00;
-    const ecoCogs = Number(keyword.economics_cogs) || 8.50;
-    const ecoShipping = Number(keyword.economics_shipping) || 2.50;
-    const ecoReferral = Number(keyword.economics_referral_fee) || 5.25;
-    const ecoFba = Number(keyword.economics_fba_fee) || 7.25;
-    const ecoAds = Number(keyword.economics_ads_spend) || 3.80;
+    const ecoSalePrice = localEco.salePrice;
+    const ecoCogs = localEco.cogs;
+    const ecoShipping = localEco.shipping;
+    const ecoReferral = localEco.referral;
+    const ecoFba = localEco.fba;
+    const ecoAds = localEco.ads;
+    const initialInvestment = localEco.investment;
 
     const totalCostPerUnit = ecoCogs + ecoShipping + ecoReferral + ecoFba + ecoAds;
     const netProfitPerUnit = ecoSalePrice - totalCostPerUnit;
-    const grossMargin = ((ecoSalePrice - (ecoCogs + ecoShipping + ecoReferral + ecoFba)) / ecoSalePrice) * 100;
-    const calculatedRoi = (netProfitPerUnit / (ecoCogs + ecoShipping)) * 100;
-    const breakevenUnits = Math.ceil(500 / Math.max(0.01, netProfitPerUnit)); // Assuming $500 initial setup cost
+    const netMargin = ecoSalePrice > 0 ? (netProfitPerUnit / ecoSalePrice) * 100 : 0;
+    const calculatedRoi = (ecoCogs + ecoShipping) > 0 ? (netProfitPerUnit / (ecoCogs + ecoShipping)) * 100 : 0;
+    const breakevenUnits = netProfitPerUnit > 0 ? Math.ceil(initialInvestment / netProfitPerUnit) : 0;
+    const breakevenAcos = ecoSalePrice > 0 ? ((ecoSalePrice - (ecoCogs + ecoShipping + ecoReferral + ecoFba)) / ecoSalePrice) * 100 : 0;
 
     const clickShareData = [
         { name: 'Single Seller', value: parseFloat(keyword.click_share_single) || 52, color: '#6366f1' },
@@ -116,88 +131,150 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
     ];
 
     return (
-        <div className="min-h-screen bg-[#EBEFF1] pb-20">
+        <div className="min-h-screen bg-slate-50 font-sans selection:bg-blue-100 pb-20">
             {/* 1. Header - Narrower & Thinner */}
-            <header className="sticky top-0 z-50 bg-white border-b border-slate-100 py-3 px-6 md:px-12">
-                <div className="max-w-5xl mx-auto flex items-center justify-between">
+            <header className="sticky top-0 z-50 bg-white border-b border-slate-100 py-3 px-6 md:px-12 shadow-sm">
+                <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
                     <Button
                         variant="ghost"
-                        size="sm"
                         onClick={onBack}
-                        className="text-slate-500 hover:text-indigo-600 font-bold flex items-center gap-2 group p-0 hover:bg-transparent"
+                        className="text-slate-900 hover:text-blue-600 font-bold flex items-center gap-3 group px-4 py-2 rounded-xl hover:bg-slate-50 transition-all p-0 cursor-pointer shrink-0"
                     >
-                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                        Back to Marketplace
+                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                        </div>
+                        <span className="text-sm font-bold tracking-wide hidden sm:inline">Back to Marketplace</span>
                     </Button>
 
-                    <div className="flex items-center gap-6">
-                        <div className="flex flex-col items-end">
-                            <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest leading-none mb-0.5">Listing Price</span>
-                            <span className="text-xl font-black text-slate-900 leading-none">${keyword.price || '149'}</span>
+                    <div className="flex items-center gap-4 sm:gap-6">
+                        <div className="flex flex-col items-end hidden sm:flex">
+                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none mb-1">Listing Price</span>
+                            <span className="text-3xl font-black text-blue-600 leading-none">${keyword.price || '149'}</span>
                         </div>
-                        <Button
-                            onClick={onBuy}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-6 h-10 shadow-lg shadow-indigo-100 rounded-xl flex items-center gap-2 border-none transition-all active:scale-95 text-xs"
-                        >
-                            <ShoppingCart className="w-4 h-4" />
-                            ADD TO CART
-                        </Button>
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <Button
+                                variant="outline"
+                                onClick={onAddToCart}
+                                className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold px-4 sm:px-6 h-12 rounded-xl flex items-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95 text-xs sm:text-sm cursor-pointer shadow-sm"
+                            >
+                                <ShoppingCart className="w-4 h-4" />
+                                Add to Cart
+                            </Button>
+                            <Button
+                                onClick={onBuy}
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 sm:px-8 h-12 rounded-xl flex items-center gap-2 border-none shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5 active:scale-95 text-xs sm:text-sm cursor-pointer"
+                            >
+                                Buy Now
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-5xl mx-auto px-6 py-6 transition-all duration-300">
+            <main className="max-w-5xl mx-auto px-6 py-6 transition-all duration-300 font-sans">
                 {/* 2. Compact Identity */}
-                <div className="mb-6">
-                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-tight">
-                        <span>ID <span className="text-slate-900 font-black">#{keyword.id?.slice(-6).toUpperCase() || '2FDEFB'}</span></span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3">
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+                {/* 2. Premium Identity Header Card */}
+                <div className="mb-8 bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-6 shadow-xl shadow-slate-200/40 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none" />
+
+                    {/* Top Row: Category Text + Date */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-4 border-b border-slate-100 pb-4">
+                        <div className="flex items-center gap-2 text-sm font-black text-slate-900 uppercase tracking-widest">
+                            <ShoppingBag className="w-4 h-4 text-blue-600" />
                             {keyword.category || 'Home & Kitchen'}
-                        </h1>
-                        <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-none font-black px-2 py-0.5 rounded-md text-[9px] flex items-center gap-1 uppercase tracking-wider">
-                            <CheckCircle2 className="w-3 h-3" /> VERIFIED
-                        </Badge>
+                        </div>
+                        <div className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5 text-slate-400" />
+                            VERIFIED: {new Date(keyword.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
                     </div>
-                    <div className="mt-1 text-indigo-600 font-black text-[9px] uppercase tracking-[0.2em]">
-                        {keyword.marketplace || 'MARKETPLACE: US'}
+
+                    {/* Structured Metadata Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/50 p-3 sm:p-4 rounded-xl border border-slate-100/80">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+                                <Lock className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Listing ID</p>
+                                <p className="text-xs sm:text-sm font-bold text-slate-900 leading-none truncate">
+                                    #{keyword.id?.slice(-6).toUpperCase() || '2FDEFB'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 border-l border-slate-200/60 pl-4">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
+                                <Globe className="w-4 h-4 text-indigo-600" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Marketplace</p>
+                                <p className="text-xs sm:text-sm font-bold text-slate-900 leading-none truncate">
+                                    {keyword.marketplace?.replace('MARKETPLACE: ', '') || 'US'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-slate-200/60 pt-4 sm:pt-0 sm:pl-4">
+                            <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0">
+                                <Target className="w-4 h-4 text-purple-600" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Best Fit</p>
+                                <p className="text-xs sm:text-sm font-bold text-slate-900 leading-none truncate">
+                                    {keyword.best_fit_for || 'Private Label'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 border-t sm:border-t-0 border-l border-slate-200/60 pt-4 sm:pt-0 pl-4">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                                <Users className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Seller Fit</p>
+                                <p className="text-xs sm:text-sm font-bold text-slate-900 leading-none truncate">
+                                    {keyword.product_seller_fit || 'New Seller'}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 {/* 3. Metrics Section - Tighter Gaps & Smaller Text */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
                     <DashboardMetricCard
-                        label="Opportunity Score"
-                        value={keyword.opportunity_score || 85}
-                        change="+12%"
-                        isPositive={true}
-                        showProgress={true}
-                        progressColor="bg-orange-500"
-                        onClick="#due-diligence"
+                        label="Total Revenue"
+                        value={(() => {
+                            const val = keyword.total_revenue || '120000';
+                            const num = parseFloat(val.toString().replace(/[$,\s]/g, ''));
+                            if (isNaN(num)) return val;
+                            return num >= 1000 ? `$${(num / 1000).toFixed(0)}K` : `$${num}`;
+                        })()}
+                        sublabel="Page 1 Listings Only"
+                        onClick="#financials"
                     />
                     <DashboardMetricCard
                         label="TOTAL SEARCH VOLUME"
-                        value={keyword.total_search_volume || '5,000'}
+                        value={(() => {
+                            const val = keyword.total_search_volume || '5000';
+                            const num = parseFloat(val.toString().replace(/[$,\s]/g, ''));
+                            if (isNaN(num)) return val;
+                            return num >= 1000 ? `${(num / 1000).toFixed(0)}K` : num;
+                        })()}
                         sublabel="ALL KEYWORDS RELATED"
-                        change="+5%"
-                        isPositive={true}
                         onClick="#roadmap"
                     />
                     <DashboardMetricCard
-                        label="Est. MONTHLY PROFIT"
-                        value={`$${keyword.est_profit || '5,000'}`}
-                        sublabel="NICHE TOP PERFORMERS"
-                        change="-2%"
-                        isPositive={false}
+                        label="Revenue over $5K"
+                        value={`${keyword.revenue_over_5k || '4'}/10`}
+                        sublabel="Sellers above $5K revenue"
                         onClick="#financials"
                     />
                     <DashboardMetricCard
                         label="Return on Investment"
                         value={`${Math.round(calculatedRoi)}%`}
                         sublabel="PROJECTED MARGIN"
-                        change="+8%"
-                        isPositive={true}
                         onClick="#financials"
                     />
                 </div>
@@ -208,19 +285,19 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                     <Card className="lg:col-span-2 p-5 border-none shadow-sm bg-white rounded-2xl overflow-hidden">
                         <div className="flex items-start justify-between mb-4">
                             <div>
-                                <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase mb-1">Search Volume & Sales</h3>
+                                <h3 className="text-sm font-bold text-slate-900 tracking-tight uppercase mb-1">Search Volume & Sales</h3>
                                 <div className="flex items-center gap-4">
                                     <div className="flex items-center gap-1.5">
-                                        <div className="w-2.5 h-2.5 rounded shadow-sm bg-indigo-300" />
-                                        <span className="text-[10px] font-bold text-slate-500">Volume</span>
+                                        <div className="w-2.5 h-2.5 rounded shadow-sm bg-blue-500" />
+                                        <span className="text-xs font-bold text-slate-600">Volume</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
-                                        <div className="w-3 h-0.5 rounded-full shadow-sm bg-emerald-400" />
-                                        <span className="text-[10px] font-bold text-slate-500">Sales</span>
+                                        <div className="w-3 h-0.5 rounded-full shadow-sm bg-emerald-500" />
+                                        <span className="text-xs font-bold text-slate-600">Sales</span>
                                     </div>
                                 </div>
                             </div>
-                            <Badge variant="outline" className="text-[9px] font-bold border-slate-100 px-2 py-0.5 mt-0.5">Last 12 Months</Badge>
+                            <Badge variant="outline" className="text-[10px] font-bold border-slate-200 px-2.5 py-0.5 mt-0.5 text-slate-600">Last 12 Months</Badge>
                         </div>
                         <div className="h-44 w-full">
                             <ResponsiveContainer width="100%" height="100%">
@@ -261,7 +338,7 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                                                             {volPayload && (
                                                                 <div className="flex items-center justify-between gap-4">
                                                                     <div className="flex items-center gap-2">
-                                                                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
+                                                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
                                                                         <span className="text-slate-400 text-[10px] font-bold">Search Vol</span>
                                                                     </div>
                                                                     <span className="text-white text-[11px] font-black tracking-tight">{volPayload.value.toLocaleString()}</span>
@@ -291,8 +368,8 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                                             return (
                                                 <Cell
                                                     key={`cell-${index}`}
-                                                    fill={`rgba(79, 70, 229, ${opacity})`}
-                                                    className="transition-all duration-300 hover:fill-indigo-600 cursor-pointer"
+                                                    fill={`rgba(37, 99, 235, ${opacity})`}
+                                                    className="transition-all duration-300 hover:fill-blue-600 cursor-pointer"
                                                 />
                                             );
                                         })}
@@ -314,21 +391,21 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                     {/* Seasonality & Efficiency */}
                     <Card className="p-5 border-none shadow-sm bg-white rounded-2xl flex flex-col">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">Seasonality</h3>
+                            <h3 className="text-sm font-bold text-slate-900 tracking-tight uppercase">Seasonality</h3>
                             <div className="relative group cursor-help">
-                                <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-none text-[8px] font-black px-2 py-0.5 uppercase tracking-wider">
+                                <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-none text-xs font-bold px-3 py-1 uppercase tracking-wider">
                                     {keyword.demand_type || 'Year-Round'}
                                 </Badge>
                                 <div className="absolute bottom-full right-0 mb-2 w-40 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-[100] shadow-xl text-center font-medium leading-relaxed normal-case tracking-normal">
-                                    {(keyword.demand_type || 'Year-Round').toLowerCase() === 'seasonal' ? 'Demand varies during certain seasons.' : 'Stable demand throughout the year.'}
+                                    {(keyword.demand_type || 'Year-Round').toLowerCase() === 'seasonal' ? 'Demand varies during certain seasons.' : (keyword.demand_type || 'Year-Round').toLowerCase() === 'trend' ? 'Growing market trend.' : (keyword.demand_type || 'Year-Round').toLowerCase() === 'new trend' ? 'Emerging new market trend.' : 'Stable demand throughout the year.'}
                                     <div className="absolute top-full right-4 -mt-1 border-4 border-transparent border-t-slate-900"></div>
                                 </div>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-2 mb-4">
-                            <div className="bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-50 flex items-start gap-2">
-                                <div className="p-1.5 bg-indigo-100 rounded-lg text-indigo-600">
+                            <div className="bg-blue-50/50 p-2.5 rounded-xl border border-blue-50 flex items-start gap-2">
+                                <div className="p-1.5 bg-blue-100 rounded-lg text-blue-600">
                                     <Calendar className="w-3.5 h-3.5" />
                                 </div>
                                 <div className="min-w-0 relative group cursor-help">
@@ -360,39 +437,23 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                         </p>
 
                         <div className="pt-4">
-                            <h4 className="text-sm font-black text-slate-900 tracking-tight uppercase mb-4">Efficiency</h4>
+                            <h4 className="text-sm font-bold text-slate-900 tracking-tight uppercase mb-4">Efficiency</h4>
                             <div className="grid grid-cols-4 gap-4">
                                 <div className="relative group cursor-help">
-                                    <p className="text-[9px] font-black text-slate-900 leading-none mb-1">DEMAND</p>
-                                    <p className="text-[14px] font-black text-blue-500 leading-none whitespace-nowrap">{(keyword.demand_level === 'Moderate' ? 'Mod' : keyword.demand_level) || 'Mod'}</p>
-                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-50 shadow-xl text-center font-medium leading-relaxed">
-                                        Estimated customer demand based on search and sales activity.
-                                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
-                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-500 leading-none mb-1 uppercase tracking-wider">DEMAND</p>
+                                    <p className="text-base font-bold text-blue-600 leading-none whitespace-nowrap">{(keyword.demand_level === 'Moderate' ? 'Mod' : keyword.demand_level) || 'Mod'}</p>
                                 </div>
                                 <div className="relative group cursor-help">
-                                    <p className="text-[9px] font-black text-slate-900 leading-none mb-1">AVG OOS</p>
-                                    <p className="text-[14px] font-black text-red-500 leading-none">{keyword.avg_oos || '6%'}</p>
-                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-50 shadow-xl text-center font-medium leading-relaxed">
-                                        How often top competitors run out of stock.
-                                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
-                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-500 leading-none mb-1 uppercase tracking-wider">AVG OOS</p>
+                                    <p className="text-base font-bold text-amber-600 leading-none">{keyword.avg_oos || '12%'}</p>
                                 </div>
                                 <div className="relative group cursor-help">
-                                    <p className="text-[9px] font-black text-slate-900 leading-none mb-1 whitespace-nowrap">CONV. RATE</p>
-                                    <p className="text-[14px] font-black text-indigo-600 leading-none">{keyword.conv_rate || '1.75%'}</p>
-                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-50 shadow-xl text-center font-medium leading-relaxed">
-                                        Percentage of visitors who complete a purchase.
-                                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
-                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-500 leading-none mb-1 uppercase tracking-wider whitespace-nowrap">CONV. RATE</p>
+                                    <p className="text-base font-bold text-emerald-600 leading-none">{keyword.conversion_rate || '18%'}</p>
                                 </div>
                                 <div className="relative group cursor-help">
-                                    <p className="text-[9px] font-black text-slate-900 leading-none mb-1">AVG BSR</p>
-                                    <p className="text-[14px] font-black text-emerald-600 leading-none">{keyword.avg_bsr || '1,200'}</p>
-                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-50 shadow-xl text-center font-medium leading-relaxed">
-                                        Average sales rank of leading products in the niche.
-                                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
-                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-500 leading-none mb-1 uppercase tracking-wider">AVG BSR</p>
+                                    <p className="text-base font-bold text-blue-600 leading-none">{keyword.avg_bsr || '4,250'}</p>
                                 </div>
                             </div>
                         </div>
@@ -403,204 +464,343 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-10 text-slate-900">
                     <Card className="border-none shadow-sm bg-white rounded-2xl flex flex-col overflow-hidden">
                         <div className="px-5 py-2.5 border-b border-slate-50">
-                            <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">Reviews & Ratings</h3>
+                            <h3 className="text-sm font-bold text-slate-900 tracking-tight uppercase">COMPETITION ANALYSIS</h3>
+                        </div>
+                        <div className="px-4 py-5 flex-1 flex flex-col justify-center">
+                            <div className="grid grid-cols-[1fr_auto_max-content] gap-y-4 gap-x-2 text-xs font-bold items-center">
+                                <span className="text-slate-500 whitespace-nowrap">Active Listing Page 1</span>
+                                <Users size={12} className="text-blue-600 mx-1" />
+                                <span className="text-slate-900 text-sm font-bold whitespace-nowrap text-left">{keyword.competition_active_listing_page_1 || keyword.page1_listings || '48'}</span>
+
+                                <span className="text-slate-500 whitespace-nowrap">Total Active Listing</span>
+                                <Activity size={12} className="text-blue-600 mx-1" />
+                                <span className="text-slate-900 text-sm font-bold whitespace-nowrap text-left">{keyword.competition_total_active_listing?.toLocaleString() || keyword.competing_products?.toLocaleString() || '500+'}</span>
+
+                                <span className="text-slate-500 whitespace-nowrap">Amazon Dominancy</span>
+                                <ShieldCheck size={12} className="text-emerald-600 mx-1" />
+                                <span className="text-blue-600 text-sm font-bold whitespace-nowrap text-left uppercase tracking-tight">{keyword.competition_amazon_dominancy ? `${keyword.competition_amazon_dominancy}%` : (keyword.amazon_dominancy || keyword.click_share_single || 'Low')}</span>
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Card className="border-none shadow-sm bg-white rounded-2xl flex flex-col overflow-hidden">
+                        <div className="px-5 py-2.5 border-b border-slate-50">
+                            <h3 className="text-sm font-bold text-slate-900 tracking-tight uppercase">Sales Performance</h3>
+                        </div>
+                        <div className="px-4 py-5 flex-1 flex flex-col justify-center">
+                            <div className="grid grid-cols-[1fr_auto_max-content] gap-y-3 gap-x-2 text-xs font-bold items-center">
+                                <span className="text-slate-500 whitespace-nowrap">Avg Monthly Unit Sales</span>
+                                <TrendingUp size={12} className="text-emerald-600 mx-1" />
+                                <span className="text-slate-900 text-sm font-bold whitespace-nowrap text-left">{(() => { const v = keyword.est_sales || keyword.avg_monthly_sales || '600'; const n = parseFloat(String(v).replace(/,/g, '')); return (!isNaN(n) && n >= 1000 && String(v).toLowerCase().indexOf('k') === -1) ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : v; })()}</span>
+
+                                <span className="text-slate-500 whitespace-nowrap">Avg Monthly Units Sold (12M)</span>
+                                <ShoppingBag size={12} className="text-blue-600 mx-1" />
+                                <span className="text-slate-900 text-sm font-bold whitespace-nowrap text-left">{(() => { const v = keyword.units_sold_12m_count || '2000'; const n = parseFloat(String(v).replace(/,/g, '')); return (!isNaN(n) && n >= 1000 && String(v).toLowerCase().indexOf('k') === -1) ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : v; })()}</span>
+
+                                <span className="text-slate-500 whitespace-nowrap">Avg Listing Age</span>
+                                <Clock size={12} className="text-amber-600 mx-1" />
+                                <span className="text-slate-900 text-sm font-bold whitespace-nowrap text-left">{keyword.avg_listing_age ? String(keyword.avg_listing_age).replace(/\s*(?:months?|m)$/i, '') + 'M' : '14M'}</span>
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Card className="border-none shadow-sm bg-white rounded-2xl flex flex-col overflow-hidden">
+                        <div className="px-5 py-2.5 border-b border-slate-50">
+                            <h3 className="text-sm font-bold text-slate-900 tracking-tight uppercase">Reviews & Ratings</h3>
                         </div>
                         <div className="px-4 py-5 flex-1 flex flex-col justify-center">
                             <div className="space-y-4">
-                                <div className="grid grid-cols-[1fr_auto_45px] items-center gap-2 text-[11px] font-bold">
-                                    <span className="text-slate-400">AVG Reviews</span>
+                                <div className="grid grid-cols-[1fr_auto_45px] items-center gap-2 text-xs font-bold">
+                                    <span className="text-slate-500">AVG Reviews</span>
                                     <StarRating rating={4} />
-                                    <span className="text-slate-900 text-xs font-black text-right">{keyword.total_reviews || '1,178'}</span>
+                                    <span className="text-slate-900 text-sm font-bold text-right">{keyword.total_reviews || '1,178'}</span>
                                 </div>
-                                <div className="grid grid-cols-[1fr_auto_45px] items-center gap-2 text-[11px] font-bold">
-                                    <span className="text-slate-400">Sellers {"<"} 100</span>
+                                <div className="grid grid-cols-[1fr_auto_45px] items-center gap-2 text-xs font-bold">
+                                    <span className="text-slate-500">Sellers {"<"} 100</span>
                                     <StarRating rating={4} />
-                                    <span className="text-slate-900 text-xs font-black text-right">{keyword.avg_reviews || '7/10'}</span>
+                                    <span className="text-slate-900 text-sm font-bold text-right">{keyword.avg_reviews || '7/10'}</span>
                                 </div>
-                                <div className="grid grid-cols-[1fr_auto_45px] items-center gap-2 text-[11px] font-bold">
-                                    <span className="text-slate-400">AVG Ratings</span>
+                                <div className="grid grid-cols-[1fr_auto_45px] items-center gap-2 text-xs font-bold">
+                                    <span className="text-slate-500">AVG Ratings</span>
                                     <StarRating rating={4} />
-                                    <span className="text-slate-900 text-xs font-black text-right">{keyword.avg_ratings || '4.54'}</span>
+                                    <span className="text-slate-900 text-sm font-bold text-right">{keyword.avg_ratings || '4.54'}</span>
                                 </div>
-                            </div>
-                        </div>
-                    </Card>
-
-                    <Card className="border-none shadow-sm bg-white rounded-2xl flex flex-col overflow-hidden">
-                        <div className="px-5 py-2.5 border-b border-slate-50">
-                            <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">Sales Performance</h3>
-                        </div>
-                        <div className="px-4 py-5 flex-1 flex flex-col justify-center">
-                            <div className="grid grid-cols-[1fr_auto_max-content] gap-y-3 gap-x-2 text-[11px] font-bold items-center">
-                                <span className="text-slate-400 whitespace-nowrap">Avg Monthly Unit Sales</span>
-                                <TrendingUp size={11} className="text-emerald-500/80 mx-1" />
-                                <span className="text-slate-900 text-xs font-black whitespace-nowrap text-left">{(() => { const v = keyword.avg_monthly_sales || '600'; const n = parseFloat(String(v).replace(/,/g, '')); return (!isNaN(n) && n >= 1000 && String(v).toLowerCase().indexOf('k') === -1) ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : v; })()}</span>
-
-                                <span className="text-slate-400 whitespace-nowrap">Avg Monthly Units Sold (12M)</span>
-                                <ShoppingBag size={11} className="text-blue-500/80 mx-1" />
-                                <span className="text-slate-900 text-xs font-black whitespace-nowrap text-left">{(() => { const v = keyword.units_sold_12m_count || '2000'; const n = parseFloat(String(v).replace(/,/g, '')); return (!isNaN(n) && n >= 1000 && String(v).toLowerCase().indexOf('k') === -1) ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : v; })()}</span>
-
-                                <span className="text-slate-400 whitespace-nowrap">Avg Listing Age</span>
-                                <Clock size={11} className="text-amber-500/80 mx-1" />
-                                <span className="text-slate-900 text-xs font-black whitespace-nowrap text-left">{keyword.avg_listing_age ? String(keyword.avg_listing_age).replace(/\s*(?:months?|m)$/i, '') + 'M' : '14M'}</span>
-                            </div>
-                        </div>
-                    </Card>
-
-                    <Card className="border-none shadow-sm bg-white rounded-2xl flex flex-col overflow-hidden">
-                        <div className="px-5 py-2.5 border-b border-slate-50">
-                            <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">Keyword Volume</h3>
-                        </div>
-                        <div className="px-4 py-5 flex-1 flex flex-col justify-center">
-                            <div className="space-y-3.5">
-                                {(() => {
-                                    const v1 = Number((keyword.total_search_volume || '5000').toString().replace(/,/g, '')) || 0;
-                                    const v2 = Number((keyword.second_keyword_volume || '2000').toString().replace(/,/g, '')) || 0;
-                                    const v3 = Number((keyword.third_keyword_volume || '1500').toString().replace(/,/g, '')) || 0;
-                                    const maxVol = Math.max(v1, v2, v3, 1);
-
-                                    const w1 = Math.round((v1 / maxVol) * 100);
-                                    const w2 = Math.round((v2 / maxVol) * 100);
-                                    const w3 = Math.round((v3 / maxVol) * 100);
-
-                                    return (
-                                        <>
-                                            <div className="grid grid-cols-[90px_1fr_35px] items-center gap-3 text-[11px] font-bold">
-                                                <span className="text-slate-400 whitespace-nowrap">Main Keyword</span>
-                                                <div className="h-1.5 bg-slate-50 rounded-full overflow-hidden">
-                                                    <motion.div
-                                                        initial={{ width: 0 }}
-                                                        animate={{ width: `${w1}%` }}
-                                                        transition={{ duration: 1, ease: "easeOut" }}
-                                                        className="h-full bg-blue-500/80 rounded-full"
-                                                    />
-                                                </div>
-                                                <span className="text-slate-900 text-xs font-black text-right whitespace-nowrap">{formatVolumeToK(keyword.total_search_volume || '5,000')}</span>
-                                            </div>
-                                            <div className="grid grid-cols-[90px_1fr_35px] items-center gap-3 text-[11px] font-bold">
-                                                <span className="text-slate-400 whitespace-nowrap">Second Keyword</span>
-                                                <div className="h-1.5 bg-slate-50 rounded-full overflow-hidden">
-                                                    <motion.div
-                                                        initial={{ width: 0 }}
-                                                        animate={{ width: `${w2}%` }}
-                                                        transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
-                                                        className="h-full bg-blue-400/80 rounded-full"
-                                                    />
-                                                </div>
-                                                <span className="text-slate-900 text-xs font-black text-right whitespace-nowrap">{formatVolumeToK(keyword.second_keyword_volume || '2,000')}</span>
-                                            </div>
-                                            <div className="grid grid-cols-[90px_1fr_35px] items-center gap-3 text-[11px] font-bold">
-                                                <span className="text-slate-400 whitespace-nowrap">Third Keyword</span>
-                                                <div className="h-1.5 bg-slate-50 rounded-full overflow-hidden">
-                                                    <motion.div
-                                                        initial={{ width: 0 }}
-                                                        animate={{ width: `${w3}%` }}
-                                                        transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-                                                        className="h-full bg-blue-300/80 rounded-full"
-                                                    />
-                                                </div>
-                                                <span className="text-slate-900 text-xs font-black text-right whitespace-nowrap">{formatVolumeToK(keyword.third_keyword_volume || '1,500')}</span>
-                                            </div>
-                                        </>
-                                    );
-                                })()}
                             </div>
                         </div>
                     </Card>
                 </div>
 
                 {/* Direct Navigation Bar (Image Style) */}
-                <div className="bg-white border border-slate-100 rounded-2xl py-4 px-4 mb-12 flex items-center justify-center gap-x-6 shadow-sm overflow-x-auto no-scrollbar">
+                <div className="sticky top-[73px] z-40 bg-white/90 backdrop-blur-md border border-slate-100 rounded-2xl py-3 px-4 mb-12 flex items-center justify-center gap-x-6 shadow-md overflow-x-auto no-scrollbar transition-all">
                     <DirectNavLink href="#financials" label="01 / Financial Validation" />
-                    <DirectNavLink href="#safety" label="02 / Opportunity & Risk Check" />
-                    <DirectNavLink href="#roadmap" label="03 / Growth Roadmap" />
-                    <DirectNavLink href="#due-diligence" label="04 / Due Diligence" />
+                    <DirectNavLink href="#market-intelligence" label="02 / Market Intelligence" />
+                    <DirectNavLink href="#safety" label="03 / Opportunity & Risk Check" />
+                    <DirectNavLink href="#roadmap" label="04 / Growth Roadmap" />
+                    <DirectNavLink href="#due-diligence" label="05 / Due Diligence" />
                 </div>
 
-                <section id="financials" className="mb-16 scroll-mt-24 pt-4 border-t border-slate-100">
+                {/* Niche Analysis Section */}
+                {keyword.niche_details && (
+                    <section className="mb-16 scroll-mt-36 pt-4 border-t border-slate-100">
+                        <SectionLabel label="Expert Insights" />
+                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-6 tracking-tight leading-tight">Niche Details</h2>
+
+                        <div className="relative">
+                            {!user && (
+                                <div className="absolute inset-0 z-10 backdrop-blur-md bg-white/40 flex flex-col items-center justify-center rounded-[2.5rem] border border-white/50 shadow-sm p-6">
+                                    <Lock className="w-16 h-16 text-slate-800 mb-6 drop-shadow-md" />
+                                    <h3 className="text-2xl font-bold text-slate-900 mb-3 text-center">Expert Insights Locked</h3>
+                                    <p className="text-slate-700 text-center mb-8 max-w-md font-medium text-base">Create a free account to unlock exclusive expert analysis, key insights, and opportunity signals.</p>
+                                    <Button
+                                        onClick={() => navigate('/auth')}
+                                        className="h-14 px-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5"
+                                    >
+                                        Register for Full Access
+                                    </Button>
+                                </div>
+                            )}
+                            <div className={`bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-100 shadow-sm relative overflow-hidden group ${!user ? 'opacity-20 pointer-events-none select-none blur-[4px]' : ''}`}>
+                                <div className="relative z-10 flex flex-col md:flex-row gap-8">
+                                    {/* Side Indicator Line */}
+                                    <div className="hidden md:flex flex-col items-center gap-4">
+                                        <div className="w-1.5 h-full bg-gradient-to-b from-blue-500/30 via-blue-500/10 to-transparent rounded-full" />
+                                    </div>
+
+                                    <div className="flex-1">
+                                        <div className="text-slate-600 font-medium leading-relaxed text-lg whitespace-pre-wrap relative">
+                                            {(() => {
+                                                const text = keyword.niche_details || '';
+                                                const parts = text.split(/(Key Insights:|Key Insights|Opportunity Signal:|Opportunity Signal|DESCRIPTION:|DESCRIPTION)/gi);
+                                                return parts.map((part, i) => {
+                                                    const lower = part.toLowerCase();
+                                                    if (lower.includes('key insights')) {
+                                                        return <span key={i} className="text-purple-600 font-black not-italic bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100 shadow-sm mx-1 inline-block">{part}</span>;
+                                                    }
+                                                    if (lower.includes('opportunity signal')) {
+                                                        return <span key={i} className="text-emerald-600 font-black not-italic bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 shadow-sm mx-1 inline-block">{part}</span>;
+                                                    }
+                                                    if (lower.includes('description')) {
+                                                        const cleanLabel = part.includes(':') ? 'Niche Analysis:' : 'Niche Analysis';
+                                                        return <span key={i} className="text-blue-600 font-black not-italic bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 shadow-sm mx-1 inline-block">{cleanLabel}</span>;
+                                                    }
+                                                    return part;
+                                                });
+                                            })()}
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                <section id="financials" className="mb-16 scroll-mt-36 pt-4 border-t border-slate-100">
                     <SectionLabel label="01 / Financial Validation" />
-                    <h2 className="text-2xl font-black text-slate-900 mb-8 tracking-tight">Unit Economics & Profitability</h2>
+                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-6 tracking-tight leading-tight">Unit Economics & Profitability</h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                        <div className="space-y-8">
-                            <div className="group">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-indigo-500 transition-colors">Return on Investment (ROI)</p>
-                                <p className="text-3xl font-black text-emerald-600 tracking-tight">{Math.round(calculatedRoi)}%</p>
-                                <p className="text-slate-500 text-xs mt-2 font-medium">Return on capital invested in product and shipping.</p>
+                        <div className="space-y-2">
+                            <div className="group pl-6 py-4 hover:bg-white/50 rounded-2xl transition-all duration-300">
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 group-hover:text-blue-600 transition-colors">Return on Investment (ROI)</p>
+                                <p className="text-3xl font-black text-slate-900 group-hover:text-blue-600 transition-colors duration-300 tracking-tight">{Math.round(calculatedRoi)}%</p>
+                                <p className="text-slate-500 text-[10px] mt-2 font-medium">Return on capital invested in product and shipping.</p>
                             </div>
-                            <div className="group">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-indigo-500 transition-colors">Net Profit Per Unit</p>
-                                <p className="text-3xl font-black text-slate-900 tracking-tight">${netProfitPerUnit.toFixed(2)}</p>
-                                <p className="text-slate-500 text-xs mt-2 font-medium">Net profit after all Amazon fees and marketing costs.</p>
+                            <div className="group pl-6 py-4 hover:bg-white/50 rounded-2xl transition-all duration-300">
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 group-hover:text-blue-600 transition-colors">Net Profit Per Unit</p>
+                                <p className="text-3xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors duration-300 tracking-tight">${netProfitPerUnit.toFixed(2)}</p>
+                                <p className="text-slate-500 text-[10px] mt-2 font-medium">Net profit after all Amazon fees and marketing costs.</p>
                             </div>
-                            <div className="group">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-indigo-500 transition-colors">Gross Margin %</p>
-                                <p className="text-3xl font-black text-slate-900 tracking-tight">{Math.round(grossMargin)}%</p>
-                                <p className="text-slate-500 text-xs mt-2 font-medium">Healthy margin profile excluding PPC expenses.</p>
+                            <div className="group pl-6 py-4 hover:bg-white/50 rounded-2xl transition-all duration-300">
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 group-hover:text-blue-600 transition-colors">Net Margin</p>
+                                <p className="text-3xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors duration-300 tracking-tight">{Math.round(netMargin)}%</p>
+                                <p className="text-slate-500 text-[10px] mt-2 font-medium">Final profitability margin after all expenses and PPC.</p>
                             </div>
-                            <div className="group">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-indigo-500 transition-colors">Breakeven Point</p>
-                                <p className="text-3xl font-black text-slate-900 tracking-tight">{breakevenUnits} <span className="text-xl text-slate-300">Units</span></p>
-                                <p className="text-slate-500 text-xs mt-2 font-medium">Units required to recover initial investment setup.</p>
+                            <div className="group pl-6 py-4 hover:bg-white/50 rounded-2xl transition-all duration-300">
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 group-hover:text-blue-600 transition-colors">Breakeven Point</p>
+                                <p className="text-3xl font-black text-slate-900 group-hover:text-orange-600 transition-colors duration-300 tracking-tight">{breakevenUnits} <span className="text-xl text-slate-400 font-medium">Units</span></p>
+                                <p className="text-slate-500 text-[10px] mt-2 font-medium">Units required to recover initial investment setup.</p>
+                            </div>
+                            <div className="group pl-6 py-4 hover:bg-white/50 rounded-2xl transition-all duration-300">
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 group-hover:text-blue-600 transition-colors">Breakeven ACoS</p>
+                                <p className="text-3xl font-black text-slate-900 group-hover:text-red-600 transition-colors duration-300 tracking-tight">{Math.round(breakevenAcos)}%</p>
+                                <p className="text-slate-500 text-[10px] mt-2 font-medium">Maximum ad spend allowed to remain profitable.</p>
+                            </div>
+                            <div className="bg-white rounded-[2rem] p-6 border border-slate-100 relative group overflow-hidden shadow-sm transition-all hover:shadow-md mt-6">
+                                <div className="absolute top-0 right-0 p-4 opacity-5">
+                                    <Zap className="w-16 h-16 text-blue-600" />
+                                </div>
+                                <div className="relative z-10">
+                                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 group-hover:text-blue-600 transition-colors">Initial Invest</p>
+                                    <p className="text-3xl font-black text-slate-900 tracking-tight">${initialInvestment.toLocaleString()}</p>
+                                    <p className="text-slate-500 text-[10px] mt-2 font-medium leading-relaxed">Total capital required for initial inventory and setup.</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 relative group overflow-hidden shadow-sm">
-                            <div className="absolute top-0 right-0 p-8 opacity-5">
-                                <DollarSign className="w-24 h-24" />
+                        <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 relative group overflow-hidden shadow-md">
+                            <div className="absolute top-0 right-0 p-10 opacity-5">
+                                <DollarSign className="w-32 h-32" />
                             </div>
-                            <h4 className="font-black text-xs uppercase tracking-widest mb-6 text-slate-400">Fixed Cost Structure</h4>
-                            <div className="space-y-4 relative z-10">
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-500 font-bold">Selling Price</span>
-                                    <span className="font-black text-slate-900">${ecoSalePrice.toFixed(2)}</span>
+                            <h4 className="font-bold text-sm uppercase tracking-wider mb-8 text-slate-600">Interactive Profit Calculator</h4>
+                            <div className="space-y-5 relative z-10">
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-600 font-bold">Selling Price</span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-slate-400 font-bold">$</span>
+                                        <input
+                                            type="number"
+                                            value={localEco.salePrice}
+                                            onChange={(e) => setLocalEco({ ...localEco, salePrice: Number(e.target.value) })}
+                                            className="w-24 text-right font-black text-slate-900 bg-transparent border-b-2 border-dashed border-slate-200 focus:border-blue-500 outline-none pb-1 text-base"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-500 font-bold">Product Cost (COGS)</span>
-                                    <span className="font-black text-slate-900">${ecoCogs.toFixed(2)}</span>
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-600 font-bold">Product Cost (COGS)</span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-slate-400 font-bold">$</span>
+                                        <input
+                                            type="number"
+                                            value={localEco.cogs}
+                                            onChange={(e) => setLocalEco({ ...localEco, cogs: Number(e.target.value) })}
+                                            className="w-24 text-right font-black text-slate-900 bg-transparent border-b-2 border-dashed border-slate-200 focus:border-blue-500 outline-none pb-1 text-base"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-500 font-bold">Shipping Cost</span>
-                                    <span className="font-black text-slate-900">${ecoShipping.toFixed(2)}</span>
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-600 font-bold">Shipping Cost</span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-slate-400 font-bold">$</span>
+                                        <input
+                                            type="number"
+                                            value={localEco.shipping}
+                                            onChange={(e) => setLocalEco({ ...localEco, shipping: Number(e.target.value) })}
+                                            className="w-24 text-right font-black text-slate-900 bg-transparent border-b-2 border-dashed border-slate-200 focus:border-blue-500 outline-none pb-1 text-base"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-500 font-bold">Amazon Referral Fee</span>
-                                    <span className="font-black text-slate-900">${ecoReferral.toFixed(2)}</span>
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-600 font-bold">Amazon Referral Fee</span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-slate-400 font-bold">$</span>
+                                        <input
+                                            type="number"
+                                            value={localEco.referral}
+                                            onChange={(e) => setLocalEco({ ...localEco, referral: Number(e.target.value) })}
+                                            className="w-24 text-right font-black text-slate-900 bg-transparent border-b-2 border-dashed border-slate-200 focus:border-blue-500 outline-none pb-1 text-base"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-500 font-bold">Amazon FBA Fees</span>
-                                    <span className="font-black text-slate-900">${ecoFba.toFixed(2)}</span>
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-600 font-bold">Amazon FBA Fees</span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-slate-400 font-bold">$</span>
+                                        <input
+                                            type="number"
+                                            value={localEco.fba}
+                                            onChange={(e) => setLocalEco({ ...localEco, fba: Number(e.target.value) })}
+                                            className="w-24 text-right font-black text-slate-900 bg-transparent border-b-2 border-dashed border-slate-200 focus:border-blue-500 outline-none pb-1 text-base"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center text-xs border-b border-slate-50 pb-2">
-                                    <span className="text-slate-500 font-bold">Est. PPC Ad Spend</span>
-                                    <span className="font-black text-indigo-600">${ecoAds.toFixed(2)}</span>
+                                <div className="flex justify-between items-center text-sm border-b-2 border-slate-50 pb-4">
+                                    <span className="text-slate-600 font-bold">Est. PPC Ad Spend</span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-blue-400 font-bold">$</span>
+                                        <input
+                                            type="number"
+                                            value={localEco.ads}
+                                            onChange={(e) => setLocalEco({ ...localEco, ads: Number(e.target.value) })}
+                                            className="w-24 text-right font-black text-blue-600 bg-transparent border-b-2 border-dashed border-blue-200 focus:border-blue-500 outline-none pb-1 text-base"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-400 font-bold uppercase text-[9px] tracking-widest">Total Cost Per Unit</span>
-                                    <span className="font-black text-slate-700">${totalCostPerUnit.toFixed(2)}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-400 font-bold uppercase text-[9px] tracking-widest">ROI</span>
-                                    <span className="font-black text-emerald-600">{Math.round(calculatedRoi)}%</span>
+                                <div className="flex justify-between items-center pt-4">
+                                    <span className="text-slate-500 font-bold uppercase text-xs tracking-wider">Initial Investment</span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-slate-400 font-bold">$</span>
+                                        <input
+                                            type="number"
+                                            value={localEco.investment}
+                                            onChange={(e) => setLocalEco({ ...localEco, investment: Number(e.target.value) })}
+                                            className="w-28 text-right font-black text-slate-900 bg-transparent border-b-2 border-dashed border-slate-200 focus:border-blue-500 outline-none pb-1 text-lg"
+                                        />
+                                    </div>
                                 </div>
                                 <div className="flex justify-between items-center pt-2">
-                                    <span className="text-slate-900 font-black uppercase text-[10px] tracking-widest">NET PROFIT</span>
-                                    <span className="text-xl font-black text-emerald-600">${netProfitPerUnit.toFixed(2)}</span>
+                                    <span className="text-slate-500 font-bold uppercase text-xs tracking-wider">Total Unit Cost</span>
+                                    <span className="font-bold text-slate-900 text-lg">${totalCostPerUnit.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between items-center pt-6 mt-4 border-t border-slate-50">
+                                    <span className="text-slate-900 font-bold uppercase text-sm tracking-wider">NET PROFIT</span>
+                                    <span className="text-3xl font-black text-emerald-600">${netProfitPerUnit.toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
+                <section id="market-intelligence" className="mb-16 scroll-mt-36 pt-4 border-t border-slate-100">
+                    <SectionLabel label="02 / Market Intelligence" />
+                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-6 tracking-tight leading-tight">Competitor & Keyword Insights</h2>
 
-                <section id="safety" className="mb-16 scroll-mt-24">
-                    <SectionLabel label="02 / Opportunity & Risk Check" />
-                    <h2 className="text-2xl font-black text-slate-900 mb-8 tracking-tight">Verified Opportunity & Risk Assessment</h2>
+                    <div className="relative">
+                        {!user && (
+                            <div className="absolute inset-0 z-10 backdrop-blur-md bg-white/40 flex flex-col items-center justify-center rounded-[2.5rem] border border-white/50 shadow-sm p-6">
+                                <Lock className="w-16 h-16 text-slate-800 mb-6 drop-shadow-md" />
+                                <h3 className="text-2xl font-bold text-slate-900 mb-3 text-center">Market Intelligence Locked</h3>
+                                <p className="text-slate-700 text-center mb-8 max-w-md font-medium text-base">Create a free account to unlock detailed competitor analysis, related keywords, and deep market insights.</p>
+                                <Button
+                                    onClick={() => navigate('/auth')}
+                                    className="h-14 px-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5"
+                                >
+                                    Register for Full Access
+                                </Button>
+                            </div>
+                        )}
+                        <div className={`space-y-12 ${!user ? 'opacity-20 pointer-events-none select-none blur-[4px]' : ''}`}>
+                            {keyword.competitor_analysis_image_url && (
+                                <div className="group">
+                                    <h3 className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider text-center">Top Competitor Analysis</h3>
+                                    <div className="bg-white rounded-[2.5rem] p-6 border border-slate-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                                        <div className="max-w-4xl mx-auto">
+                                            <img src={keyword.competitor_analysis_image_url} alt="Top Competitor Analysis" className="w-full rounded-2xl border border-slate-50 shadow-md" />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            {keyword.related_keywords_image_url && (
+                                <div className="group">
+                                    <h3 className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider text-center">Top Related Keywords</h3>
+                                    <div className="bg-white rounded-[2.5rem] p-6 border border-slate-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                                        <div className="max-w-4xl mx-auto">
+                                            <img src={keyword.related_keywords_image_url} alt="Top Related Keywords" className="w-full rounded-2xl border border-slate-50 shadow-md" />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            {!keyword.competitor_analysis_image_url && !keyword.related_keywords_image_url && (
+                                <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-100 shadow-sm relative overflow-hidden group text-center py-16">
+                                    <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                                        <BarChart3 className="w-8 h-8 text-blue-600" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-900 mb-2 uppercase tracking-tight">Intelligence Gathering</h3>
+                                    <p className="text-slate-500 text-sm max-w-sm mx-auto font-medium">Competitor landscape and advanced keyword performance analysis.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </section>
+
+                <section id="safety" className="mb-16 scroll-mt-36">
+                    <SectionLabel label="03 / Opportunity & Risk Check" />
+                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-6 tracking-tight leading-tight">Verified Opportunity & Risk Assessment</h2>
 
 
                     {/* Opportunity Indicators Sub-section */}
                     {keyword.opportunity_indicators && keyword.opportunity_indicators.length > 0 && (
                         <div className="mt-12">
-                            <h3 className="text-xl font-black text-slate-900 mb-6 tracking-tight">Opportunity Indicators</h3>
+                            <h3 className="text-xl font-bold text-slate-900 mb-6 tracking-tight">Opportunity Indicators</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {keyword.opportunity_indicators.map((indicator, idx) => (
                                     <div key={idx} className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
@@ -620,10 +820,10 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                                 <ShieldCheck className="w-6 h-6 text-emerald-600" />
                             </div>
                             <div>
-                                <h4 className="font-black text-emerald-900 uppercase tracking-tight text-sm mb-1">Insight</h4>
+                                <h4 className="font-bold text-emerald-900 uppercase tracking-tight text-sm mb-1">Insight</h4>
                                 <p
                                     className="text-emerald-800/70 font-medium leading-relaxed italic text-xs whitespace-pre-line"
-                                    dangerouslySetInnerHTML={{ __html: keyword.opportunity_insight.replace('Low', '<span className="text-emerald-900 font-black">Low</span>') }}
+                                    dangerouslySetInnerHTML={{ __html: keyword.opportunity_insight.replace('Low', '<span className="text-emerald-900 font-bold">Low</span>') }}
                                 />
                             </div>
                         </div>
@@ -632,7 +832,7 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                     {/* Risk Indicators Sub-section */}
                     {keyword.risk_indicators && keyword.risk_indicators.length > 0 && (
                         <div className="mt-8">
-                            <h3 className="text-xl font-black text-slate-900 mb-6 tracking-tight">Risk Indicators</h3>
+                            <h3 className="text-xl font-bold text-slate-900 mb-6 tracking-tight">Risk Indicators</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {keyword.risk_indicators.map((indicator, idx) => (
                                     <div key={idx} className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
@@ -652,37 +852,37 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                                 <AlertTriangle className="w-6 h-6 text-amber-600" />
                             </div>
                             <div>
-                                <h4 className="font-black text-amber-900 uppercase tracking-tight text-sm mb-1">Overall Assessment</h4>
+                                <h4 className="font-bold text-amber-900 uppercase tracking-tight text-sm mb-1">Overall Assessment</h4>
                                 <p
                                     className="text-amber-800/70 font-medium leading-relaxed italic text-xs whitespace-pre-line"
-                                    dangerouslySetInnerHTML={{ __html: keyword.risk_assessment.replace('High', '<span className="text-amber-900 font-black">High</span>') }}
+                                    dangerouslySetInnerHTML={{ __html: keyword.risk_assessment.replace('High', '<span className="text-amber-900 font-bold">High</span>') }}
                                 />
                             </div>
                         </div>
                     )}
                 </section>
 
-                <section id="roadmap" className="mb-16 scroll-mt-24">
-                    <SectionLabel label="03 / Growth Roadmap" />
-                    <h2 className="text-2xl font-black text-slate-900 mb-8 tracking-tight">Execution Strategy</h2>
+                <section id="roadmap" className="mb-16 scroll-mt-36">
+                    <SectionLabel label="04 / Growth Roadmap" />
+                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-6 tracking-tight leading-tight">Execution Strategy</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <StrategyCard number="01" title="Keyword Indexing & Ranking" desc="Prioritize initial PPC spend on high-intent exact-match keywords to accelerate indexing and ranking." color="indigo" />
+                        <StrategyCard number="01" title="Keyword Indexing & Ranking" desc="Prioritize initial PPC spend on high-intent exact-match keywords to accelerate indexing and ranking." color="blue" />
                         <StrategyCard number="02" title="Conversion Rate Optimization" desc="Optimized listing designed to maximize CTR and conversion through strong visuals, clear value proposition, and keyword-optimized titles." color="emerald" />
                         <StrategyCard number="03" title="Differentiation & Positioning" desc="The product differentiates from competitors through improved design, packaging, bundling, or added value." color="amber" />
-                        <StrategyCard number="04" title="Early Reviews & Social Proof" desc="Early reviews build trust and improve conversion, supported by programs like Amazon Vine and post-purchase review strategies." color="sky" />
+                        <StrategyCard number="04" title="Early Reviews & Social Proof" desc="Early reviews build trust and improve conversion, supported by programs like Amazon Vine and post-purchase review strategies." color="rose" />
                     </div>
                 </section>
 
-                <section id="due-diligence" className="mb-20 scroll-mt-24">
-                    <SectionLabel label="04 / Due Diligence" />
-                    <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight">Data Validation</h2>
+                <section id="due-diligence" className="mb-20 scroll-mt-36">
+                    <SectionLabel label="05 / Due Diligence" />
+                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-6 tracking-tight leading-tight">Data Validation</h2>
 
                     <Accordion type="single" collapsible className="space-y-3">
                         <AccordionItem value="search-volume" className="border border-slate-100 bg-white rounded-2xl px-6 shadow-sm">
                             <AccordionTrigger className="hover:no-underline py-5 text-sm">
                                 <div className="flex items-center gap-4">
-                                    <TrendingUp className="w-4 h-4 text-indigo-500" />
-                                    <span className="font-black uppercase tracking-tight">Search Volume Performance</span>
+                                    <TrendingUp className="w-4 h-4 text-blue-600" />
+                                    <span className="font-bold uppercase tracking-tight">Search Volume Performance</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pb-8 pt-2">
@@ -691,14 +891,14 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                                         <AreaChart data={keyword.trend_data || mockChartData}>
                                             <defs>
                                                 <linearGradient id="colorVol" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.08} />
-                                                    <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
+                                                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.08} />
+                                                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                                                 </linearGradient>
                                             </defs>
                                             <XAxis dataKey="month" hide />
                                             <YAxis hide />
                                             <Tooltip />
-                                            <Area type="monotone" dataKey="volume" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorVol)" />
+                                            <Area type="monotone" dataKey="volume" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorVol)" />
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -709,14 +909,14 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                             <AccordionTrigger className="hover:no-underline py-5 text-sm">
                                 <div className="flex items-center gap-4">
                                     <BarChart3 className="w-4 h-4 text-amber-500" />
-                                    <span className="font-black uppercase tracking-tight">Keepa History</span>
+                                    <span className="font-bold uppercase tracking-tight">Keepa History</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pb-8 pt-2">
                                 {keyword.keepa_image_url ? (
                                     <ZoomableImage src={keyword.keepa_image_url} alt="Keepa Data" className="rounded-xl border border-slate-100 shadow-lg" />
                                 ) : (
-                                    <p className="text-center py-6 text-slate-400 font-bold text-xs uppercase tracking-widest">Historical sales rank verified.</p>
+                                    <p className="text-center py-6 text-slate-500 font-bold text-xs uppercase tracking-wider">Historical sales rank verified.</p>
                                 )}
                             </AccordionContent>
                         </AccordionItem>
@@ -724,15 +924,15 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                         <AccordionItem value="helium" className="border border-slate-100 bg-white rounded-2xl px-6 shadow-sm">
                             <AccordionTrigger className="hover:no-underline py-5 text-sm">
                                 <div className="flex items-center gap-4">
-                                    <Globe className="w-4 h-4 text-blue-500" />
-                                    <span className="font-black uppercase tracking-tight">Helium10 Share</span>
+                                    <Globe className="w-4 h-4 text-blue-600" />
+                                    <span className="font-bold uppercase tracking-tight">Helium10 Share</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pb-8 pt-2">
                                 {keyword.helium10_image_url ? (
                                     <ZoomableImage src={keyword.helium10_image_url} alt="Helium10 Data" className="rounded-xl border border-slate-100 shadow-lg" />
                                 ) : (
-                                    <p className="text-center py-6 text-slate-400 font-bold text-xs uppercase tracking-widest">Market intelligence complete.</p>
+                                    <p className="text-center py-6 text-slate-500 font-bold text-xs uppercase tracking-wider">Market intelligence complete.</p>
                                 )}
                             </AccordionContent>
                         </AccordionItem>
@@ -740,52 +940,80 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
 
                     <Card className="mt-6 border border-slate-100 shadow-sm bg-white rounded-2xl overflow-hidden">
                         <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/50">
-                            <h3 className="text-[11px] font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
-                                <ShieldCheck className="w-4 h-4 text-indigo-500" />
+                            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                                <ShieldCheck className="w-4 h-4 text-blue-600" />
                                 DATA INTEGRITY & EXCLUSIVITY
                             </h3>
                         </div>
                         <div className="p-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6">
-                                <div className="flex items-center gap-2.5">
-                                    <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                                    <span className="text-[11px] font-bold text-slate-700">Full Top 20 Organic Analysis</span>
+                                <div className="flex items-center gap-3 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 p-3 rounded-xl transition-all shadow-sm hover:shadow-md group">
+                                    <div className="w-8 h-8 rounded-full bg-blue-100/50 flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors">
+                                        <Search className="w-4 h-4 text-blue-600" />
+                                    </div>
+                                    <span className="text-[13px] font-medium text-slate-600 leading-tight">
+                                        <strong className="font-bold text-slate-900">Full Top 10</strong> Organic Listings Analyzed
+                                    </span>
                                 </div>
-                                <div className="flex items-center gap-2.5">
-                                    <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                                    <span className="text-[11px] font-bold text-slate-700">Manually Validated Metrics</span>
+                                <div className="flex items-center gap-3 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 p-3 rounded-xl transition-all shadow-sm hover:shadow-md group">
+                                    <div className="w-8 h-8 rounded-full bg-emerald-100/50 flex items-center justify-center shrink-0 group-hover:bg-emerald-100 transition-colors">
+                                        <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                                    </div>
+                                    <span className="text-[13px] font-medium text-slate-600 leading-tight">
+                                        <strong className="font-bold text-slate-900">Manually Validated</strong> Metrics
+                                    </span>
                                 </div>
-                                <div className="flex items-center gap-2.5">
-                                    <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                                    <span className="text-[11px] font-bold text-slate-700">Recently Updated Data</span>
+                                <div className="flex items-center gap-3 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 p-3 rounded-xl transition-all shadow-sm hover:shadow-md group">
+                                    <div className="w-8 h-8 rounded-full bg-amber-100/50 flex items-center justify-center shrink-0 group-hover:bg-amber-100 transition-colors">
+                                        <Calendar className="w-4 h-4 text-amber-600" />
+                                    </div>
+                                    <span className="text-[13px] font-medium text-slate-600 leading-tight">
+                                        Data Collected Within the <strong className="font-bold text-slate-900">Last 30 Days</strong>
+                                    </span>
                                 </div>
-                                <div className="flex items-center gap-2.5">
-                                    <Lock className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                                    <span className="text-[11px] font-bold text-slate-700">Not Resold</span>
+                                <div className="flex items-center gap-3 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 p-3 rounded-xl transition-all shadow-sm hover:shadow-md group">
+                                    <div className="w-8 h-8 rounded-full bg-red-100/50 flex items-center justify-center shrink-0 group-hover:bg-red-100 transition-colors">
+                                        <BotOff className="w-4 h-4 text-red-600" />
+                                    </div>
+                                    <span className="text-[13px] font-medium text-slate-600 leading-tight">
+                                        <strong className="font-bold text-slate-900">No AI-Generated</strong> Estimates
+                                    </span>
                                 </div>
-                                <div className="flex items-center gap-2.5">
-                                    <ShieldCheck className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                                    <span className="text-[11px] font-bold text-slate-700">Permanently Removed After Purchase</span>
+                                <div className="flex items-center gap-3 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 p-3 rounded-xl transition-all shadow-sm hover:shadow-md group">
+                                    <div className="w-8 h-8 rounded-full bg-yellow-100/50 flex items-center justify-center shrink-0 group-hover:bg-yellow-100 transition-colors">
+                                        <Star className="w-4 h-4 text-yellow-600" />
+                                    </div>
+                                    <span className="text-[13px] font-medium text-slate-600 leading-tight">
+                                        Includes <strong className="font-bold text-slate-900">Real Customer Review</strong> Analysis
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-3 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 p-3 rounded-xl transition-all shadow-sm hover:shadow-md group">
+                                    <div className="w-8 h-8 rounded-full bg-purple-100/50 flex items-center justify-center shrink-0 group-hover:bg-purple-100 transition-colors">
+                                        <Lock className="w-4 h-4 text-purple-600" />
+                                    </div>
+                                    <span className="text-[13px] font-medium text-slate-600 leading-tight">
+                                        <strong className="font-bold text-slate-900">Sold Once</strong> — Permanently Removed
+                                    </span>
                                 </div>
                             </div>
                         </div>
                     </Card>
                 </section>
                 {/* What You Get Section */}
-                <section className="mt-12 mb-16 scroll-mt-24">
+                <section className="mt-12 mb-16 scroll-mt-36">
                     <SectionLabel label="Delivery / Summary" />
-                    <h2 className="text-2xl font-black text-slate-900 mb-8 tracking-tight">What You Get</h2>
+                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-6 tracking-tight leading-tight">What You Get</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Card className="p-6 md:p-8 flex flex-col items-center text-center border-none shadow-sm bg-gradient-to-b from-white to-slate-50/50 rounded-3xl group relative overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
                             <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none transition-transform group-hover:scale-110">
                                 <Lock className="w-24 h-24" />
                             </div>
-                            <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-indigo-100 group-hover:bg-indigo-600 transition-colors duration-300 relative z-10">
-                                <CheckCircle2 className="w-7 h-7 text-indigo-600 group-hover:text-white transition-colors duration-300" />
+                            <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-blue-100 group-hover:bg-blue-600 transition-colors duration-300 relative z-10">
+                                <CheckCircle2 className="w-7 h-7 text-blue-600 group-hover:text-white transition-colors duration-300" />
                             </div>
-                            <h3 className="text-[14px] font-black text-slate-900 uppercase tracking-tight mb-3 relative z-10">Exclusive Ownership</h3>
+                            <h3 className="text-base font-bold text-slate-900 tracking-tight mb-3 relative z-10">Exclusive Ownership</h3>
                             <p className="text-xs text-slate-500 font-medium leading-relaxed relative z-10">
-                                This keyword opportunity is sold to one buyer only and removed permanently after purchase.
+                                This keyword research opportunity is sold exclusively to one buyer. Once purchased, it is permanently removed from the marketplace and will never be resold.
                             </p>
                         </Card>
 
@@ -796,9 +1024,9 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                             <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-emerald-100 group-hover:bg-emerald-600 transition-colors duration-300 relative z-10">
                                 <FileText className="w-7 h-7 text-emerald-600 group-hover:text-white transition-colors duration-300" />
                             </div>
-                            <h3 className="text-[14px] font-black text-slate-900 uppercase tracking-tight mb-3 relative z-10">Downloadable Research Report (10 Pages)</h3>
+                            <h3 className="text-base font-bold text-slate-900 tracking-tight mb-3 relative z-10">Downloadable Research Report (+14 Pages)</h3>
                             <p className="text-xs text-slate-500 font-medium leading-relaxed relative z-10">
-                                A structured PDF report covering demand, competition, profitability, and risk analysis.
+                                A structured, actionable PDF report covering demand analysis, competition landscape, profitability breakdown, and risk assessment.
                             </p>
                         </Card>
 
@@ -809,9 +1037,9 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                             <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-blue-100 group-hover:bg-blue-600 transition-colors duration-300 relative z-10">
                                 <BarChart3 className="w-7 h-7 text-blue-600 group-hover:text-white transition-colors duration-300" />
                             </div>
-                            <h3 className="text-[14px] font-black text-slate-900 uppercase tracking-tight mb-3 relative z-10">Complete Market Breakdown</h3>
+                            <h3 className="text-base font-bold text-slate-900 tracking-tight mb-3 relative z-10">Complete Market Breakdown</h3>
                             <p className="text-xs text-slate-500 font-medium leading-relaxed relative z-10">
-                                Detailed insights into demand signals, competitor landscape, and opportunity gaps.
+                                In-depth market insights covering demand signals, keyword trends, competitor landscape, and clear opportunity gaps ready to act on.
                             </p>
                         </Card>
 
@@ -822,9 +1050,22 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
                             <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-amber-100 group-hover:bg-amber-500 transition-colors duration-300 relative z-10">
                                 <ShieldCheck className="w-7 h-7 text-amber-500 group-hover:text-white transition-colors duration-300" />
                             </div>
-                            <h3 className="text-[14px] font-black text-slate-900 uppercase tracking-tight mb-3 relative z-10">Verified Opportunity Analysis</h3>
+                            <h3 className="text-base font-bold text-slate-900 tracking-tight mb-3 relative z-10">Manually Validated Opportunity Report</h3>
                             <p className="text-xs text-slate-500 font-medium leading-relaxed relative z-10">
-                                Each niche is manually vetted using structured data and market validation criteria.
+                                Every report is human-reviewed for accuracy, eliminating misleading data, inflated volumes, and weak opportunities before they reach you.
+                            </p>
+                        </Card>
+
+                        <Card className="p-6 md:p-8 flex flex-col items-center text-center border-none shadow-sm bg-gradient-to-b from-white to-slate-50/50 rounded-3xl group relative overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 delay-[300ms] md:col-span-2">
+                            <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none transition-transform group-hover:scale-110">
+                                <Target className="w-24 h-24" />
+                            </div>
+                            <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-purple-100 group-hover:bg-purple-600 transition-colors duration-300 relative z-10">
+                                <Target className="w-7 h-7 text-purple-600 group-hover:text-white transition-colors duration-300" />
+                            </div>
+                            <h3 className="text-base font-bold text-slate-900 tracking-tight mb-3 relative z-10">Top Keyword List with Search Volume & Sales Data</h3>
+                            <p className="text-xs text-slate-500 font-medium leading-relaxed relative z-10">
+                                Includes a curated list of the highest-performing keywords with monthly search volume, estimated sales, and competitor count — ready to use immediately.
                             </p>
                         </Card>
                     </div>
@@ -832,21 +1073,24 @@ export default function KeywordReport({ keyword, onBack, onBuy }) {
 
                 {/* Final CTA Section */}
                 <section className="mt-4 mb-8">
-                    <Card className="relative overflow-hidden border-none rounded-3xl shadow-xl bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-900">
-                        {/* Decorative glow */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-2xl bg-indigo-500/20 blur-[100px] rounded-full pointer-events-none" />
+                    <Card className="relative overflow-hidden border-none rounded-3xl shadow-2xl bg-blue-600 text-white">
+                        {/* Background Pattern */}
+                        <div className="absolute inset-0 opacity-10" style={{
+                            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                            backgroundSize: '32px 32px'
+                        }} />
 
                         <div className="relative z-10 p-10 md:p-14 text-center flex flex-col items-center">
-                            <h2 className="text-2xl md:text-3xl font-black text-white mb-4 tracking-tight">
-                                Ready to Secure This Vetted Opportunity?
+                            <h2 className="text-3xl sm:text-4xl font-black text-white mb-4 tracking-tight leading-tight">
+                                Ready to Claim This Exclusive Opportunity?
                             </h2>
-                            <p className="text-indigo-200 text-sm md:text-base mb-8 max-w-2xl mx-auto font-medium">
-                                In competitive markets, clarity is power — and informed decisions are your greatest advantage.
+                            <p className="text-blue-100 text-sm md:text-base mb-8 max-w-2xl mx-auto font-medium leading-relaxed">
+                                Most sellers waste months and hundreds of dollars testing the wrong products.<br className="hidden md:block" />This report gives you the clarity to skip that — and go straight to a verified opportunity.
                             </p>
                             <Button
                                 onClick={onBuy}
                                 size="lg"
-                                className="bg-white text-indigo-900 hover:bg-slate-50 uppercase tracking-widest font-black text-xs px-8 py-6 rounded-xl shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_-15px_rgba(255,255,255,0.5)] hover:-translate-y-1 transition-all"
+                                className="bg-white text-blue-700 hover:bg-slate-50 font-black text-sm px-8 py-6 rounded-xl shadow-2xl transition-all hover:-translate-y-1 cursor-pointer"
                             >
                                 <ShoppingCart className="w-4 h-4 mr-3" />
                                 Claim This Exclusive Market Now
@@ -874,16 +1118,16 @@ function DirectNavLink({ href, label }) {
     return (
         <button
             onClick={() => document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex items-center gap-2 group transition-all"
+            className="flex items-center gap-2 group transition-all cursor-pointer"
         >
-            <div className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-indigo-400 transition-colors" />
-            <span className="text-[11px] font-black text-slate-500 group-hover:text-indigo-600 transition-colors tracking-tight uppercase whitespace-nowrap">
+            <div className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-blue-500 transition-colors" />
+            <span className="text-[11px] font-bold text-slate-500 group-hover:text-blue-600 transition-colors tracking-tight uppercase whitespace-nowrap">
                 {label}
             </span>
         </button>
     );
 }
-function DashboardMetricCard({ label = '', value = '', sublabel = '', change = '', isPositive = true, showProgress = false, progressColor = 'bg-indigo-500', onClick }) {
+function DashboardMetricCard({ label = '', value = '', sublabel = '', change = '', isPositive = true, showProgress = false, progressColor = 'bg-blue-600', onClick }) {
     return (
         <Card
             onClick={() => onClick && document.querySelector(onClick)?.scrollIntoView({ behavior: 'smooth' })}
@@ -891,13 +1135,15 @@ function DashboardMetricCard({ label = '', value = '', sublabel = '', change = '
         >
             <div className="flex justify-between items-center mb-1">
                 <span className="text-[10px] font-bold text-slate-400 leading-tight uppercase tracking-tight">{label}</span>
-                <span className={`text-[10px] font-black ${isPositive ? 'text-emerald-500' : 'text-red-500'} flex items-center gap-0.5`}>
-                    {change} {isPositive ? '↗' : '↘'}
-                </span>
+                {change && (
+                    <span className={`text-[10px] font-bold ${isPositive ? 'text-emerald-600' : 'text-red-600'} flex items-center gap-0.5`}>
+                        {change} {isPositive ? '↗' : '↘'}
+                    </span>
+                )}
             </div>
             <div className="flex items-baseline gap-1.5">
-                <span className="text-2xl font-black text-slate-900 tracking-tighter">{value}</span>
-                {sublabel && <span className="text-[8px] font-black text-slate-300 uppercase tracking-tighter mt-1">{sublabel}</span>}
+                <span className="text-2xl font-bold text-slate-900 tracking-tight">{value}</span>
+                {sublabel && <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight mt-1">{sublabel}</span>}
             </div>
 
             {showProgress && (
@@ -941,7 +1187,7 @@ function DashboardFooterNavLink({ href, label }) {
     return (
         <button
             onClick={() => document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' })}
-            className="text-[10px] font-bold text-slate-400 hover:text-indigo-600 transition-colors tracking-tight uppercase"
+            className="text-[10px] font-bold text-slate-400 hover:text-blue-600 transition-colors tracking-tight uppercase cursor-pointer"
         >
             {label}
         </button>
@@ -949,7 +1195,11 @@ function DashboardFooterNavLink({ href, label }) {
 }
 
 function SectionLabel({ label }) {
-    return <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] mb-3 block whitespace-nowrap">{label}</span>;
+    return (
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider rounded-md mb-6 border border-blue-100 shadow-sm">
+            {label}
+        </div>
+    );
 }
 
 function InvestmentPoint({ icon, label, text }) {
@@ -958,21 +1208,21 @@ function InvestmentPoint({ icon, label, text }) {
             <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center mb-4">
                 {icon}
             </div>
-            <h4 className="font-black text-slate-900 uppercase tracking-tight mb-1 text-xs">{label}</h4>
+            <h4 className="font-bold text-slate-900 uppercase tracking-tight mb-1 text-xs">{label}</h4>
             <p className="text-slate-500 text-[11px] font-medium leading-relaxed">{text}</p>
         </div>
     );
 }
 
-function StrategyCard({ number, title, desc, color = 'indigo' }) {
+function StrategyCard({ number, title, desc, color = 'blue' }) {
     const colorStyles = {
-        indigo: {
-            bgHover: 'hover:bg-indigo-50/30',
-            borderHover: 'hover:border-indigo-200',
-            blob: 'bg-indigo-100/50',
-            numBg: 'bg-indigo-100',
-            numText: 'text-indigo-600',
-            titleText: 'text-indigo-900',
+        blue: {
+            bgHover: 'hover:bg-blue-50/30',
+            borderHover: 'hover:border-blue-200',
+            blob: 'bg-blue-100/50',
+            numBg: 'bg-blue-100',
+            numText: 'text-blue-600',
+            titleText: 'text-blue-900',
         },
         emerald: {
             bgHover: 'hover:bg-emerald-50/30',
@@ -998,25 +1248,25 @@ function StrategyCard({ number, title, desc, color = 'indigo' }) {
             numText: 'text-rose-600',
             titleText: 'text-rose-900',
         },
-        sky: {
-            bgHover: 'hover:bg-sky-50/30',
-            borderHover: 'hover:border-sky-200',
-            blob: 'bg-sky-100/50',
-            numBg: 'bg-sky-100',
-            numText: 'text-sky-600',
-            titleText: 'text-sky-900',
+        purple: {
+            bgHover: 'hover:bg-purple-50/30',
+            borderHover: 'hover:border-purple-200',
+            blob: 'bg-purple-100/50',
+            numBg: 'bg-purple-100',
+            numText: 'text-purple-600',
+            titleText: 'text-purple-900',
         }
     };
 
-    const style = colorStyles[color] || colorStyles.indigo;
+    const style = colorStyles[color] || colorStyles.blue;
 
     return (
         <div className={`flex flex-col gap-3 p-6 bg-white ${style.bgHover} border border-slate-100 ${style.borderHover} rounded-[1.5rem] transition-all duration-300 group shadow-sm hover:shadow-md relative overflow-hidden`}>
             <div className={`absolute top-0 right-0 w-32 h-32 ${style.blob} rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110 blur-2xl`}></div>
             <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-3">
-                    <span className={`flex items-center justify-center w-8 h-8 rounded-xl ${style.numBg} ${style.numText} font-black text-sm shrink-0`}>{number}</span>
-                    <h4 className={`font-black ${style.titleText} uppercase tracking-tight text-sm leading-tight`}>{title}</h4>
+                    <span className={`flex items-center justify-center w-8 h-8 rounded-xl ${style.numBg} ${style.numText} font-bold text-sm shrink-0`}>{number}</span>
+                    <h4 className={`font-bold ${style.titleText} uppercase tracking-tight text-sm leading-tight`}>{title}</h4>
                 </div>
                 <p className="text-slate-600 text-xs font-medium leading-relaxed">{desc}</p>
             </div>

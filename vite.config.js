@@ -1,5 +1,6 @@
 import base44 from "@base44/vite-plugin"
 import react from '@vitejs/plugin-react'
+import viteCompression from 'vite-plugin-compression'
 import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
@@ -15,5 +16,7 @@ export default defineConfig({
       visualEditAgent: true
     }),
     react(),
+    viteCompression({ algorithm: 'gzip', ext: '.gz' }),
+    viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
   ]
 });

@@ -7,7 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, TrendingUp, BarChart3, ChevronRight, Target, ShoppingBag, Tag, Coins, Star, Activity, ShoppingCart, X, CreditCard, DollarSign } from 'lucide-react';
+import { Loader2, Sparkles, TrendingUp, BarChart3, ChevronRight, Target, ShoppingBag, Tag, Coins, Star, Activity, ShoppingCart, X, CreditCard, DollarSign, ShieldCheck, Rocket, Zap, Lock, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import RecentlySoldTicker from '@/components/marketplace/RecentlySoldTicker';
@@ -29,14 +29,31 @@ export default function ExclusiveKeywords() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedKeyword, setSelectedKeyword] = useState(null);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    const saved = localStorage.getItem('exclusive_cart');
+    try {
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [activeFilters, setActiveFilters] = useState({});
+
+  useEffect(() => {
+    localStorage.setItem('exclusive_cart', JSON.stringify(cart));
+  }, [cart]);
+
+  /** @type {Object.<string, string>} */
+  const [activeFilters, setActiveFilters] = useState({
+    volume: 'All',
+    competition: 'All',
+    price: 'All'
+  });
 
   const handleFilterChange = (filterId, value) => {
     setActiveFilters(prev => ({
       ...prev,
-      [filterId]: value === 'All' ? undefined : value
+      [filterId]: value
     }));
   };
 
@@ -49,7 +66,7 @@ export default function ExclusiveKeywords() {
       const { data, error } = await supabase
         .from('exclusive_keywords')
         .select('*')
-        .or(`status.eq.available,and(status.eq.sold,sold_at.gt.${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()})`);
+        .or(`status.eq.available,and(status.eq.sold,sold_at.gt.${new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()})`);
 
       if (error) throw error;
 
@@ -91,7 +108,7 @@ export default function ExclusiveKeywords() {
         }, 1500);
         return;
       }
-      
+
       if (data?.checkout_url) {
         window.location.href = data.checkout_url;
       }
@@ -124,6 +141,21 @@ export default function ExclusiveKeywords() {
       window.scrollTo(0, 0);
     }
   }, [selectedKeyword]);
+
+  // Real-time subscription for instant updates
+  useEffect(() => {
+    const channel = supabase.channel('public:exclusive_keywords')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'exclusive_keywords' }, (payload) => {
+        console.log('Real-time keyword update received:', payload);
+        // Instantly invalidate and refetch the cache so everyone sees the updated status
+        queryClient.invalidateQueries({ queryKey: ['exclusive-keywords'] });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   // Handle URL-based deep linking
   useEffect(() => {
@@ -165,75 +197,164 @@ export default function ExclusiveKeywords() {
   });
 
   const cartSheetContent = (
-    <SheetContent className="w-full sm:max-w-md bg-white border-l border-slate-100 p-0 flex flex-col z-[100]">
-      <SheetHeader className="p-6 border-b border-slate-50">
-        <SheetTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
-          <ShoppingCart className="w-6 h-6 text-indigo-600" />
-          Shopping Cart
-        </SheetTitle>
+    <SheetContent className="w-full sm:max-w-md bg-gradient-to-b from-white to-slate-50 border-l border-white/20 p-0 flex flex-col z-[100] shadow-2xl overflow-hidden">
+      {/* Premium Header */}
+      <SheetHeader className="p-8 border-b border-slate-100/50 bg-white/80 backdrop-blur-md relative">
+        <div className="flex items-center justify-between relative z-10">
+          <SheetTitle className="text-3xl font-black text-slate-900 flex items-center gap-4">
+            <div className="w-12 h-12 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-200 flex items-center justify-center rotate-3 hover:rotate-0 transition-transform duration-300">
+              <ShoppingCart className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex flex-col">
+              <span className="tracking-tighter">My Basket</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{cart.length} Opportunities</span>
+            </div>
+          </SheetTitle>
+          <button
+            onClick={() => setIsCartOpen(false)}
+            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all duration-300"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        {/* Subtle background glow */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/5 blur-[50px] rounded-full" />
       </SheetHeader>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {cart.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center">
-              <ShoppingBag className="w-10 h-10 text-slate-200" />
-            </div>
-            <div>
-              <h4 className="font-bold text-slate-900">Your cart is empty</h4>
-              <p className="text-sm text-slate-500">Discover vetted opportunities to get started</p>
-            </div>
-          </div>
-        ) : (
-          cart.map((item) => (
-            <div key={item.id} className="group relative flex items-center gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100 hover:border-indigo-100 hover:bg-white transition-all">
-              <div className="w-16 h-16 bg-white rounded-xl overflow-hidden border border-slate-100 flex-shrink-0">
-                <img src={item.image_url} alt="" className="w-full h-full object-cover" />
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <AnimatePresence mode="popLayout">
+          {cart.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="h-full flex flex-col items-center justify-center text-center px-8 font-sans"
+            >
+              <div className="w-28 h-28 bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 flex items-center justify-center mb-8 relative group">
+                <ShoppingBag className="w-12 h-12 text-slate-200 group-hover:text-blue-600 transition-colors duration-500" />
+                <div className="absolute inset-0 bg-blue-500/5 rounded-[40px] animate-pulse" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest truncate">{item.category}</p>
-                <h4 className="font-bold text-slate-900 text-sm truncate">#{item.id?.slice(-6).toUpperCase()}</h4>
-                <p className="font-black text-slate-900">${item.price}</p>
-              </div>
-              <button
-                onClick={() => removeFromCart(item.id)}
-                className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+              <h4 className="text-2xl font-bold text-slate-900 mb-3">Empty Basket</h4>
+              <p className="text-slate-500 font-medium text-sm leading-relaxed mb-10 px-4">
+                You haven't added any vetted market opportunities yet.
+              </p>
+              <Button
+                onClick={() => setIsCartOpen(false)}
+                className="w-full rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold h-14 shadow-lg shadow-blue-600/20 transition-all active:scale-95"
               >
-                <X className="w-4 h-4" />
-              </button>
+                Start Exploring
+              </Button>
+            </motion.div>
+          ) : (
+            <div className="space-y-4">
+              {cart.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="group relative flex items-center gap-5 p-5 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:border-indigo-100 transition-all duration-500"
+                >
+                  <div className="w-24 h-24 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 flex-shrink-0 relative">
+                    <img src={item.image_url} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 rounded-lg text-[9px] font-black text-emerald-600 uppercase tracking-tighter">
+                        <ShieldCheck className="w-3 h-3" />
+                        Verified
+                      </div>
+                      <div className="px-2 py-0.5 bg-slate-900 text-white text-[10px] font-black rounded-md shadow-sm uppercase tracking-wider">
+                        ID: #{item.id?.slice(-5).toUpperCase()}
+                      </div>
+                    </div>
+                    <h4 className="font-black text-slate-900 text-base truncate mb-1 leading-tight group-hover:text-indigo-600 transition-colors">
+                      {item.category || 'Niche Opportunity'}
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-slate-400">$</span>
+                      <span className="text-2xl font-black text-slate-900 tracking-tighter">{item.price}</span>
+                      <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="w-8 h-8 rounded-full bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-          ))
-        )}
+          )}
+        </AnimatePresence>
       </div>
 
       {cart.length > 0 && (
-        <SheetFooter className="p-6 bg-slate-50 border-t border-slate-100 flex-col sm:flex-col gap-4">
-          <div className="w-full space-y-2">
-            <div className="flex justify-between items-center text-slate-500 font-bold uppercase text-[10px] tracking-widest">
-              <span>Subtotal</span>
-              <span>${cartTotal}</span>
+        <div className="p-8 bg-white/80 backdrop-blur-md border-t border-slate-100 space-y-8 relative">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center px-2">
+              <span className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em]">Subtotal</span>
+              <span className="font-bold text-slate-900 text-lg">${cartTotal}</span>
             </div>
-            <div className="flex justify-between items-center text-slate-900 font-black text-xl">
-              <span>Total</span>
-              <span>${cartTotal}</span>
+            <div className="flex justify-between items-center px-2">
+              <div className="flex items-center gap-2">
+                <span className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em]">Secure Fee</span>
+                <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 text-[8px] font-black rounded-md">WAIVED</span>
+              </div>
+              <span className="font-bold text-emerald-500 text-sm">$0.00</span>
+            </div>
+
+            <div className="pt-6 border-t border-slate-100 flex justify-between items-end px-2">
+              <div>
+                <span className="text-slate-900 font-black text-2xl tracking-tighter">Total Due</span>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Stripe Secure Checkout</p>
+              </div>
+              <div className="text-right">
+                <div className="text-4xl font-black text-blue-600 tracking-tighter leading-none">${cartTotal}</div>
+              </div>
             </div>
           </div>
-          <Button
-            onClick={() => purchaseMutation.mutate(cart.map(i => i.id))}
-            disabled={purchaseMutation.isPending}
-            className="w-full bg-indigo-600 hover:bg-slate-900 text-white font-black h-14 rounded-2xl shadow-xl shadow-indigo-100 uppercase tracking-widest text-xs flex items-center justify-center gap-3"
-          >
-            {purchaseMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-              <>
-                <CreditCard className="w-5 h-5" />
-                Checkout Now
-              </>
-            )}
-          </Button>
-          <p className="text-[10px] text-slate-400 font-bold text-center uppercase tracking-widest">
-            Secure checkout powered by Stripe
-          </p>
-        </SheetFooter>
+
+          <div className="space-y-4 relative z-10">
+            <Button
+              onClick={() => {
+                if (!user) {
+                  toast.error('You must create an account to purchase.');
+                  navigate('/auth');
+                  return;
+                }
+                purchaseMutation.mutate(cart.map(i => i.id));
+              }}
+              disabled={purchaseMutation.isPending}
+              className="group relative w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base h-16 rounded-[24px] shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3 transition-all active:scale-[0.97] overflow-hidden"
+            >
+              {/* Shimmer Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+
+              {purchaseMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                <>
+                  <CreditCard className="w-5 h-5" />
+                  Complete Checkout
+                </>
+              )}
+            </Button>
+
+            <div className="flex flex-col items-center gap-4 pt-2">
+              <div className="flex items-center gap-6 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" className="h-5" />
+                <div className="w-px h-4 bg-slate-300" />
+                <div className="flex items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-widest">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                  Verified Merchant
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </SheetContent>
   );
@@ -247,76 +368,119 @@ export default function ExclusiveKeywords() {
         <KeywordReport
           keyword={selectedKeyword}
           onBack={handleBack}
-          onBuy={() => addToCart(selectedKeyword)}
+          onAddToCart={() => addToCart(selectedKeyword)}
+          onBuy={() => {
+            if (!user) {
+              toast.error('You must create an account to purchase.');
+              navigate('/auth');
+              return;
+            }
+            purchaseMutation.mutate([selectedKeyword.id]);
+          }}
         />
       </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#EBEFF1]">
-      {/* 4.1.1 Header Section */}
-      <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 pt-16 pb-12 px-6 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-indigo-500/10 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-1/4 h-1/2 bg-gradient-to-tr from-purple-500/10 to-transparent pointer-events-none" />
+    <div className="min-h-screen bg-slate-50 font-sans selection:bg-blue-100">
+      {/* 4.1.1 Header Section (Diagonal Split Layout) */}
+      <div className="relative overflow-hidden bg-slate-900 pt-10 pb-8 px-6 lg:px-12 min-h-[220px] flex items-center">
 
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          {/* Shopping Cart Trigger */}
-          <div className="absolute -top-10 right-0">
+        {/* Background Image (Right Side) */}
+        <div className="absolute inset-0 z-0">
+          {/* High-quality financial analytics background - line charts and metrics */}
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=2940&auto=format&fit=crop')] bg-cover bg-center opacity-70"></div>
+        </div>
+
+        {/* Diagonal Blue Overlay (Left Side) */}
+        <div
+          className="absolute top-0 left-0 h-full w-full bg-blue-600/95 z-10"
+          style={{ clipPath: 'polygon(0 0, 45% 0, 65% 100%, 0% 100%)' }}
+        >
+          {/* Inner gradient/pattern for the blue side to give it depth */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+        </div>
+
+        {/* Content Container */}
+        <div className="max-w-7xl mx-auto w-full relative z-20 flex flex-col items-start justify-center">
+
+          {/* Shopping Cart Trigger (Positioned top-right within the container) */}
+          <div className="absolute -top-6 right-0 z-50">
             <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="outline"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-2xl px-6 h-12 flex items-center gap-3 backdrop-blur-md transition-all active:scale-95 group"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-2xl px-5 h-10 flex items-center gap-2 backdrop-blur-md transition-all active:scale-95 group shadow-xl cursor-pointer"
                 >
                   <div className="relative">
-                    <ShoppingCart className="w-5 h-5" />
+                    <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
                     {cart.length > 0 && (
-                      <span className="absolute -top-2 -right-2 w-5 h-5 bg-indigo-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-slate-900 animate-in zoom-in">
+                      <span className="absolute -top-2 -right-2 w-4 h-4 bg-amber-500 text-slate-900 text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-slate-900 animate-in zoom-in">
                         {cart.length}
                       </span>
                     )}
                   </div>
-                  <span className="text-xs font-black uppercase tracking-widest">My Cart</span>
+                  <span className="text-xs font-bold uppercase tracking-wider hidden sm:block">My Cart</span>
                 </Button>
               </SheetTrigger>
               {cartSheetContent}
             </Sheet>
           </div>
+
+          {/* Left Aligned Content */}
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-400 text-xs font-bold mb-4 uppercase tracking-widest"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/20 text-white text-[10px] font-bold mb-3 uppercase tracking-wider backdrop-blur-sm shadow-lg"
           >
-            <Sparkles className="w-3 h-3" />
+            <Sparkles className="w-3 h-3 text-amber-300" />
             Marketplace Early Access
           </motion.div>
+
           <motion.h1
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight"
+            className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-3 tracking-tight leading-[1.1] max-w-2xl drop-shadow-lg"
           >
-            Only Vetted Markets. No <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Guesswork.</span>
+            Only Vetted Markets.<br />No Guesswork.
           </motion.h1>
+
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-slate-400 text-lg max-w-2xl mx-auto font-medium"
+            className="text-blue-50 text-base md:text-lg max-w-xl font-medium mb-5 leading-relaxed drop-shadow-md"
           >
-            Data-backed, risk-aware niches analyzed across demand, competition, profitability, and market stability sold once and never resold.
-            <br className="hidden md:block my-1" />
-            One buyer. One opportunity. No saturation.
+            Data-backed niches analyzed for demand, competition, and profitability. Sold once. Never resold.
           </motion.p>
+
+
+          {!user && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex flex-wrap gap-4"
+            >
+              <Button
+                onClick={() => navigate('/auth')}
+                className="h-12 px-8 bg-white hover:bg-slate-100 text-blue-600 font-bold text-sm rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.05] flex items-center gap-2 group cursor-pointer"
+              >
+                Register for Full Access
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </motion.div>
+          )}
+
         </div>
       </div>
 
       {/* 4.1.2 Recently Sold Ticker */}
       <RecentlySoldTicker />
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* 4.1.3 Filter Bar */}
         <MarketplaceFilterBar
           activeFilters={activeFilters}
@@ -370,7 +534,7 @@ export default function ExclusiveKeywords() {
       </div>
 
       {/* 4.1.4 Pagination/Footer placeholder */}
-      <div className="max-w-6xl mx-auto px-6 pb-20 pt-10 border-t border-slate-100 mt-10">
+      <div className="max-w-7xl mx-auto px-6 pb-20 pt-10 border-t border-slate-100 mt-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-slate-500 text-sm italic">
           <p>© 2026 Vetted Niche AI. All keywords are verified for maximum opportunity.</p>
         </div>
@@ -378,7 +542,6 @@ export default function ExclusiveKeywords() {
     </div>
   );
 }
-
 function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
   const isSold = keyword.status === 'sold';
 
@@ -391,7 +554,16 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
 
   const totalCostPerUnit = ecoCogs + ecoShipping + ecoReferral + ecoFba + ecoAds;
   const netProfitPerUnit = ecoSalePrice - totalCostPerUnit;
-  const calculatedRoi = Math.round((netProfitPerUnit / (ecoCogs + ecoShipping)) * 100);
+  const calculatedNetMargin = Math.round((netProfitPerUnit / ecoSalePrice) * 100);
+  const calculatedAvgProfit = Math.round(netProfitPerUnit * (Number(keyword.est_sales) || 350)).toLocaleString();
+
+  // Smart Badges Logic
+  const badges = [];
+  const isFastLaunch = (keyword.competition_level || '').toLowerCase() === 'low' && (keyword.search_volume || 0) >= 3000;
+
+
+  if ((keyword.est_sales || 0) >= 500) badges.push({ text: 'Top Seller', icon: <TrendingUp className="w-3 h-3" />, color: 'bg-orange-50 text-orange-600 border-orange-100' });
+  if (keyword.is_new_this_week) badges.push({ text: 'New Opportunity', icon: <Sparkles className="w-3 h-3" />, color: 'bg-emerald-50 text-emerald-600 border-emerald-100' });
 
   return (
     <motion.div
@@ -401,278 +573,348 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
       transition={{ delay: index * 0.1 }}
       className="w-full max-w-7xl mx-auto"
     >
-      <Card className={`overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white group/card
-        ${isSold ? 'opacity-90 grayscale-[0.5]' : ''}
+      <Card className={`overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-500 bg-white group/card relative font-sans
+        ${isSold ? 'opacity-95' : ''}
       `}>
-        <div className="flex flex-col lg:flex-row p-4 lg:p-6 gap-0 lg:gap-6">
-          {/* ------------- DESKTOP IMAGE ------------- */}
-          <div className="hidden lg:block w-56 aspect-square flex-shrink-0 relative">
-            <div className="w-full h-full rounded-xl overflow-hidden bg-slate-50 border border-slate-100 relative">
-              <div className="absolute top-2 left-2 z-10">
-                <div className="bg-indigo-600 text-white font-black px-2 py-1 rounded text-[10px] shadow-lg tracking-wider">
-                  #{keyword.id?.slice(-5).toUpperCase() || '89855'}
+        {/* Sold Overlay Banner */}
+        {isSold && (
+          <div className="absolute top-6 -right-12 bg-slate-900 text-white font-bold text-[10px] py-1.5 w-48 text-center rotate-45 z-50 shadow-xl uppercase tracking-wider border-y border-white/10">
+            Sold & Private
+          </div>
+        )}
+
+        <div className="flex flex-col lg:flex-row">
+          {/* MOBILE LAYOUT (Hidden on Desktop) */}
+          <div className="lg:hidden p-4 flex flex-col gap-4 w-full">
+            {/* Header Row: Image + ID/Status */}
+            <div className="flex gap-4">
+              <div
+                className="w-24 h-24 rounded-xl overflow-hidden border border-slate-200 flex-shrink-0 bg-white shadow-sm cursor-pointer hover:border-blue-300 transition-colors"
+                onClick={onView}
+              >
+                <img
+                  src={keyword.image_url || `/exclusive_product_placeholder.webp`}
+                  alt={keyword.keyword_phrase}
+                  className={`w-full h-full object-cover ${isSold ? 'grayscale' : ''}`}
+                />
+              </div>
+              <div className="flex-1 flex flex-col justify-between py-1">
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col gap-2">
+                    <div className="px-2 py-1 bg-blue-600 text-white text-[10px] font-bold rounded-md shadow-md shadow-blue-100 flex items-center gap-1.5 uppercase tracking-wide border border-blue-500 w-fit">
+                      #{keyword.id?.slice(-5).toUpperCase() || '89855'}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className={`w-1.5 h-1.5 rounded-full ${isSold ? 'bg-red-500' : 'bg-emerald-500 animate-pulse'}`}></div>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
+                        {isSold ? 'Sold' : 'Active'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Price at top level */}
+                  <div className="flex flex-col items-center">
+                    <div className="text-2xl font-black text-blue-600 whitespace-nowrap">
+                      ${keyword.price}
+                    </div>
+                    <div className="text-[7px] font-bold text-slate-600 uppercase tracking-tight mt-0.5">
+                      Sold to one buyer only
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5 mt-2">
+                  {keyword.product_seller_fit && (
+                    <div className="flex items-center gap-1.5 text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 w-fit">
+                      {keyword.product_seller_fit}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1.5 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 w-fit">
+                    <ShieldCheck className="w-3 h-3" />
+                    <span>{new Date(keyword.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  </div>
                 </div>
               </div>
-              <img
-                src={keyword.image_url || `https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop`}
-                alt={keyword.category}
-                className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
-              />
-              {isSold && (
-                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
-                  <span className="text-white font-black text-xl rotate-[-12deg] border-2 border-white px-4 py-1 uppercase tracking-widest">SOLD</span>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <h3 className="text-lg font-black text-slate-900 tracking-tight leading-tight">
+                {keyword.category || 'Home & Kitchen'}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                <div className="flex items-center gap-2 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider bg-slate-50 text-blue-600 border border-slate-100 w-fit">
+                  Marketplace: {keyword.marketplace || 'US'}
                 </div>
+                {keyword.best_fit_for && (
+                  <div className="flex items-center gap-2 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider bg-slate-50 text-emerald-600 border border-slate-100 w-fit">
+                    {keyword.best_fit_for}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Metrics Grid (Restored Original Order) */}
+            <div className="grid grid-cols-2 gap-3 py-4 border-y border-slate-100">
+              <div className="bg-slate-50/80 rounded-xl p-2.5 border border-slate-100/50">
+                <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Search Vol.</div>
+                <div className="text-lg font-bold text-slate-900">{keyword.search_volume?.toLocaleString() || '5,000'}</div>
+              </div>
+              <div className="bg-slate-50/80 rounded-xl p-2.5 border border-slate-100/50">
+                <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Avg. Unit Sales / mo</div>
+                <div className="text-lg font-bold text-slate-900">{keyword.est_sales || '350'}</div>
+              </div>
+              <div className="bg-slate-50/80 rounded-xl p-2.5 border border-slate-100/50">
+                <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Avg. Revenue / mo</div>
+                <div className="text-lg font-bold text-slate-900" dir="ltr">${String(keyword.revenue || '5,000').replace('$', '')}</div>
+              </div>
+              <div className="bg-emerald-50/50 rounded-xl p-2.5 border border-emerald-100/50">
+                <div className="text-[9px] font-bold text-emerald-600/70 uppercase tracking-wider mb-1">Avg. Profit / mo</div>
+                <div className="text-lg font-bold text-emerald-700" dir="ltr">${calculatedAvgProfit}</div>
+              </div>
+              <div className="bg-blue-50/50 rounded-xl p-2.5 border border-blue-100/50 col-span-2">
+                <div className="text-[9px] font-bold text-blue-600/70 uppercase tracking-wider mb-1">Net Margin</div>
+                <div className="text-lg font-bold text-blue-700">{calculatedNetMargin}%</div>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="mt-1">
+              <p className="text-slate-600 text-sm leading-relaxed">
+                {keyword.description ?
+                  (keyword.description.includes('year-over-year') ? keyword.description.split('year-over-year')[0] + 'year-over-year...' : keyword.description.slice(0, 100) + '...') :
+                  'This niche has experienced substantial growth with search volume increasing 185.1%+ year-over-year...'}
+                <button onClick={onView} className="text-blue-600 text-sm font-bold ml-1.5 hover:text-blue-700 transition-colors cursor-pointer">Read more</button>
+              </p>
+            </div>
+
+            {/* Footer Metrics (Competition & Age) */}
+            <div className="flex flex-wrap items-center gap-4 text-[12px] font-bold text-slate-400 uppercase tracking-widest mt-2">
+              <div className="flex items-center gap-2">
+                <Activity className={`w-4 h-4 ${(keyword.competition_level || 'Low').toLowerCase() === 'low' ? 'text-emerald-500' : (keyword.competition_level || 'Low').toLowerCase() === 'moderate' ? 'text-orange-500' : 'text-red-500'}`} />
+                <span>Comp: <span className={`${(keyword.competition_level || 'Low').toLowerCase() === 'low' ? 'text-emerald-500' : (keyword.competition_level || 'Low').toLowerCase() === 'moderate' ? 'text-orange-500' : 'text-red-500'}`}>{keyword.competition_level || 'Low'}</span></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-blue-500" />
+                <span className="text-slate-400">Total Listings: {(() => { const raw = keyword.competition_total_active_listing || keyword.competing_products || 500; const num = parseInt(String(raw).replace(/,/g, ''), 10); const colorClass = isNaN(num) ? (String(raw).toLowerCase().includes('moderate') ? 'text-orange-500' : 'text-slate-600') : num <= 100 ? 'text-emerald-600' : num <= 250 ? 'text-blue-600' : num <= 500 ? 'text-orange-500' : 'text-red-600'; return <span className={`${colorClass} font-bold`}>{isNaN(num) ? raw : `${num.toLocaleString()}+`}</span>; })()}</span>
+              </div>
+            </div>
+
+            <hr className="border-slate-100" />
+
+            {/* Buttons Stacked */}
+            <div className="flex flex-col gap-3 mt-2">
+              {!isSold ? (
+                <Button onClick={onPurchase} disabled={isPending} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-md shadow-blue-600/10 transition-all cursor-pointer">
+                  {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShoppingCart className="w-4 h-4" />}
+                  ADD TO CART
+                </Button>
+              ) : (
+                <Button disabled className="w-full h-12 bg-slate-100 text-slate-500 font-bold text-sm rounded-xl cursor-not-allowed">Market Claimed</Button>
               )}
+              <Button onClick={onView} variant="outline" className="w-full h-12 border border-slate-200 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-all cursor-pointer">
+                Unlock Research
+              </Button>
             </div>
           </div>
 
-          {/* ------------- MOBILE TOP SECTION ------------- */}
-          <div className="flex flex-row gap-4 lg:hidden w-full items-stretch mb-4">
-            {/* Image */}
-            <div className="w-28 sm:w-36 aspect-square flex-shrink-0 relative rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+          {/* DESKTOP LAYOUT (Part 1: Left Section) */}
+          <div className="hidden lg:flex lg:w-64 relative bg-slate-50 border-r border-slate-100 overflow-hidden flex-col p-4">
+            {/* Listing ID Header */}
+            <div className="mb-3 flex items-center justify-between">
+              <div className="px-2 py-1 bg-blue-600 text-white text-[10px] font-bold rounded-md shadow-md shadow-blue-100 flex items-center gap-1.5 uppercase tracking-wide border border-blue-500">
+                <span className="text-blue-200 text-[9px]">Listing</span>
+                #{keyword.id?.slice(-5).toUpperCase() || '89855'}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className={`w-1.5 h-1.5 rounded-full ${isSold ? 'bg-red-500' : 'bg-emerald-500 animate-pulse'}`}></div>
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
+                  {isSold ? 'Sold' : 'Active'}
+                </span>
+              </div>
+            </div>
+
+            <div
+              className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-inner bg-white border border-slate-200/50 cursor-pointer group/img"
+              onClick={onView}
+            >
               <img
-                src={keyword.image_url || `https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop`}
-                alt={keyword.category}
-                className="w-full h-full object-cover"
+                src={keyword.image_url || `/exclusive_product_placeholder.webp`}
+                alt={keyword.keyword_phrase}
+                className={`w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110 group-hover/card:scale-105 ${isSold ? 'grayscale' : ''}`}
               />
-              {isSold && (
-                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
-                  <span className="text-white font-black text-[10px] rotate-[-12deg] border-2 border-white px-2 py-0.5 uppercase tracking-widest">SOLD</span>
+              {/* Shimmer Effect Overlay */}
+              {!isSold && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer" />
                 </div>
               )}
             </div>
 
-            {/* Right Details */}
-            <div className="flex-1 flex flex-col justify-between py-1 border-l-0">
-              <div className="flex justify-between items-start gap-1 sm:gap-2">
-                <div className="bg-[#5b5fff] text-white font-black px-2 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-[11px] tracking-wider shadow-sm">
-                  #{keyword.id?.slice(-5).toUpperCase() || '89855'}
+            {/* Strategic Badges - Under Image */}
+            <div className="mt-4 space-y-2">
+              {keyword.product_seller_fit && (
+                <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100 w-fit">
+                  <Target className="w-3.5 h-3.5" />
+                  Seller Fit: {keyword.product_seller_fit}
                 </div>
+              )}
 
-                <div className="flex flex-col items-center text-center -mt-1 sm:mt-0">
-                  <div className="flex items-start text-[26px] sm:text-[30px] font-black text-[#5b5fff] leading-none mb-1">
-                    <span className="text-[10px] sm:text-[12px] font-bold mr-0.5 mt-1 sm:mt-1.5">$</span>
-                    {keyword.price}
-                  </div>
-                  <div className="text-[7.5px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">One-time payment</div>
-                  <div className="bg-[#fff7ed] text-[#ea580c] border border-[#ffedd5] px-2 py-1 rounded shadow-sm flex flex-col items-center justify-center w-fit">
-                    <span className="text-[7.5px] font-black uppercase tracking-wider leading-tight">Sold to</span>
-                    <span className="text-[7.5px] font-black uppercase tracking-wider leading-tight">one buyer only</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="flex items-center gap-1.5 mt-auto">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                <span className="text-[8px] sm:text-[9px] font-bold uppercase text-slate-400 tracking-wider">Verified Exclusive Opportunity</span>
-              </div>
+              {(() => {
+                const createdDate = new Date(keyword.created_at || Date.now());
+                const isNew = (Date.now() - createdDate.getTime()) <= (3 * 24 * 60 * 60 * 1000);
+
+                if (isNew) {
+                  return (
+                    <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-100 w-fit">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>New Listing</span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-100 w-fit">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Data Verified: {createdDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
-          {/* ------------- SHARED CONTENT (Title, Desc, Metrics) ------------- */}
-          <div className="flex-1 flex flex-col justify-between min-w-0">
-            {/* Top Row: Title & Price */}
-            <div className="flex justify-between items-start mb-4">
-              <div className="space-y-1">
-                <div className="hidden lg:flex items-center gap-2 mb-1">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                  <span className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Verified Exclusive Opportunity</span>
+          {/* DESKTOP LAYOUT (Part 2: Content Section) */}
+          <div className="hidden lg:flex flex-1 flex-col p-5 lg:p-7">
+            {/* Smart Badges Row */}
+            {badges.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {badges.map((badge, i) => (
+                  <div key={i} className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shadow-sm ${badge.color}`}>
+                    {badge.icon}
+                    {badge.text}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Header: Title & Competition */}
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 mb-4">
+              <div className="space-y-1.5">
+                <div className="flex flex-col">
+                  <h3 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                    {keyword.category || 'Home & Kitchen'}
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-slate-50 text-blue-600 border border-slate-100 w-fit">
+                      <Target className="w-3 h-3" />
+                      Marketplace: {keyword.marketplace || 'US'}
+                    </div>
+                    {keyword.best_fit_for && (
+                      <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-slate-50 text-emerald-600 border border-slate-100 w-fit">
+                        <Tag className="w-3 h-3" />
+                        <span>{keyword.best_fit_for}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <h3 className="text-xl md:text-2xl font-black text-slate-900 leading-tight">
-                  {keyword.category || 'Home & Kitchen'}
-                </h3>
-                <p className="text-slate-500 text-[11px] lg:text-[10px] font-medium leading-relaxed max-w-2xl mt-1">
-                  {keyword.description || 'This niche has experienced substantial growth with search volume increasing 185.1%+ year-over-year.'}
-                </p>
               </div>
 
-              {/* Desktop ONLY: Price Block */}
-              <div className="hidden lg:block text-right">
-                <div className="flex items-center justify-end text-3xl font-black text-[#5b5fff] mb-1">
-                  <span className="text-sm mr-0.5">$</span>
+              {/* Price Display */}
+              <div className="flex flex-col items-center">
+                <div className="flex items-baseline gap-1 text-4xl font-black text-blue-600">
+                  <span className="text-lg font-bold">$</span>
                   {keyword.price}
                 </div>
-                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">One-time payment</div>
-                <div className="bg-[#fff7ed] text-[#ea580c] border border-[#ffedd5] px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm">
+                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider mt-1">
                   <Target className="w-3 h-3" />
-                  <span className="text-[8.5px] font-black uppercase tracking-wider">Sold to one buyer only</span>
+                  Sold to one buyer only
                 </div>
               </div>
             </div>
 
-            {/* Metrics Row */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4 py-4 lg:py-6 border-y border-slate-50">
-              {/* Opp Score */}
-              <motion.div
-                whileHover={{ y: -2 }}
-                className="flex flex-col items-center p-2 rounded-xl transition-colors hover:bg-slate-50/50"
-              >
-                <div className="flex items-center gap-1.5 text-emerald-500 mb-2">
-                  <Target className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Opp. Score</span>
-                </div>
-                <div className="relative flex items-center justify-center w-14 h-14">
-                  <svg className="w-full h-full transform -rotate-90">
-                    <circle cx="28" cy="28" r="24" stroke="currentColor" strokeWidth="5" fill="transparent" className="text-slate-100" />
-                    <motion.circle cx="28" cy="28" r="24" stroke="currentColor" strokeWidth="5" fill="transparent"
-                      initial={{ strokeDashoffset: 150.8 }}
-                      animate={{ strokeDashoffset: 150.8 - (150.8 * (keyword.opportunity_score || 85)) / 100 }}
-                      transition={{ duration: 1.5, ease: "easeOut" }}
-                      strokeDasharray={150.8}
-                      strokeLinecap="round"
-                      className="text-emerald-500"
-                    />
-                  </svg>
-                  <span className="absolute text-base font-black text-slate-900">{keyword.opportunity_score || 85}</span>
-                </div>
-              </motion.div>
+            {/* Main Metrics Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 py-4 border-y border-slate-100">
+              <div className="bg-slate-50/80 rounded-xl p-2.5 border border-slate-100/50">
+                <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Search Vol.</div>
+                <div className="text-lg font-bold text-slate-900">{keyword.search_volume?.toLocaleString() || '5,000'}</div>
+              </div>
+              <div className="bg-slate-50/80 rounded-xl p-2.5 border border-slate-100/50">
+                <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Avg. Unit Sales / mo</div>
+                <div className="text-lg font-bold text-slate-900">{keyword.est_sales || '350'}</div>
+              </div>
+              <div className="bg-slate-50/80 rounded-xl p-2.5 border border-slate-100/50">
+                <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Avg. Revenue / mo</div>
+                <div className="text-lg font-bold text-slate-900" dir="ltr">${String(keyword.revenue || '5,000').replace('$', '')}</div>
+              </div>
+              <div className="bg-emerald-50/50 rounded-xl p-2.5 border border-emerald-100/50">
+                <div className="text-[9px] font-bold text-emerald-600/70 uppercase tracking-wider mb-1">Avg. Profit / mo</div>
+                <div className="text-lg font-bold text-emerald-700" dir="ltr">${calculatedAvgProfit}</div>
+              </div>
+              <div className="bg-blue-50/50 rounded-xl p-2.5 border border-blue-100/50">
+                <div className="text-[9px] font-bold text-blue-600/70 uppercase tracking-wider mb-1">Net Margin</div>
+                <div className="text-lg font-bold text-blue-700">{calculatedNetMargin}%</div>
+              </div>
 
-              {/* Search Volume */}
-              <motion.div
-                whileHover={{ y: -2 }}
-                className="flex flex-col items-center p-2 rounded-xl transition-colors hover:bg-slate-50/50"
-              >
-                <div className="flex items-center gap-1.5 text-indigo-500 mb-2">
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-black uppercase tracking-wider whitespace-nowrap">Search Volume</span>
+              {/* Description */}
+              <div className="col-span-full mt-2">
+                <div className="flex flex-wrap items-center gap-x-2">
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    {keyword.description ?
+                      (keyword.description.includes('year-over-year') ? keyword.description.split('year-over-year')[0] + 'year-over-year...' : keyword.description.slice(0, 100) + '...') :
+                      'This niche has experienced substantial growth with search volume increasing 185.1%+ year-over-year...'}
+                  </p>
+                  <button
+                    onClick={onView}
+                    className="text-blue-600 text-sm font-bold hover:text-blue-700 transition-colors cursor-pointer"
+                  >
+                    Read more
+                  </button>
                 </div>
-                <div className="text-center">
-                  <span className="text-xl font-black text-slate-900 block leading-none mb-1">
-                    {keyword.search_volume?.toLocaleString() || '5,000'}
-                  </span>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Est. Monthly</span>
-                </div>
-              </motion.div>
+              </div>
+            </div>
 
-              {/* Revenue */}
-              <motion.div
-                whileHover={{ y: -2 }}
-                className="flex flex-col items-center p-2 rounded-xl transition-colors hover:bg-slate-50/50"
-              >
-                <div className="flex items-center gap-1.5 text-emerald-600 mb-2">
-                  <DollarSign className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Revenue</span>
-                </div>
-                <div className="text-center">
-                  <span className="text-xl font-black text-slate-900 block leading-none mb-1">
-                    {keyword.revenue || '$5,000'}
-                  </span>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Est. Monthly</span>
-                </div>
-              </motion.div>
-
-              {/* Reviews */}
-              <motion.div
-                whileHover={{ y: -2 }}
-                className="flex flex-col items-center p-2 rounded-xl transition-colors hover:bg-slate-50/50"
-              >
-                <div className="flex items-center gap-1.5 text-amber-500 mb-2">
-                  <Star className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Reviews</span>
-                </div>
-                <div className="text-center">
-                  <span className="text-xl font-black text-slate-900 block leading-none mb-1">
-                    {keyword.avg_reviews || '7/10'}
-                  </span>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Sellers &lt;100</span>
-                </div>
-              </motion.div>
-
-              {/* ROI */}
-              <motion.div
-                whileHover={{ y: -2 }}
-                className="flex flex-col items-center p-2 rounded-xl transition-colors hover:bg-slate-50/50"
-              >
-                <div className="flex items-center gap-1.5 text-purple-500 mb-2">
-                  <Activity className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">ROI</span>
-                </div>
-                <div className="text-center">
-                  <span className="text-xl font-black text-emerald-600 block leading-none">
-                    {calculatedRoi}%
-                  </span>
-                </div>
-              </motion.div>
-
-              {/* Competing Sellers */}
-              <motion.div
-                whileHover={{ y: -2 }}
-                className="flex flex-col items-center lg:items-end p-2 rounded-xl transition-colors hover:bg-slate-50/50"
-              >
-                <div className="flex items-center gap-1.5 text-blue-500 mb-2">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Competition</span>
-                </div>
-                <div className="text-center lg:text-right">
-                  <span className={`text-xl font-black block leading-none mb-1 ${(keyword.competition_level || 'Low').toLowerCase() === 'low' ? 'text-emerald-500' :
-                    (keyword.competition_level || 'Low').toLowerCase() === 'moderate' ? 'text-amber-500' : 'text-red-500'
-                    }`}>
+            {/* Footer Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+              <div className="flex flex-wrap items-center gap-6 text-[12px] font-bold text-slate-400 uppercase tracking-widest">
+                <div className="flex items-center gap-2">
+                  <Activity className={`w-4 h-4 ${(keyword.competition_level || 'Low').toLowerCase() === 'low' ? 'text-emerald-500' : (keyword.competition_level || 'Low').toLowerCase() === 'moderate' ? 'text-orange-500' : 'text-red-500'}`} />
+                  <span className="text-slate-400">Competition: </span>
+                  <span className={`font-bold ${(keyword.competition_level || 'Low').toLowerCase() === 'low' ? 'text-emerald-600' : (keyword.competition_level || 'Low').toLowerCase() === 'moderate' ? 'text-orange-500' : 'text-red-600'}`}>
                     {keyword.competition_level || 'Low'}
                   </span>
-                  <div className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter">
-                    {keyword.competing_products?.toLocaleString() || '500'} Active Sellers
-                  </div>
                 </div>
-              </motion.div>
-            </div>
-
-            {/* Bottom Row / Footer */}
-            <div className="flex flex-col lg:flex-row justify-between items-center mt-4 gap-4">
-              {/* Secondary Metrics */}
-              <div className="grid grid-cols-3 w-full lg:w-auto lg:flex lg:flex-row lg:gap-4 text-center lg:text-left text-[9px] lg:text-[10px] text-slate-400 font-bold">
-                <div className="flex flex-col lg:flex-row items-center lg:gap-1">
-                  <span>Revenue (12 M)</span>
-                  <span className={`${keyword.revenue_12m_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center gap-0.5 text-[10px] lg:text-inherit font-black mt-1 lg:mt-0`}>
-                    {keyword.revenue_12m_trend === 'down' ? '▼' : '▲'} ${keyword.revenue_12m || '180K'}
-                  </span>
-                </div>
-                <div className="h-3 w-[1px] bg-slate-200 hidden lg:block" />
-                <div className="flex flex-col lg:flex-row items-center lg:gap-1">
-                  <span>Search Vol (6 M)</span>
-                  <span className={`${keyword.click_share_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center gap-0.5 text-[10px] lg:text-inherit font-black mt-1 lg:mt-0`}>
-                    {keyword.click_share_trend === 'down' ? '▼' : '▲'} {keyword.click_share || '7%'}
-                  </span>
-                </div>
-                <div className="h-3 w-[1px] bg-slate-200 hidden lg:block" />
-                <div className="flex flex-col lg:flex-row items-center lg:gap-1">
-                  <span>Units Sold (12 M)</span>
-                  <span className={`${keyword.units_sold_12m_trend === 'down' ? 'text-red-500' : 'text-emerald-500'} flex items-center gap-0.5 text-[10px] lg:text-inherit font-black mt-1 lg:mt-0`}>
-                    {keyword.units_sold_12m_trend === 'down' ? '▼' : '▲'} {keyword.units_sold_12m || '500-750'}
-                  </span>
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-blue-500" />
+                  <span className="text-slate-400">Total Active Listing: </span>
+                  {(() => { const raw = keyword.competition_total_active_listing || keyword.competing_products || 500; const num = parseInt(String(raw).replace(/,/g, ''), 10); const colorClass = isNaN(num) ? (String(raw).toLowerCase().includes('moderate') ? 'text-orange-500' : 'text-slate-600') : num <= 100 ? 'text-emerald-600' : num <= 250 ? 'text-blue-600' : num <= 500 ? 'text-orange-500' : 'text-red-600'; return <span className={`${colorClass} font-bold`}>{isNaN(num) ? raw : `${num.toLocaleString()}+`}</span>; })()}
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 w-full lg:w-auto">
-                <Button
-                  variant="outline"
-                  onClick={onView}
-                  className="flex-1 lg:px-6 h-10 bg-indigo-50/50 border-indigo-100 text-indigo-700 font-black uppercase tracking-widest text-[9px] hover:bg-indigo-100/50 hover:border-indigo-200 hover:text-indigo-800 transition-all rounded-lg shadow-sm shadow-indigo-50/20"
-                >
-                  View Full Report
-                </Button>
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <Button onClick={onView} variant="outline" className="flex-1 sm:flex-none px-8 h-12 border border-slate-200 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-all cursor-pointer">Unlock Research</Button>
                 {!isSold ? (
                   <Button
                     onClick={onPurchase}
                     disabled={isPending}
-                    className="flex-1 lg:px-8 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold uppercase tracking-widest text-[9px] transition-all rounded-lg shadow-lg shadow-indigo-100 flex items-center gap-2 border-none"
+                    className="flex-1 sm:flex-none px-10 h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition-all active:scale-95 flex items-center gap-2 shadow-md shadow-blue-600/10 cursor-pointer"
                   >
-                    {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : (
+                    {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                       <>
-                        <ShoppingCart className="w-3.5 h-3.5" />
-                        Add To Cart
+                        <ShoppingCart className="w-4 h-4" />
+                        ADD TO CART
                       </>
                     )}
                   </Button>
                 ) : (
-                  <Button disabled className="flex-1 lg:px-8 h-10 bg-slate-50 text-slate-400 font-black uppercase tracking-widest text-[9px] rounded-lg italic border-slate-100">
-                    Private Entity
+                  <Button disabled className="flex-1 sm:flex-none px-10 h-12 bg-slate-100 text-slate-500 font-bold text-sm rounded-xl cursor-not-allowed">
+                    Market Claimed
                   </Button>
                 )}
               </div>
             </div>
           </div>
         </div>
+
       </Card>
     </motion.div>
   );

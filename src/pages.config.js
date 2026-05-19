@@ -64,6 +64,7 @@ import KeywordDetails from './pages/KeywordDetails';
 import Pricing from './pages/Pricing';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Profile from './pages/Profile';
+import ResetPassword from './pages/ResetPassword';
 import TermsAndConditions from './pages/TermsAndConditions';
 import __Layout from './Layout.jsx';
 
@@ -85,6 +86,7 @@ export const PAGES = {
     "Pricing": Pricing,
     "PrivacyPolicy": PrivacyPolicy,
     "Profile": Profile,
+    "ResetPassword": ResetPassword,
     "TermsAndConditions": TermsAndConditions,
 }
 

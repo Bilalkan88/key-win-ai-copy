@@ -229,21 +229,27 @@ export default function KeywordDatabase() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || profile?.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
-        <Card className="max-w-md w-full border-slate-800 bg-slate-900 shadow-2xl">
-          <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mx-auto mb-6">
-              <Lock className="w-8 h-8 text-indigo-500" />
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 selection:bg-blue-500/20">
+        <Card className="max-w-md w-full border-slate-800 bg-slate-900 shadow-2xl rounded-3xl overflow-hidden">
+          <CardContent className="p-8 sm:p-10 text-center relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-6 shadow-inner">
+              <Lock className="w-8 h-8 text-blue-400" />
             </div>
-            <h2 className="text-2xl font-black text-white mb-2">Exclusive Access</h2>
-            <p className="text-slate-400 mb-8 font-medium">The Opportunity Engine is reserved for registered members. Sign in to start discovering niches.</p>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-400 text-xs font-bold uppercase tracking-wider rounded-full mb-4 border border-blue-500/20">
+              <Sparkles className="w-3.5 h-3.5" /> Opportunity Engine
+            </div>
+            <h2 className="text-3xl font-black text-white mb-3 tracking-tight">Coming Soon</h2>
+            <p className="text-slate-400 mb-8 font-medium leading-relaxed">
+              We are currently upgrading our keyword database infrastructure with next-generation AI analytics. Exclusive access will open soon.
+            </p>
             <Button
-              onClick={() => window.location.href = '/Auth'}
-              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
+              onClick={() => window.location.href = '/'}
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5"
             >
-              Sign In to Unlock
+              Return to Homepage
             </Button>
           </CardContent>
         </Card>

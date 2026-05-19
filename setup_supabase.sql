@@ -28,13 +28,17 @@ CREATE TABLE IF NOT EXISTS public.exclusive_keywords (
   est_profit TEXT,
   avg_reviews NUMERIC DEFAULT 0,
   demand_level TEXT DEFAULT 'Moderate' CHECK (demand_level IN ('Low', 'Moderate', 'High')),
-  demand_type TEXT DEFAULT 'Year-Round' CHECK (demand_type IN ('Year-Round', 'Seasonal')),
+  demand_type TEXT DEFAULT 'Year-Round' CHECK (demand_type IN ('Year-Round', 'Seasonal', 'New trend', 'Trend')),
   trend_image_url TEXT,
   trend_data JSONB,
   keepa_image_url TEXT,
   helium10_image_url TEXT,
-  buyer_id UUID REFERENCES auth.users(id)
+  buyer_id UUID REFERENCES auth.users(id),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
 );
+
+-- ADD COLUMN IF NOT EXISTS in case table already exists
+ALTER TABLE public.exclusive_keywords ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW());
 
 -- CRITICAL: Reload PostgREST schema cache to fix "Could not find column in schema cache" error
 NOTIFY pgrst, 'reload schema';

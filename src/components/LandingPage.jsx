@@ -2,621 +2,388 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  Sparkles, BarChart3, Lock, Star, Target, CheckCircle, Zap, ArrowRight
+import { 
+  Shield, 
+  Lock, 
+  Search, 
+  Database, 
+  ArrowRight, 
+  CheckCircle, 
+  BarChart3,
+  FileText,
+  Clock,
+  TrendingUp,
+  Award
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-slate-950">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-slate-950">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-slate-950 to-indigo-900/20" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)'
-        }} />
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-100">
+      
+      {/* 1. Hero Section */}
+      <section className="relative pt-32 pb-24 overflow-hidden">
+        {/* Soft Background Accents for Vitality */}
+        <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3 w-[800px] h-[800px] bg-blue-50 rounded-full blur-3xl opacity-70 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-[600px] h-[600px] bg-slate-50 rounded-full blur-3xl opacity-70 pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-28 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left: Text */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-sm mb-6">
-                <Sparkles className="w-4 h-4" />
-                <span>AI-Powered Niche Intelligence</span>
-              </div>
-
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
-                Discover Highly Profitable<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400">
-                  Vetted Niches
-                </span>
-              </h1>
-
-              <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                Stop wasting time guessing. Discover premium, AI-filtered market opportunities with real demand and low competition — so you can launch products with confidence in highly vetted niches.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                <Button
-                  size="lg"
-                  asChild
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg px-8 py-7 rounded-xl font-semibold shadow-lg shadow-purple-500/30"
-                >
-                  <Link to={createPageUrl('KeywordDatabase')}>
-                    Start Free Trial
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  asChild
-                  className="border-2 border-slate-700 bg-slate-900/50 hover:bg-slate-800 text-white text-lg px-8 py-7 rounded-xl font-semibold"
-                >
-                  <Link to={createPageUrl('Analysis')}>
-                    See Demo
-                  </Link>
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-6 text-sm text-slate-400">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>No credit card required</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>15,000+ niches analyzed</span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Right: Visual */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="relative"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl blur-3xl opacity-20" />
-              <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-700/50 shadow-2xl">
-                <div className="bg-slate-950 rounded-2xl p-6 border border-slate-700/30">
-                  <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-700/50">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                    <span className="text-slate-500 text-sm ml-auto">Live Data</span>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 rounded-xl border border-emerald-500/20">
-                      <span className="text-sm font-medium text-slate-300">Opportunity Score</span>
-                      <Badge className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-3 py-1 text-base font-bold">94</Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-xl border border-blue-500/20">
-                      <span className="text-sm font-medium text-slate-300">Search Volume</span>
-                      <span className="font-bold text-blue-400 text-lg">18,240</span>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500/10 to-purple-600/10 rounded-xl border border-purple-500/20">
-                      <span className="text-sm font-medium text-slate-300">Competition</span>
-                      <span className="font-bold text-purple-400">Very Low</span>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-500/10 to-orange-600/10 rounded-xl border border-orange-500/20">
-                      <span className="text-sm font-medium text-slate-300">Est. Revenue</span>
-                      <span className="font-bold text-orange-400 text-lg">$24,500</span>
-                    </div>
-                  </div>
-                  <div className="mt-6 pt-4 border-t border-slate-700/50">
-                    <div className="flex items-center justify-center gap-2 text-emerald-400 text-sm">
-                      <CheckCircle className="w-4 h-4" />
-                      <span className="font-medium">Ready to Launch</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid Section */}
-      <section className="py-20 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
-            {/* Feature 1 */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <Badge className="mb-4 bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                Opportunity Engine
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Uncover high-potential niches, simplified.
-              </h2>
-              <p className="text-lg text-slate-400 mb-6 leading-relaxed">
-                Stop sifting through endless data. Our Opportunity Engine analyzes thousands of market segments to reveal hidden gems with high demand, low competition, and clear profit markers.
-              </p>
-              <Button asChild className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                <Link to={createPageUrl('KeywordDatabase')}>
-                  Explore Opportunity Engine
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700/50"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop"
-                alt="Analytics Dashboard"
-                className="rounded-lg shadow-xl w-full border border-slate-700/30"
-              />
-            </motion.div>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Feature 2 - Image First */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700/50 lg:order-1"
-            >
-              <div className="bg-slate-950 rounded-xl p-6 shadow-xl border border-slate-700/30">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                    <div className="text-3xl font-bold text-emerald-400 mb-1">15K+</div>
-                    <div className="text-xs text-slate-400">Niches Analyzed</div>
-                  </div>
-                  <div className="text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                    <div className="text-3xl font-bold text-blue-400 mb-1">500+</div>
-                    <div className="text-xs text-slate-400">Vetted Opportunities</div>
-                  </div>
-                  <div className="text-center p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                    <div className="text-3xl font-bold text-purple-400 mb-1">90%</div>
-                    <div className="text-xs text-slate-400">Success Rate</div>
-                  </div>
-                  <div className="text-center p-4 bg-orange-500/10 rounded-lg border border-orange-500/20">
-                    <div className="text-3xl font-bold text-orange-400 mb-1">24/7</div>
-                    <div className="text-xs text-slate-400">Updates</div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="lg:order-2"
-            >
-              <Badge className="mb-4 bg-orange-500/10 text-orange-400 border border-orange-500/20">
-                Amazon profits, maximized.
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Data-driven decisions for every product.
-              </h2>
-              <p className="text-lg text-slate-400 mb-6 leading-relaxed">
-                Leverage our Free Analysis and reverse-product tools to get instant competitor insights, profitability scores, and market data.
-              </p>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
-                    <CheckCircle className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <span className="text-slate-300">Real-time market data</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
-                    <CheckCircle className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <span className="text-slate-300">AI-powered opportunity scores</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
-                    <CheckCircle className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <span className="text-slate-300">Weekly fresh vetted niches</span>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Banner Section */}
-      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900">
-        {/* Animated Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 animate-pulse" />
-          <div className="absolute inset-0 opacity-30" style={{
-            backgroundImage: 'linear-gradient(to right, #ffffff22 1px, transparent 1px), linear-gradient(to bottom, #ffffff22 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
-          }} />
-        </div>
-
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white font-semibold text-sm mb-6 shadow-lg"
-            >
-              <span className="text-xl animate-bounce">🔥</span>
-              <span>Exclusive Opportunities • High Demand</span>
-            </motion.div>
-
-            {/* Main Headline */}
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight">
-              Access Vetted Opportunities<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-400 to-purple-400">
-                Before The Competition Does
-              </span>
-            </h2>
-
-            {/* Features Grid */}
-            <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-8">
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                <div className="text-3xl mb-2">📈</div>
-                <div className="font-bold text-white mb-1">High Search Volume</div>
-                <div className="text-sm text-indigo-200">Real demand, real sales</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                <div className="text-3xl mb-2">🎯</div>
-                <div className="font-bold text-white mb-1">Low Competition</div>
-                <div className="text-sm text-indigo-200">Easy to rank & win</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                <div className="text-3xl mb-2">✨</div>
-                <div className="font-bold text-white mb-1">AI-Filtered</div>
-                <div className="text-sm text-indigo-200">Pre-analyzed for you</div>
-              </div>
-            </div>
-
-            {/* Value Proposition */}
-            <div className="max-w-3xl mx-auto mb-8">
-              <p className="text-xl md:text-2xl text-white/90 leading-relaxed mb-4">
-                <span className="font-bold text-orange-300">No more saturation.</span> Stop fighting in crowded markets.
-              </p>
-              <div className="bg-gradient-to-r from-orange-500/20 to-pink-500/20 backdrop-blur-sm rounded-2xl p-6 border border-white/30">
-                <p className="text-2xl md:text-3xl font-black text-white">
-                  Exclusive Niches Sold to Only ONE Seller.
-                </p>
-              </div>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                size="lg"
-                asChild
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-lg font-bold px-10 py-7 rounded-xl shadow-2xl hover:scale-105 transition-all"
-              >
-                <Link to={createPageUrl('KeywordDatabase')}>
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Start Free Today
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                asChild
-                className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white/20 text-lg font-bold px-10 py-7 rounded-xl"
-              >
-                <Link to={createPageUrl('Analysis')}>
-                  View Demo
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-8 text-white/80 text-sm">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span>15,000+ Niches Analyzed</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span>Updated Weekly</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span>No Credit Card Required</span>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Features Cards Section */}
-      <section className="py-20 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Learn how different users make use of our platform
-            </h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
-                <CardContent className="p-8">
-                  <div className="w-16 h-16 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center mb-6">
-                    <BarChart3 className="w-8 h-8 text-yellow-400" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
-                    Opportunity Engine
-                  </h3>
-                  <p className="text-slate-400 leading-relaxed mb-4">
-                    Instantly browse through thousands of rigorously filtered niches. Our engine reveals high-demand, low-competition product avenues.
-                  </p>
-                  <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
-                    Learn more →
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
-                <CardContent className="p-8">
-                  <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-6">
-                    <Target className="w-8 h-8 text-orange-400" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
-                    Free Analysis Tools
-                  </h3>
-                  <p className="text-slate-400 leading-relaxed mb-4">
-                    Analyze any market with our Free Keyword Analysis and Amazon Scraper. Get instant insights before investing.
-                  </p>
-                  <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
-                    Learn more →
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
-                <CardContent className="p-8">
-                  <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-6">
-                    <Lock className="w-8 h-8 text-purple-400" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
-                    Vetted Opportunities
-                  </h3>
-                  <p className="text-slate-400 leading-relaxed mb-4">
-                    Access premium opportunity data, sold exclusively to one buyer. Obtain a comprehensive business plan to dominate entirely.
-                  </p>
-                  <Button variant="link" className="p-0 h-auto text-purple-400 hover:text-purple-300">
-                    Learn more →
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-20 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              What Our Sellers Say
-            </h2>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-              Real results from real Amazon sellers using our platform
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 text-sm font-bold rounded-full border border-blue-100 mb-8 shadow-sm">
+              <Award className="w-4 h-4" />
+              <span>100% Exclusive Data Reports</span>
+            </div>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6">
+              Amazon FBA <br />
+              Intelligence, <br />
+              <span className="text-blue-600">Sold Once.</span>
+            </h1>
+            <p className="text-xl text-slate-600 mb-10 max-w-xl leading-relaxed">
+              Stop wasting time on research that leads nowhere. VettedNiche delivers manually validated, data-backed FBA opportunities, sold to one buyer only, then removed&nbsp;forever.
             </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button 
+                size="lg" 
+                asChild 
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-7 text-lg rounded-xl shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5"
+              >
+                <Link to={createPageUrl('ExclusiveKeywords')}>
+                  Browse Available Opportunities
+                </Link>
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                asChild 
+                className="bg-white border-2 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-bold px-8 py-7 text-lg rounded-xl transition-all"
+              >
+                <Link to={createPageUrl('Auth')}>
+                  Sign Up for Free
+                </Link>
+              </Button>
+            </div>
+            
+            <div className="mt-8 flex items-center gap-6 text-sm text-slate-500 font-medium">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-500" />
+                Manually Validated
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-500" />
+                Live Amazon Data
+              </div>
+            </div>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
-                <CardContent className="p-8">
-                  <div className="flex items-center gap-1 mb-4">
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                  </div>
-                  <p className="text-slate-300 leading-relaxed mb-6">
-                    "This platform saved me months of research. I found my winning product in just 3 days and it's already generating $5K/month!"
-                  </p>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="relative"
+          >
+            {/* Dynamic Interactive-Looking Dashboard Visual */}
+            <div className="relative w-full aspect-square max-w-md mx-auto lg:max-w-none">
+              {/* Main Card */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-2xl shadow-2xl shadow-slate-200/50 border border-slate-100 p-6 z-20">
+                <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                      SM
+                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <div className="font-semibold text-white">Sarah Mitchell</div>
-                      <div className="text-sm text-slate-400">Amazon Seller</div>
+                      <div className="text-sm font-bold text-slate-900">Premium Home Goods</div>
+                      <div className="text-xs text-slate-500">Market Report</div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                  <div className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-md border border-emerald-100">
+                    VERIFIED
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1.5">
+                      <span className="text-slate-500">Monthly Search Volume</span>
+                      <span className="font-bold text-slate-900">12.5k Searches</span>
+                    </div>
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-600 rounded-full w-[85%]" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1.5">
+                      <span className="text-slate-500">Avg. Unit Sales / mo</span>
+                      <span className="font-bold text-slate-900">1.2k</span>
+                    </div>
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-purple-600 rounded-full w-[65%]" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1.5">
+                      <span className="text-slate-500">Estimated Mo. Revenue</span>
+                      <span className="font-bold text-slate-900">$250k</span>
+                    </div>
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-orange-500 rounded-full w-[75%]" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1.5">
+                      <span className="text-slate-500">Competition</span>
+                      <span className="font-bold text-slate-900">Low</span>
+                    </div>
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-500 rounded-full w-[25%]" />
+                    </div>
+                  </div>
+                  <div className="pt-4 mt-2 border-t border-slate-100 flex justify-between items-center">
+                    <span className="text-slate-500 text-sm">Est. Margin</span>
+                    <span className="text-2xl font-black text-blue-600">34.2%</span>
+                  </div>
+                </div>
+              </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
-                <CardContent className="p-8">
-                  <div className="flex items-center gap-1 mb-4">
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                  </div>
-                  <p className="text-slate-300 leading-relaxed mb-6">
-                    "The Opportunity Engine is incredible. No more wasting time on saturated markets. Entering a vetted niche made all the difference."
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold">
-                      JC
-                    </div>
-                    <div>
-                      <div className="font-semibold text-white">James Chen</div>
-                      <div className="text-sm text-slate-400">E-commerce Entrepreneur</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
-              <Card className="h-full bg-slate-900 border-slate-700 hover:border-purple-500/50 transition-all">
-                <CardContent className="p-8">
-                  <div className="flex items-center gap-1 mb-4">
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                  </div>
-                  <p className="text-slate-300 leading-relaxed mb-6">
-                    "Best investment I made for my Amazon business. The vetted opportunities feature gave me an unfair advantage!"
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
-                      AR
-                    </div>
-                    <div>
-                      <div className="font-semibold text-white">Alex Rodriguez</div>
-                      <div className="text-sm text-slate-400">FBA Seller</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+      {/* 2. How It Works */}
+      <section className="py-24 bg-slate-50 border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16 max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">How It Works</h2>
+            <p className="text-slate-600 text-lg">A simple, transparent process, from research to exclusive ownership.</p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 relative">
+            {/* Connecting Line for Desktop */}
+            <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-blue-100 via-blue-200 to-blue-100 z-0" />
+            
+            {[
+              {
+                step: "01",
+                title: "Expert Analysis",
+                desc: "Our team manually validates every niche using live Amazon data and professional research tools, screening for demand strength, competition level, and profitability. Only opportunities that pass our full criteria reach the marketplace."
+              },
+              {
+                step: "02",
+                title: "Select & Purchase",
+                desc: "Browse available opportunities and pick the niche that fits your goals. Every report includes demand data, top keywords, competition analysis, and a full profitability breakdown, ready to act on immediately."
+              },
+              {
+                step: "03",
+                title: "Total Exclusivity",
+                desc: "Once purchased, the report is permanently removed from our marketplace and will never be sold again. The opportunity is yours alone."
+              }
+            ].map((item, i) => (
+              <div key={i} className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-24 h-24 bg-white rounded-full shadow-lg shadow-slate-200/50 border border-slate-100 flex items-center justify-center text-3xl font-black text-blue-600 mb-6">
+                  {item.step}
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
+                <p className="text-slate-600 leading-relaxed max-w-sm">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Banner Section */}
-      <section className="py-20 bg-slate-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-orange-600/20" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)'
-        }} />
-
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-sm mb-6">
-              <Zap className="w-4 h-4" />
-              <span>Limited Time Offer</span>
-            </div>
-
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
-              Start your Amazon business with confidence
-            </h2>
-            <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-              Get instant access to high-potential niches and start building your profitable product today
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                size="lg"
-                asChild
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg px-10 py-7 rounded-xl font-semibold shadow-lg shadow-purple-500/30"
-              >
-                <Link to={createPageUrl('KeywordDatabase')}>
-                  Start Free Trial
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                asChild
-                className="border-2 border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-white text-lg px-10 py-7 rounded-xl font-semibold"
-              >
-                <Link to={createPageUrl('Pricing')}>
-                  View Pricing
-                </Link>
-              </Button>
-            </div>
-
-            <div className="mt-8 flex items-center justify-center gap-8 text-sm text-slate-400">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span>No credit card required</span>
+      {/* 3. What You Get */}
+      <section className="py-24">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider rounded-md mb-6">
+                Inside the Report
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span>Cancel anytime</span>
+              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-6 leading-tight">
+                Everything you need to <br className="hidden sm:block"/>source, launch, and rank.
+              </h2>
+              <p className="text-slate-600 text-lg mb-10 leading-relaxed">
+                We don't just give you a product idea. We give you the entire blueprint backed by actual market data.
+              </p>
+              
+              <ul className="space-y-8">
+                <li className="flex gap-5">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+                    <BarChart3 className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-slate-900 font-bold text-lg mb-1">Market Demand Breakdown</h4>
+                    <p className="text-slate-600 leading-relaxed">Search volumes, trend growth, seasonality patterns, and estimated niche revenue for the top competitors.</p>
+                  </div>
+                </li>
+                <li className="flex gap-5">
+                  <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0">
+                    <Shield className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-slate-900 font-bold text-lg mb-1">Competitive Landscape</h4>
+                    <p className="text-slate-600 leading-relaxed">Review count, rating analysis, listing weaknesses, and the exact gaps you can exploit to enter and win.</p>
+                  </div>
+                </li>
+                <li className="flex gap-5">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                    <FileText className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-slate-900 font-bold text-lg mb-1">Profitability Snapshot</h4>
+                    <p className="text-slate-600 leading-relaxed">Estimated FBA fees, sourcing costs, and target profit margins calculated upfront.</p>
+                  </div>
+                </li>
+                <li className="flex gap-5">
+                  <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
+                    <Search className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-slate-900 font-bold text-lg mb-1">Top Keyword Intelligence</h4>
+                    <p className="text-slate-600 leading-relaxed">Highest-performing keywords with monthly search volume, estimated sales, and competitor count — ready to use immediately.</p>
+                  </div>
+                </li>
+                <li className="flex gap-5">
+                  <div className="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+                    <Award className="w-6 h-6 text-rose-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-slate-900 font-bold text-lg mb-1">Customer Review Signals</h4>
+                    <p className="text-slate-600 leading-relaxed">Deep analysis of buyer sentiment, common complaints, and unmet needs, to help you design a product that outperforms what's already on the market.</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="relative lg:mt-64">
+              <div className="absolute inset-0 bg-blue-600 rounded-[2rem] transform rotate-3 opacity-10" />
+              <div className="bg-white border border-slate-200 rounded-[2rem] p-4 sm:p-6 shadow-2xl relative z-10 overflow-hidden">
+                 <div className="flex items-center gap-3 border-b border-slate-100 pb-4 mb-6">
+                   <div className="w-3 h-3 rounded-full bg-red-400" />
+                   <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                   <div className="w-3 h-3 rounded-full bg-emerald-400" />
+                   <span className="ml-auto text-xs font-bold text-slate-400 uppercase tracking-widest">Sample Deliverable</span>
+                 </div>
+                 <img 
+                   src="/sample-report.webp" 
+                   alt="Sample Deliverable Report Breakdown" 
+                   className="w-full h-auto rounded-xl shadow-inner border border-slate-100 mb-6"
+                   loading="lazy"
+                 />
+                 <div className="text-center pt-2">
+                   <Button 
+                     size="lg" 
+                     asChild 
+                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-7 text-lg rounded-xl shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5"
+                   >
+                     <Link to={createPageUrl('Auth')}>
+                       Sign Up for Free
+                     </Link>
+                   </Button>
+                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
+      {/* 4. Data Integrity & Exclusivity */}
+      <section className="py-24 bg-slate-900 text-white">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <Shield className="w-14 h-14 text-blue-500 mx-auto mb-8" />
+          <h2 className="text-3xl sm:text-4xl font-black mb-6">Data You Can Trust.</h2>
+          <p className="text-xl text-slate-400 mb-16 leading-relaxed max-w-3xl mx-auto">
+            We don't rely on generic AI estimates. Our analysts pull raw Amazon data, verify margins, and ensure every report reflects reality. 
+          </p>
+          
+          <div className="grid sm:grid-cols-3 gap-8 text-left">
+            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+              <CheckCircle className="w-8 h-8 text-emerald-400 mb-4" />
+              <h3 className="font-bold text-xl mb-2">Manually Validated</h3>
+              <p className="text-slate-400 leading-relaxed">Every report is human-reviewed for accuracy, eliminating misleading data, inflated volumes, and weak opportunities before they reach you.</p>
+            </div>
+            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+              <Lock className="w-8 h-8 text-blue-400 mb-4" />
+              <h3 className="font-bold text-xl mb-2">Sold Once</h3>
+              <p className="text-slate-400 leading-relaxed">Never resold or shared again. When you buy a niche, it is permanently removed from the platform.</p>
+            </div>
+            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+              <Clock className="w-8 h-8 text-purple-400 mb-4" />
+              <h3 className="font-bold text-xl mb-2">30-Day Fresh Data</h3>
+              <p className="text-slate-400 leading-relaxed">All metrics, reviews, and competition data are collected within 30 days of listing.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
+      {/* 5. Free Tools */}
+      <section className="py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+            <div className="max-w-2xl">
+              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">Powerful Free Tools</h2>
+              <p className="text-slate-600 text-lg">Do your own research? Use our internal tools for free to evaluate your own product ideas.</p>
+            </div>
+            <Button variant="outline" asChild className="border-slate-300 text-slate-700 hover:bg-slate-100 rounded-xl px-6">
+              <Link to={createPageUrl('Analysis')}>
+                View All Tools <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </div>
 
-      {/* Footer */}
+          <div className="grid md:grid-cols-2 gap-8">
+            <Link to={createPageUrl('Analysis')} className="group">
+              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-xl hover:shadow-blue-600/10 hover:border-blue-200 transition-all duration-300 h-full">
+                <div className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                  <Search className="w-7 h-7 text-slate-600 group-hover:text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3">Keyword Analysis Tool</h3>
+                <p className="text-slate-600 leading-relaxed">Input any Amazon keyword to instantly retrieve search volume, competition metrics, and trend history.</p>
+              </div>
+            </Link>
+            <Link to={createPageUrl('Analysis')} className="group">
+              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-xl hover:shadow-blue-600/10 hover:border-blue-200 transition-all duration-300 h-full">
+                <div className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-50 group-hover:scale-110 transition-all duration-300">
+                  <Database className="w-7 h-7 text-slate-600 group-hover:text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3">Profit & Cost Calculator</h3>
+                <p className="text-slate-600 leading-relaxed">Reverse-engineer profitability. Calculate exact FBA fees, shipping estimates, and landed costs.</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Final CTA Section */}
+      <section className="py-32 bg-blue-600 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+          backgroundSize: '32px 32px'
+        }} />
+        
+        <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 leading-tight">
+            Ready to Claim Your <br/>Exclusive Opportunity?
+          </h2>
+          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Browse our vetted reports. Once a report is purchased, it disappears forever. Start building your Amazon business today.
+          </p>
+          <Button 
+            size="lg" 
+            asChild 
+            className="bg-white hover:bg-slate-50 text-blue-700 font-black px-10 py-8 text-xl rounded-xl shadow-2xl hover:-translate-y-1 transition-all"
+          >
+            <Link to={createPageUrl('ExclusiveKeywords')}>
+              Browse Available Opportunities
+            </Link>
+          </Button>
+        </div>
+      </section>
+
     </div>
   );
 }
