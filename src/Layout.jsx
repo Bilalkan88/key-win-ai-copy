@@ -4,6 +4,7 @@ import { createPageUrl } from './utils';
 import { Toaster } from 'sonner';
 import { Database, Sparkles, User, DollarSign, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
+import SEO from './components/SEO';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO />
       {/* Navigation - Always Visible */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 transition-all">
         <div className="max-w-7xl mx-auto px-6">

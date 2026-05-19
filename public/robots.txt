@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /AdminDashboard
+Disallow: /ResetPassword
+
+Sitemap: https://vettedniche.com/sitemap.xml
