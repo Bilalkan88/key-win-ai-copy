@@ -18,5 +18,20 @@ export default defineConfig({
     react(),
     viteCompression({ algorithm: 'gzip', ext: '.gz' }),
     viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
-  ]
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('@sentry')) return 'sentry';
+            if (id.includes('framer-motion')) return 'framer';
+            if (id.includes('lucide-react')) return 'icons';
+            if (id.includes('react-dom') || id.includes('react-router')) return 'react-vendor';
+            return 'vendor';
+          }
+        }
+      }
+    }
+  }
 });
