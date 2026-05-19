@@ -28,11 +28,8 @@ export default function LandingPage() {
         <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-[600px] h-[600px] bg-slate-50 rounded-full blur-3xl opacity-70 pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
+          <div>
+
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 text-sm font-bold rounded-full border border-blue-100 mb-8 shadow-sm">
               <Award className="w-4 h-4" />
               <span>100% Exclusive Data Reports</span>
@@ -77,7 +74,7 @@ export default function LandingPage() {
                 Live Amazon Data
               </div>
             </div>
-          </motion.div>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, x: 20 }}
