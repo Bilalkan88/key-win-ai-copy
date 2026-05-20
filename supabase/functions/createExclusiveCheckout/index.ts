@@ -46,13 +46,33 @@ Deno.serve(async (req) => {
         .select('*')
         .eq('id', kId);
       
-      if (results && results.length > 0 && results[0].status === 'available') {
-        selectedKeywords.push(results[0]);
+      if (results && results.length > 0) {
+        const keyword = results[0];
+        const isAvailable = keyword.status === 'available';
+        
+        // Check if the pending lock is still active (less than 15 minutes old)
+        const isPendingLocked = keyword.status === 'pending' && 
+                                keyword.sold_at && 
+                                (Date.now() - new Date(keyword.sold_at).getTime() < 15 * 60 * 1000);
+        
+        if (isAvailable || !isPendingLocked) {
+          selectedKeywords.push(keyword);
+          
+          // Acquire the lock: Mark status as pending and set sold_at to lock time
+          await supabaseClient
+            .from('exclusive_keywords')
+            .update({
+              status: 'pending',
+              sold_at: new Date().toISOString(),
+              buyer_id: user?.id || null
+            })
+            .eq('id', kId);
+        }
       }
     }
 
     if (selectedKeywords.length === 0) {
-      return Response.json({ error: 'Keywords not found or not available' }, { status: 404, headers: corsHeaders });
+      return Response.json({ error: 'Keywords are currently locked by another user or already sold.' }, { status: 404, headers: corsHeaders });
     }
 
     // Check for Pro+ discount

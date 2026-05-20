@@ -80,7 +80,7 @@ export default function ExclusiveKeywords() {
       const { data, error } = await supabase
         .from('exclusive_keywords')
         .select('*')
-        .or(`status.eq.available,and(status.eq.sold,sold_at.gt.${new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()})`);
+        .or(`status.eq.available,status.eq.pending,and(status.eq.sold,sold_at.gt.${new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()})`);
 
       if (error) throw error;
 
@@ -557,6 +557,9 @@ export default function ExclusiveKeywords() {
   );
 }
 function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
+  const isPendingLock = keyword.status === 'pending' && 
+                        keyword.sold_at && 
+                        (Date.now() - new Date(keyword.sold_at).getTime() < 15 * 60 * 1000);
   const isSold = keyword.status === 'sold';
 
   const ecoSalePrice = Number(keyword.economics_sale_price) || 35.00;
@@ -588,14 +591,18 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
       className="w-full max-w-7xl mx-auto"
     >
       <Card className={`overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-500 bg-white group/card relative font-sans
-        ${isSold ? 'opacity-95' : ''}
+        ${isSold ? 'opacity-95' : isPendingLock ? 'opacity-95' : ''}
       `}>
-        {/* Sold Overlay Banner */}
-        {isSold && (
+        {/* Sold / Pending Overlay Banner */}
+        {isSold ? (
           <div className="absolute top-6 -right-12 bg-slate-900 text-white font-bold text-[10px] py-1.5 w-48 text-center rotate-45 z-50 shadow-xl uppercase tracking-wider border-y border-white/10">
             Sold & Private
           </div>
-        )}
+        ) : isPendingLock ? (
+          <div className="absolute top-6 -right-12 bg-orange-600 text-white font-bold text-[10px] py-1.5 w-48 text-center rotate-45 z-50 shadow-xl uppercase tracking-wider border-y border-white/10">
+            Locked / Pending
+          </div>
+        ) : null}
 
         <div className="flex flex-col lg:flex-row">
           {/* MOBILE LAYOUT (Hidden on Desktop) */}
@@ -619,9 +626,9 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
                       #{keyword.id?.slice(-5).toUpperCase() || '89855'}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <div className={`w-1.5 h-1.5 rounded-full ${isSold ? 'bg-red-500' : 'bg-emerald-500 animate-pulse'}`}></div>
+                      <div className={`w-1.5 h-1.5 rounded-full ${isSold ? 'bg-red-500' : isPendingLock ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500 animate-pulse'}`}></div>
                       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
-                        {isSold ? 'Sold' : 'Active'}
+                        {isSold ? 'Sold' : isPendingLock ? 'Pending' : 'Active'}
                       </span>
                     </div>
                   </div>
@@ -906,7 +913,15 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
 
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 <Button onClick={onView} variant="outline" className="flex-1 sm:flex-none px-8 h-12 border border-slate-200 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-all cursor-pointer">Unlock Research</Button>
-                {!isSold ? (
+                {isSold ? (
+                  <Button disabled className="flex-1 sm:flex-none px-10 h-12 bg-slate-100 text-slate-500 font-bold text-sm rounded-xl cursor-not-allowed">
+                    Market Claimed
+                  </Button>
+                ) : isPendingLock ? (
+                  <Button disabled className="flex-1 sm:flex-none px-10 h-12 bg-orange-50 text-orange-500 font-bold text-sm rounded-xl cursor-not-allowed border border-orange-100/50">
+                    Payment Pending
+                  </Button>
+                ) : (
                   <Button
                     onClick={onPurchase}
                     disabled={isPending}
@@ -918,10 +933,6 @@ function KeywordCard({ keyword, index, onView, onPurchase, isPending }) {
                         ADD TO CART
                       </>
                     )}
-                  </Button>
-                ) : (
-                  <Button disabled className="flex-1 sm:flex-none px-10 h-12 bg-slate-100 text-slate-500 font-bold text-sm rounded-xl cursor-not-allowed">
-                    Market Claimed
                   </Button>
                 )}
               </div>
