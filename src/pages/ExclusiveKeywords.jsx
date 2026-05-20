@@ -46,7 +46,7 @@ export default function ExclusiveKeywords() {
   // Clear cart on successful purchase return
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('exclusive_purchase_success') === 'true') {
+    if (params.get('session_id')) {
       setCart([]);
       localStorage.removeItem('exclusive_cart');
       toast.success('Purchase successful! Check your email and Keyword Assets.');

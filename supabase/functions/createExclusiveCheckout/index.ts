@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
       payment_method_types: ['card'],
       allow_promotion_codes: true,
       line_items: line_items,
-      success_url: `${req.headers.get('origin')}/ExclusiveKeywords?exclusive_purchase_success=true`,
+      success_url: `${req.headers.get('origin')}/ExclusiveKeywords?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/ExclusiveKeywords?canceled=true`,
       metadata: {
         keyword_ids: selectedKeywords.map(k => k.id).join(','),
