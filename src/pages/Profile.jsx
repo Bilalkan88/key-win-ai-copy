@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProfilePage() {
@@ -15,6 +16,43 @@ export default function ProfilePage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'assets');
     const navigate = useNavigate();
+
+    // Change Password State
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+    const handleUpdatePassword = async (e) => {
+        e.preventDefault();
+        if (!newPassword) {
+            toast.error("Please enter a new password.");
+            return;
+        }
+        if (newPassword.length < 6) {
+            toast.error("Password must be at least 6 characters.");
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            toast.error("Passwords do not match.");
+            return;
+        }
+
+        setIsUpdatingPassword(true);
+        try {
+            const { error } = await supabase.auth.updateUser({ password: newPassword });
+            if (error) throw error;
+            toast.success("Password updated successfully!");
+            setIsChangingPassword(false);
+            setNewPassword('');
+            setConfirmPassword('');
+        } catch (err) {
+            console.error("Password update error:", err);
+            toast.error(err.message || "Failed to update password.");
+        } finally {
+            setIsUpdatingPassword(false);
+        }
+    };
 
     // Sync tab state with URL parameter
     useEffect(() => {
@@ -337,9 +375,66 @@ export default function ProfilePage() {
 
                                         <div className="space-y-4">
                                             <h4 className="font-bold text-slate-900">Security</h4>
-                                            <Button variant="outline" className="h-11 px-6 font-bold text-slate-700 rounded-xl border-slate-200 hover:bg-slate-50">
-                                                Change Password
-                                            </Button>
+                                            {!isChangingPassword ? (
+                                                <Button 
+                                                    onClick={() => setIsChangingPassword(true)}
+                                                    variant="outline" 
+                                                    className="h-11 px-6 font-bold text-slate-700 rounded-xl border-slate-200 hover:bg-slate-50"
+                                                >
+                                                    Change Password
+                                                </Button>
+                                            ) : (
+                                                <form onSubmit={handleUpdatePassword} className="space-y-4 max-w-sm">
+                                                    <div>
+                                                        <label className="text-xs font-bold text-slate-500 mb-1.5 block">New Password</label>
+                                                        <Input
+                                                            type="password"
+                                                            placeholder="••••••••"
+                                                            value={newPassword}
+                                                            onChange={(e) => setNewPassword(e.target.value)}
+                                                            className="h-11 border-slate-200"
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-xs font-bold text-slate-500 mb-1.5 block">Confirm New Password</label>
+                                                        <Input
+                                                            type="password"
+                                                            placeholder="••••••••"
+                                                            value={confirmPassword}
+                                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                                            className="h-11 border-slate-200"
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="flex gap-2 pt-2">
+                                                        <Button
+                                                            type="submit"
+                                                            disabled={isUpdatingPassword}
+                                                            className="h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 rounded-xl"
+                                                        >
+                                                            {isUpdatingPassword ? (
+                                                                <>
+                                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                                    Updating...
+                                                                </>
+                                                            ) : 'Save New Password'}
+                                                        </Button>
+                                                        <Button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setIsChangingPassword(false);
+                                                                setNewPassword('');
+                                                                setConfirmPassword('');
+                                                            }}
+                                                            variant="outline"
+                                                            className="h-11 px-6 font-bold text-slate-700 rounded-xl border-slate-200 hover:bg-slate-50"
+                                                        >
+                                                            Cancel
+                                                        </Button>
+                                                    </div>
+                                                </form>
+                                            )}
                                         </div>
                                     </CardContent>
                                 </Card>
