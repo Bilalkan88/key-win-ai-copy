@@ -43,6 +43,20 @@ export default function ExclusiveKeywords() {
     localStorage.setItem('exclusive_cart', JSON.stringify(cart));
   }, [cart]);
 
+  // Real-time subscription to update the marketplace instantly when a keyword is bought
+  useEffect(() => {
+    const channel = supabase.channel('marketplace:exclusive_keywords')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'exclusive_keywords' }, (payload) => {
+        console.log('Real-time keyword update received (Marketplace):', payload);
+        queryClient.invalidateQueries({ queryKey: ['exclusive-keywords'] });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   /** @type {Object.<string, string>} */
   const [activeFilters, setActiveFilters] = useState({
     volume: 'All',
