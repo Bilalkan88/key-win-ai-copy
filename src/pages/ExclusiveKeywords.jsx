@@ -43,18 +43,6 @@ export default function ExclusiveKeywords() {
     localStorage.setItem('exclusive_cart', JSON.stringify(cart));
   }, [cart]);
 
-  // Clear cart on successful purchase return
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('session_id')) {
-      setCart([]);
-      localStorage.removeItem('exclusive_cart');
-      toast.success('Purchase successful! Check your email and Keyword Assets.');
-      // Remove param from URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, []);
-
   /** @type {Object.<string, string>} */
   const [activeFilters, setActiveFilters] = useState({
     volume: 'All',

@@ -22,6 +22,16 @@ export default function ProfilePage() {
         if (tab && tab !== activeTab) {
             setActiveTab(tab);
         }
+
+        // Clear cart if returning from a successful purchase
+        if (searchParams.get('session_id')) {
+            localStorage.removeItem('exclusive_cart');
+            toast.success('Purchase successful! Your vetted opportunity is now available below.');
+            // Clean up the URL
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete('session_id');
+            setSearchParams(newParams, { replace: true });
+        }
     }, [searchParams]);
 
     const handleTabChange = (tab) => {
