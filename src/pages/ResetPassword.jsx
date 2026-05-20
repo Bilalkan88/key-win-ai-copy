@@ -20,6 +20,32 @@ export default function ResetPasswordPage() {
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
 
+    // Check if we have a recovery token in the URL or an active session
+    const [isValidFlow, setIsValidFlow] = useState(true);
+    const [checkingSession, setCheckingSession] = useState(true);
+
+    React.useEffect(() => {
+        const verifySession = async () => {
+            const hasToken = window.location.hash.includes('access_token') || 
+                             window.location.search.includes('code') || 
+                             window.location.hash.includes('type=recovery');
+            
+            if (hasToken) {
+                setIsValidFlow(true);
+                setCheckingSession(false);
+                return;
+            }
+
+            // Fallback: check if supabase already has an active session
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                setIsValidFlow(false);
+            }
+            setCheckingSession(false);
+        };
+        verifySession();
+    }, []);
+
     const {
         register,
         handleSubmit,
@@ -67,14 +93,35 @@ export default function ResetPasswordPage() {
                 <Card className="border-slate-800 bg-slate-900/40 backdrop-blur-2xl shadow-2xl">
                     <CardHeader>
                         <CardTitle className="text-2xl font-bold text-white">
-                            {success ? 'Password Updated!' : 'Create New Password'}
+                            {checkingSession ? 'Verifying Link...' : !isValidFlow ? 'Expired or Invalid Link' : success ? 'Password Updated!' : 'Create New Password'}
                         </CardTitle>
                         <CardDescription className="text-slate-400 font-medium">
-                            {success ? 'Redirecting you to the dashboard...' : 'Please enter your new password below.'}
+                            {checkingSession ? 'Please wait while we verify your authentication token...' : !isValidFlow ? 'This password reset link is invalid or has expired.' : success ? 'Redirecting you to the dashboard...' : 'Please enter your new password below.'}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {success ? (
+                        {checkingSession ? (
+                            <div className="py-8 text-center">
+                                <Loader2 className="w-10 h-10 animate-spin text-indigo-500 mx-auto" />
+                            </div>
+                        ) : !isValidFlow ? (
+                            <div className="py-4 text-center space-y-4">
+                                <AlertCircle className="w-16 h-16 text-amber-500 mx-auto animate-pulse" />
+                                <div className="text-slate-300 text-sm space-y-3 text-left leading-relaxed">
+                                    <p className="font-bold text-white text-center">Why did this happen?</p>
+                                    <p>Mobile email clients (like Gmail, Outlook, or Apple Mail) often strip security tokens from URL hashes for privacy, preventing your session from being established.</p>
+                                    <p className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-xs text-indigo-300">
+                                        💡 <strong>Quick Fix:</strong> Copy the reset link from your email and paste it directly into your default browser (Safari or Chrome).
+                                    </p>
+                                </div>
+                                <Button
+                                    onClick={() => navigate('/Auth')}
+                                    className="w-full h-12 bg-slate-950 hover:bg-slate-900 border border-white/10 text-white font-black uppercase tracking-widest text-xs mt-4"
+                                >
+                                    Go to Login Page
+                                </Button>
+                            </div>
+                        ) : success ? (
                             <div className="py-8 text-center space-y-4">
                                 <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto animate-bounce" />
                                 <p className="text-white font-bold">Your password has been reset successfully.</p>
