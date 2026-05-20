@@ -90,6 +90,7 @@ Deno.serve(async (req) => {
       metadata: {
         keyword_ids: selectedKeywords.map(k => k.id).join(','),
         user_email: userEmail,
+        buyer_id: user?.id || '',
         purchase_type: 'exclusive_keyword'
       }
     });

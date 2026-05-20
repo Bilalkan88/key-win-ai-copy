@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
             .update({
               status: 'sold',
               sold_at: new Date().toISOString(),
-              sold_to: metadata.user_email
+              buyer_id: metadata.buyer_id || null
             })
             .eq('id', kId);
 
