@@ -56,6 +56,41 @@ Deno.serve(async (req) => {
 
         for (const kId of keywordIds) {
           if (!kId) continue;
+
+          // Check if already sold to prevent concurrent double purchases
+          const { data: currentKw, error: fetchError } = await supabaseAdmin
+            .from('exclusive_keywords')
+            .select('status, buyer_id')
+            .eq('id', kId)
+            .single();
+
+          if (fetchError) {
+            console.error('Failed to check keyword status:', fetchError);
+            continue;
+          }
+
+          if (currentKw && currentKw.status === 'sold' && currentKw.buyer_id && currentKw.buyer_id !== (metadata.buyer_id || null)) {
+            console.warn(`CRITICAL: Keyword ${kId} was already sold to ${currentKw.buyer_id}. Refunding payment_intent: ${session.payment_intent}`);
+            try {
+              if (session.payment_intent) {
+                const refund = await stripe.refunds.create({
+                  payment_intent: session.payment_intent,
+                  reason: 'duplicate',
+                  metadata: {
+                    keyword_id: kId,
+                    attempted_buyer_id: metadata.buyer_id || '',
+                    original_buyer_id: currentKw.buyer_id
+                  }
+                });
+                console.log(`Automatic refund issued successfully: ${refund.id}`);
+              } else {
+                console.error('No payment_intent found to issue refund.');
+              }
+            } catch (refundErr) {
+              console.error('Failed to issue automatic refund:', refundErr);
+            }
+            continue; // Skip DB updates and email delivery for this duplicate purchase
+          }
           
           // 1. Mark keyword as sold in Base44 / Supabase
           // 1. Mark keyword as sold in Base44 / Supabase
