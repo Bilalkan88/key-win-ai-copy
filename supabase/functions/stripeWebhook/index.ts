@@ -58,17 +58,21 @@ Deno.serve(async (req) => {
           if (!kId) continue;
           
           // 1. Mark keyword as sold in Base44 / Supabase
-          await supabaseAdmin
+          // 1. Mark keyword as sold in Base44 / Supabase
+          const { error: updateError } = await supabaseAdmin
             .from('exclusive_keywords')
             .update({
               status: 'sold',
               sold_at: new Date().toISOString(),
-              sold_to: metadata.user_email,
-              stripe_payment_intent_id: session.payment_intent
+              sold_to: metadata.user_email
             })
             .eq('id', kId);
 
-          console.log('Exclusive keyword sold:', kId);
+          if (updateError) {
+            console.error('DATABASE UPDATE FAILED FOR KEYWORD:', kId, updateError);
+          } else {
+            console.log('Exclusive keyword sold and marked in DB:', kId);
+          }
 
           // 2. Automated PDF Delivery Logic
           try {
