@@ -83,6 +83,7 @@ Deno.serve(async (req) => {
       customer_email: userEmail,
       mode: 'payment',
       payment_method_types: ['card'],
+      allow_promotion_codes: true,
       line_items: line_items,
       success_url: `${req.headers.get('origin')}?exclusive_purchase_success=true`,
       cancel_url: `${req.headers.get('origin')}/ExclusiveKeywords?canceled=true`,
