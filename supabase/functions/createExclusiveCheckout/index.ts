@@ -39,9 +39,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'No keywords provided' }, { status: 400, headers: corsHeaders });
     }
 
+    // Initialize Supabase Admin client for database operations to bypass RLS
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
     const selectedKeywords = [];
     for (const kId of idsToProcess) {
-      const { data: results } = await supabaseClient
+      const { data: results } = await supabaseAdmin
         .from('exclusive_keywords')
         .select('*')
         .eq('id', kId);
@@ -58,8 +64,8 @@ Deno.serve(async (req) => {
         if (isAvailable || !isPendingLocked) {
           selectedKeywords.push(keyword);
           
-          // Acquire the lock: Mark status as pending and set sold_at to lock time
-          await supabaseClient
+          // Acquire the lock using Admin client: Mark status as pending and set sold_at to lock time
+          const { error: lockError } = await supabaseAdmin
             .from('exclusive_keywords')
             .update({
               status: 'pending',
@@ -67,6 +73,12 @@ Deno.serve(async (req) => {
               buyer_id: user?.id || null
             })
             .eq('id', kId);
+
+          if (lockError) {
+            console.error('FAILED TO ACQUIRE LOCK IN DB:', lockError);
+          } else {
+            console.log(`Successfully locked keyword ${kId} for user ${user?.id || 'guest'}`);
+          }
         }
       }
     }
@@ -75,8 +87,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Keywords are currently locked by another user or already sold.' }, { status: 404, headers: corsHeaders });
     }
 
-    // Check for Pro+ discount
-    const { data: subscriptions } = await supabaseClient
+    // Check for Pro+ discount using Admin client
+    const { data: subscriptions } = await supabaseAdmin
       .from('subscriptions')
       .select('plan_type')
       .eq('user_email', userEmail)
