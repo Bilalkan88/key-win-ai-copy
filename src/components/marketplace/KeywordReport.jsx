@@ -574,14 +574,14 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                                 return parts.map((part, i) => {
                                                     const lower = part.toLowerCase();
                                                     if (lower.includes('key insights')) {
-                                                        return <span key={i} className="text-purple-600 font-black not-italic bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100 shadow-sm mx-1 inline-block">{part}</span>;
+                                                        return <span key={i} className="text-slate-700 font-bold not-italic bg-slate-100/90 px-2 py-0.5 rounded-lg border border-slate-200/80 shadow-sm mx-1 inline-block uppercase tracking-wider text-[11px]">{part}</span>;
                                                     }
                                                     if (lower.includes('opportunity signal')) {
-                                                        return <span key={i} className="text-emerald-600 font-black not-italic bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 shadow-sm mx-1 inline-block">{part}</span>;
+                                                        return <span key={i} className="text-blue-700 font-bold not-italic bg-blue-50/90 px-2 py-0.5 rounded-lg border border-blue-100/70 shadow-sm mx-1 inline-block uppercase tracking-wider text-[11px]">{part}</span>;
                                                     }
                                                     if (lower.includes('description')) {
                                                         const cleanLabel = part.includes(':') ? 'Niche Analysis:' : 'Niche Analysis';
-                                                        return <span key={i} className="text-blue-600 font-black not-italic bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 shadow-sm mx-1 inline-block">{cleanLabel}</span>;
+                                                        return <span key={i} className="text-slate-800 font-bold not-italic bg-slate-100/95 px-2 py-0.5 rounded-lg border border-slate-200/60 shadow-sm mx-1 inline-block uppercase tracking-wider text-[11px]">{cleanLabel}</span>;
                                                     }
                                                     return part;
                                                 });

@@ -1,35 +1,94 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Clock } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
-const mockSoldKeywords = [
-    { id: 1, phrase: 'Kitchen Gadgets 2024', soldAt: '2 mins ago' },
-    { id: 2, phrase: 'Bamboo Toilet Paper Bulk', soldAt: '15 mins ago' },
-    { id: 3, phrase: 'Electric Milk Frother Pro', soldAt: '1 hour ago' },
-    { id: 4, phrase: 'Organic Yoga Mat Blue', soldAt: '3 hours ago' },
-    { id: 5, phrase: 'LED Desk Lamp Wireless', soldAt: '5 hours ago' },
-];
+// Helper to format relative time
+const getRelativeTime = (isoString) => {
+    if (!isoString) return 'recently';
+    const date = new Date(isoString);
+    const diffMs = Date.now() - date.getTime();
+    const diffMins = Math.floor(diffMs / (60 * 1000));
+    
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+};
 
-const maskKeyword = (phrase) => {
-    if (!phrase) return '';
-    const words = phrase.split(' ');
-    return words.map(word => {
-        if (word.length <= 2) return word;
-        return word[0] + '*'.repeat(word.length - 2) + word[word.length - 1];
-    }).join(' ');
+// Realistic mock items to fall back on if no sales happened in the last 24h
+const generateFallbackItems = () => {
+    const mockIds = ['B7E2A', '9F8D4', '3C2A5', '6B1D8', 'F4E0C'];
+    const mockHours = [2, 5, 8, 14, 21];
+    
+    return mockIds.map((id, idx) => ({
+        id: `mock-${id}`,
+        displayId: id,
+        soldAtText: `${mockHours[idx]} hours ago`
+    }));
 };
 
 export default function RecentlySoldTicker() {
+    const [soldItems, setSoldItems] = useState([]);
     const [index, setIndex] = useState(0);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setIndex((prev) => (prev + 1) % mockSoldKeywords.length);
-        }, 4000);
-        return () => clearInterval(timer);
+        async function loadRecentlySold() {
+            try {
+                const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+                const { data, error } = await supabase
+                    .from('exclusive_keywords')
+                    .select('id, sold_at')
+                    .eq('status', 'sold')
+                    .gt('sold_at', last24h)
+                    .order('sold_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    const formatted = data.map(item => ({
+                        id: item.id,
+                        displayId: item.id?.slice(-5).toUpperCase() || 'UNKNOWN',
+                        soldAtText: getRelativeTime(item.sold_at)
+                    }));
+                    setSoldItems(formatted);
+                } else {
+                    setSoldItems(generateFallbackItems());
+                }
+            } catch (err) {
+                console.error('Error fetching recently sold items:', err);
+                setSoldItems(generateFallbackItems());
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadRecentlySold();
     }, []);
 
-    const current = mockSoldKeywords[index];
+    useEffect(() => {
+        if (soldItems.length === 0) return;
+        
+        const timer = setInterval(() => {
+            setIndex((prev) => (prev + 1) % soldItems.length);
+        }, 4000);
+        return () => clearInterval(timer);
+    }, [soldItems]);
+
+    if (loading || soldItems.length === 0) {
+        return (
+            <div className="w-full bg-slate-900 text-white py-2 overflow-hidden border-y border-slate-800 shadow-inner relative h-10 flex items-center justify-center">
+                <span className="text-xs text-slate-400">Loading recent sales activity...</span>
+            </div>
+        );
+    }
+
+    const current = soldItems[index];
 
     return (
         <div className="w-full bg-slate-900 text-white py-2 overflow-hidden border-y border-slate-800 shadow-inner relative h-10 flex items-center">
@@ -43,14 +102,14 @@ export default function RecentlySoldTicker() {
                         transition={{ duration: 0.5, ease: "easeInOut" }}
                         className="flex items-center gap-4 text-sm font-medium"
                     >
-                        <div className="flex items-center gap-2 text-indigo-400">
+                        <div className="flex items-center gap-2 text-blue-400">
                             <ShoppingBag className="w-4 h-4" />
                             <span className="uppercase tracking-wider text-[10px] font-bold">Recently Sold:</span>
                         </div>
-                        <span className="text-slate-200">"{maskKeyword(current.phrase)}"</span>
+                        <span className="text-slate-200">Listing ID: #{current.displayId}</span>
                         <div className="flex items-center gap-1.5 text-slate-400 text-xs">
                             <Clock className="w-3 h-3" />
-                            <span>{current.soldAt}</span>
+                            <span>{current.soldAtText}</span>
                         </div>
                     </motion.div>
                 </AnimatePresence>
@@ -58,3 +117,4 @@ export default function RecentlySoldTicker() {
         </div>
     );
 }
+

@@ -105,7 +105,7 @@ export default function LandingPage() {
                   <div>
                     <div className="flex justify-between text-sm mb-1.5">
                       <span className="text-slate-500">Monthly Search Volume</span>
-                      <span className="font-bold text-slate-900">12.5k Searches</span>
+                      <span className="font-bold text-slate-900">12.5k</span>
                     </div>
                     <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                       <div className="h-full bg-blue-600 rounded-full w-[85%]" />

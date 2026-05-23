@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useCart } from '@/lib/CartContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,14 +14,6 @@ import { toast } from 'sonner';
 import RecentlySoldTicker from '@/components/marketplace/RecentlySoldTicker';
 import MarketplaceFilterBar from '@/components/marketplace/MarketplaceFilterBar';
 import KeywordReport from '@/components/marketplace/KeywordReport';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetFooter,
-} from "@/components/ui/sheet";
 
 // Data is now managed by the base44Client in Standalone/Cloud mode
 
@@ -29,19 +22,7 @@ export default function ExclusiveKeywords() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedKeyword, setSelectedKeyword] = useState(null);
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('exclusive_cart');
-    try {
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      return [];
-    }
-  });
-  const [isCartOpen, setIsCartOpen] = useState(false);
-
-  useEffect(() => {
-    localStorage.setItem('exclusive_cart', JSON.stringify(cart));
-  }, [cart]);
+  const { addToCart } = useCart();
 
   // Real-time subscription to update the marketplace instantly when a keyword is bought
   useEffect(() => {
@@ -57,11 +38,13 @@ export default function ExclusiveKeywords() {
     };
   }, [queryClient]);
 
-  /** @type {Object.<string, string>} */
   const [activeFilters, setActiveFilters] = useState({
+    search: '',
+    sellerFit: 'All',
     volume: 'All',
     competition: 'All',
-    price: 'All'
+    price: 'All',
+    margin: 'All'
   });
 
   const handleFilterChange = (filterId, value) => {
@@ -87,6 +70,9 @@ export default function ExclusiveKeywords() {
       return (data || []).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     },
   });
+
+  // Dynamically extract seller fit list from current listings safely
+  const sellerFitOptions = ['All', ...new Set((keywords || []).map(k => k.product_seller_fit).filter(Boolean))];
 
   const purchaseMutation = useMutation({
     mutationFn: async (keywordIds) => {
@@ -132,23 +118,6 @@ export default function ExclusiveKeywords() {
     }
   });
 
-  const addToCart = (keyword) => {
-    if (cart.find(item => item.id === keyword.id)) {
-      toast.info('Item already in cart');
-      setIsCartOpen(true);
-      return;
-    }
-    setCart([...cart, keyword]);
-    toast.success('Added to cart!');
-    setIsCartOpen(true);
-  };
-
-  const removeFromCart = (id) => {
-    setCart(cart.filter(item => item.id !== id));
-  };
-
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price || 0), 0);
-
   // Ensure page scrolls to top when a keyword is selected (report view opened)
   useEffect(() => {
     if (selectedKeyword) {
@@ -192,207 +161,84 @@ export default function ExclusiveKeywords() {
   };
 
   const filteredKeywords = keywords.filter(keyword => {
+    // 1. Search Filter: matches Listing ID, category name, seller fit, or keyword phrase
+    if (activeFilters.search) {
+      const term = activeFilters.search.toLowerCase().trim();
+      const listingId = keyword.id?.slice(-5).toUpperCase() || '';
+      const categoryName = (keyword.category || '').toLowerCase();
+      const sellerFit = (keyword.product_seller_fit || '').toLowerCase();
+      const phrase = (keyword.keyword_phrase || '').toLowerCase();
+      
+      const matchesSearch = listingId.includes(term.replace('#', '').toUpperCase()) || 
+                            categoryName.includes(term) || 
+                            sellerFit.includes(term) ||
+                            phrase.includes(term);
+                            
+      if (!matchesSearch) return false;
+    }
+
+    // 2. Seller Fit Filter
+    if (activeFilters.sellerFit && activeFilters.sellerFit !== 'All') {
+      if (keyword.product_seller_fit !== activeFilters.sellerFit) return false;
+    }
+
+    // 3. Search Volume Filter
     if (activeFilters.volume && activeFilters.volume !== 'All') {
       const vol = keyword.search_volume || 0;
       if (activeFilters.volume === 'High (5K+)' && vol < 5000) return false;
       if (activeFilters.volume === 'Medium (1K-5K)' && (vol < 1000 || vol >= 5000)) return false;
       if (activeFilters.volume === 'Low (<1K)' && vol >= 1000) return false;
     }
+
+    // 4. Competition Level Filter
     if (activeFilters.competition && activeFilters.competition !== 'All') {
       if (keyword.competition_level !== activeFilters.competition) return false;
     }
+
+    // 5. Price Filter
     if (activeFilters.price && activeFilters.price !== 'All') {
       const price = keyword.price || 0;
       if (activeFilters.price === 'Under $100' && price >= 100) return false;
       if (activeFilters.price === '$100 - $200' && (price < 100 || price > 200)) return false;
       if (activeFilters.price === 'Over $200' && price <= 200) return false;
     }
+
+    // 6. Net Margin Filter
+    if (activeFilters.margin && activeFilters.margin !== 'All') {
+      const ecoSalePrice = Number(keyword.economics_sale_price) || 35.00;
+      const ecoCogs = Number(keyword.economics_cogs) || 8.50;
+      const ecoShipping = Number(keyword.economics_shipping) || 2.50;
+      const ecoReferral = Number(keyword.economics_referral_fee) || 5.25;
+      const ecoFba = Number(keyword.economics_fba_fee) || 7.25;
+      const ecoAds = Number(keyword.economics_ads_spend) || 3.80;
+      
+      const totalCostPerUnit = ecoCogs + ecoShipping + ecoReferral + ecoFba + ecoAds;
+      const netProfitPerUnit = ecoSalePrice - totalCostPerUnit;
+      const calculatedNetMargin = Math.round((netProfitPerUnit / ecoSalePrice) * 100);
+
+      if (activeFilters.margin === 'High (>30%)' && calculatedNetMargin < 30) return false;
+      if (activeFilters.margin === 'Moderate (15-30%)' && (calculatedNetMargin < 15 || calculatedNetMargin >= 30)) return false;
+      if (activeFilters.margin === 'Low (<15%)' && calculatedNetMargin >= 15) return false;
+    }
+
     return true;
   });
 
-  const cartSheetContent = (
-    <SheetContent className="w-full sm:max-w-md bg-gradient-to-b from-white to-slate-50 border-l border-white/20 p-0 flex flex-col z-[100] shadow-2xl overflow-hidden">
-      {/* Premium Header */}
-      <SheetHeader className="p-8 border-b border-slate-100/50 bg-white/80 backdrop-blur-md relative">
-        <div className="flex items-center justify-between relative z-10">
-          <SheetTitle className="text-3xl font-black text-slate-900 flex items-center gap-4">
-            <div className="w-12 h-12 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-200 flex items-center justify-center rotate-3 hover:rotate-0 transition-transform duration-300">
-              <ShoppingCart className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="tracking-tighter">My Basket</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{cart.length} Opportunities</span>
-            </div>
-          </SheetTitle>
-          <button
-            onClick={() => setIsCartOpen(false)}
-            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all duration-300"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        {/* Subtle background glow */}
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/5 blur-[50px] rounded-full" />
-      </SheetHeader>
-
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        <AnimatePresence mode="popLayout">
-          {cart.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="h-full flex flex-col items-center justify-center text-center px-8 font-sans"
-            >
-              <div className="w-28 h-28 bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 flex items-center justify-center mb-8 relative group">
-                <ShoppingBag className="w-12 h-12 text-slate-200 group-hover:text-blue-600 transition-colors duration-500" />
-                <div className="absolute inset-0 bg-blue-500/5 rounded-[40px] animate-pulse" />
-              </div>
-              <h4 className="text-2xl font-bold text-slate-900 mb-3">Empty Basket</h4>
-              <p className="text-slate-500 font-medium text-sm leading-relaxed mb-10 px-4">
-                You haven't added any vetted market opportunities yet.
-              </p>
-              <Button
-                onClick={() => setIsCartOpen(false)}
-                className="w-full rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold h-14 shadow-lg shadow-blue-600/20 transition-all active:scale-95"
-              >
-                Start Exploring
-              </Button>
-            </motion.div>
-          ) : (
-            <div className="space-y-4">
-              {cart.map((item, i) => (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="group relative flex items-center gap-5 p-5 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:border-indigo-100 transition-all duration-500"
-                >
-                  <div className="w-24 h-24 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 flex-shrink-0 relative">
-                    <img src={item.image_url} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 rounded-lg text-[9px] font-black text-emerald-600 uppercase tracking-tighter">
-                        <ShieldCheck className="w-3 h-3" />
-                        Verified
-                      </div>
-                      <div className="px-2 py-0.5 bg-slate-900 text-white text-[10px] font-black rounded-md shadow-sm uppercase tracking-wider">
-                        ID: #{item.id?.slice(-5).toUpperCase()}
-                      </div>
-                    </div>
-                    <h4 className="font-black text-slate-900 text-base truncate mb-1 leading-tight group-hover:text-indigo-600 transition-colors">
-                      {item.category || 'Niche Opportunity'}
-                    </h4>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-slate-400">$</span>
-                      <span className="text-2xl font-black text-slate-900 tracking-tighter">{item.price}</span>
-                      <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => removeFromCart(item.id)}
-                          className="w-8 h-8 rounded-full bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {cart.length > 0 && (
-        <div className="p-8 bg-white/80 backdrop-blur-md border-t border-slate-100 space-y-8 relative">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center px-2">
-              <span className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em]">Subtotal</span>
-              <span className="font-bold text-slate-900 text-lg">${cartTotal}</span>
-            </div>
-            <div className="flex justify-between items-center px-2">
-              <div className="flex items-center gap-2">
-                <span className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em]">Secure Fee</span>
-                <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 text-[8px] font-black rounded-md">WAIVED</span>
-              </div>
-              <span className="font-bold text-emerald-500 text-sm">$0.00</span>
-            </div>
-
-            <div className="pt-6 border-t border-slate-100 flex justify-between items-end px-2">
-              <div>
-                <span className="text-slate-900 font-black text-2xl tracking-tighter">Total Due</span>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Stripe Secure Checkout</p>
-              </div>
-              <div className="text-right">
-                <div className="text-4xl font-black text-blue-600 tracking-tighter leading-none">${cartTotal}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4 relative z-10">
-            <Button
-              onClick={() => {
-                if (!user) {
-                  toast.error('You must create an account to purchase.');
-                  navigate('/auth');
-                  return;
-                }
-                purchaseMutation.mutate(cart.map(i => i.id));
-              }}
-              disabled={purchaseMutation.isPending}
-              className="group relative w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base h-16 rounded-[24px] shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3 transition-all active:scale-[0.97] overflow-hidden"
-            >
-              {/* Shimmer Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
-
-              {purchaseMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                <>
-                  <CreditCard className="w-5 h-5" />
-                  Complete Checkout
-                </>
-              )}
-            </Button>
-
-            <div className="flex flex-col items-center gap-4 pt-2">
-              <div className="flex items-center gap-6 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" className="h-5" />
-                <div className="w-px h-4 bg-slate-300" />
-                <div className="flex items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-widest">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  Verified Merchant
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </SheetContent>
-  );
-
   if (selectedKeyword) {
     return (
-      <>
-        <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-          {cartSheetContent}
-        </Sheet>
-        <KeywordReport
-          keyword={selectedKeyword}
-          onBack={handleBack}
-          onAddToCart={() => addToCart(selectedKeyword)}
-          onBuy={() => {
-            if (!user) {
-              toast.error('You must create an account to purchase.');
-              navigate('/auth');
-              return;
-            }
-            purchaseMutation.mutate([selectedKeyword.id]);
-          }}
-        />
-      </>
+      <KeywordReport
+        keyword={selectedKeyword}
+        onBack={handleBack}
+        onAddToCart={() => addToCart(selectedKeyword)}
+        onBuy={() => {
+          if (!user) {
+            toast.error('You must create an account to purchase.');
+            navigate('/auth');
+            return;
+          }
+          purchaseMutation.mutate([selectedKeyword.id]);
+        }}
+      />
     );
   }
 
@@ -418,29 +264,6 @@ export default function ExclusiveKeywords() {
 
         {/* Content Container */}
         <div className="max-w-7xl mx-auto w-full relative z-20 flex flex-col items-start justify-center">
-
-          {/* Shopping Cart Trigger (Positioned top-right within the container) */}
-          <div className="absolute -top-6 right-0 z-50">
-            <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-2xl px-5 h-10 flex items-center gap-2 backdrop-blur-md transition-all active:scale-95 group shadow-xl cursor-pointer"
-                >
-                  <div className="relative">
-                    <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    {cart.length > 0 && (
-                      <span className="absolute -top-2 -right-2 w-4 h-4 bg-amber-500 text-slate-900 text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-slate-900 animate-in zoom-in">
-                        {cart.length}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-xs font-bold uppercase tracking-wider hidden sm:block">My Cart</span>
-                </Button>
-              </SheetTrigger>
-              {cartSheetContent}
-            </Sheet>
-          </div>
 
           {/* Left Aligned Content */}
           <motion.div
@@ -499,13 +322,21 @@ export default function ExclusiveKeywords() {
         <MarketplaceFilterBar
           activeFilters={activeFilters}
           onFilterChange={handleFilterChange}
-          onReset={() => setActiveFilters({})}
+          onReset={() => setActiveFilters({
+            search: '',
+            sellerFit: 'All',
+            volume: 'All',
+            competition: 'All',
+            price: 'All',
+            margin: 'All'
+          })}
+          sellerFitOptions={sellerFitOptions}
         />
 
         {/* 4.1.4 Keywords Grid (Stacked vertically as per PRD cards) */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-4" />
+            <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
             <p className="text-slate-500 font-medium tracking-wide">Curating your next opportunity...</p>
           </div>
         ) : keywords.length === 0 ? (

@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
       if (session) {
         setUser(session.user);
         setIsAuthenticated(true);
-        fetchProfile(session.user.id);
+        fetchProfile(session.user.id, session.user);
       }
       setIsLoadingAuth(false);
     };
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
       if (session) {
         setUser(session.user);
         setIsAuthenticated(true);
-        fetchProfile(session.user.id);
+        fetchProfile(session.user.id, session.user);
       } else {
         setUser(null);
         setProfile(null);
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  const fetchProfile = async (userId) => {
+  const fetchProfile = async (userId, currentUser = null) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -51,7 +51,14 @@ export const AuthProvider = ({ children }) => {
         .eq('id', userId)
         .single();
 
-      if (data) setProfile(data);
+      const activeUser = currentUser || user || (await supabase.auth.getUser()).data.user;
+      const username = data?.username || activeUser?.user_metadata?.username || activeUser?.email?.split('@')[0];
+
+      if (data) {
+        setProfile({ ...data, username });
+      } else if (activeUser) {
+        setProfile({ username });
+      }
       if (error) console.error('Fetch profile error:', error);
     } catch (e) {
       console.error(e);
@@ -72,26 +79,54 @@ export const AuthProvider = ({ children }) => {
       .single();
 
     if (data) {
-      setProfile(data);
+      const activeUser = user || (await supabase.auth.getUser()).data.user;
+      const username = data.username || activeUser?.user_metadata?.username || activeUser?.email?.split('@')[0];
+      setProfile({ ...data, username });
       return true;
     }
     return false;
   };
 
   const login = async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+
+    try {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', data.user.id)
+        .single();
+      return profileData?.username || data.user.user_metadata?.username || email.split('@')[0];
+    } catch (e) {
+      return data.user?.user_metadata?.username || email.split('@')[0];
+    }
   };
 
-  const signup = async (email, password) => {
-    const { error } = await supabase.auth.signUp({
+  const signup = async (email, password, username) => {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin
+        emailRedirectTo: window.location.origin,
+        data: {
+          username: username
+        }
       }
     });
     if (error) throw error;
+
+    // Proactively try to sync username to profiles table if user was created immediately
+    if (data?.user) {
+      try {
+        await supabase
+          .from('profiles')
+          .update({ username })
+          .eq('id', data.user.id);
+      } catch (e) {
+        console.warn("Could not sync username directly to profiles:", e);
+      }
+    }
   };
 
   const resetPassword = async (email) => {
@@ -117,7 +152,7 @@ export const AuthProvider = ({ children }) => {
       resetPassword,
       logout,
       deductCredit,
-      refreshProfile: () => fetchProfile(user?.id),
+      refreshProfile: () => fetchProfile(user?.id, user),
       isLoadingPublicSettings: false, // Mock/Compatibility
       authError: null,              // Mock/Compatibility
       navigateToLogin: () => window.location.href = '/Auth'

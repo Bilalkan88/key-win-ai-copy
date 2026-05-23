@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
             toast.success('Password updated successfully!');
             setSuccess(true);
             setTimeout(() => {
-                navigate('/Home');
+                navigate('/ExclusiveKeywords');
             }, 2000);
         } catch (error) {
             toast.error(error.message || 'Failed to update password');

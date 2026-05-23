@@ -4,11 +4,15 @@
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID REFERENCES auth.users ON DELETE CASCADE NOT NULL PRIMARY KEY,
   email TEXT,
+  username TEXT,
   role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin')),
   plan TEXT DEFAULT 'free' CHECK (plan IN ('free', 'pro')),
   credits INTEGER DEFAULT 1000,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
+
+-- Ensure username column exists if the table was created previously
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS username TEXT;
 
 -- 2. Create the Exclusive Keywords table (if not exists)
 CREATE TABLE IF NOT EXISTS public.exclusive_keywords (
@@ -77,19 +81,32 @@ CREATE POLICY "Admins have full access" ON public.exclusive_keywords
 -- 4. Trigger to create a profile automatically when a new user signs up
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  has_username_col BOOLEAN;
 BEGIN
-  INSERT INTO public.profiles (id, email, credits, plan)
-  VALUES (new.id, new.email, 1000, 'free');
+  -- Check if column username exists in public.profiles
+  SELECT EXISTS (
+    SELECT 1 
+    FROM information_schema.columns 
+    WHERE table_schema='public' 
+      AND table_name='profiles' 
+      AND column_name='username'
+  ) INTO has_username_col;
+
+  IF has_username_col THEN
+    EXECUTE 'INSERT INTO public.profiles (id, email, username, credits, plan) VALUES ($1, $2, $3, 1000, ''free'')'
+    USING new.id, new.email, coalesce(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1));
+  ELSE
+    INSERT INTO public.profiles (id, email, credits, plan)
+    VALUES (new.id, new.email, 1000, 'free');
+  END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
