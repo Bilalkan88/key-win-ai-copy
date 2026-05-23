@@ -20,7 +20,11 @@ export default defineConfig({
     viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
   ],
   build: {
-    modulePreload: false,
+    modulePreload: {
+      resolveDependencies(filename, deps) {
+        return deps.filter(dep => !dep.includes('charts'));
+      }
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {
