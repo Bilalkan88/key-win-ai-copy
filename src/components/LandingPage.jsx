@@ -58,7 +58,7 @@ export default function LandingPage() {
                 asChild 
                 className="bg-white border-2 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-bold px-8 py-7 text-lg rounded-xl transition-all"
               >
-                <Link to={createPageUrl('Auth')}>
+                <Link to={createPageUrl('Auth') + '?mode=signup'}>
                   Sign Up for Free
                 </Link>
               </Button>
@@ -276,7 +276,7 @@ export default function LandingPage() {
                      asChild 
                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-7 text-lg rounded-xl shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5"
                    >
-                     <Link to={createPageUrl('Auth')}>
+                     <Link to={createPageUrl('Auth') + '?mode=signup'}>
                        Sign Up for Free
                      </Link>
                    </Button>

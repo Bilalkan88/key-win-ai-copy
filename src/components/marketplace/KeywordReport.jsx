@@ -552,7 +552,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                     <h3 className="text-2xl font-bold text-slate-900 mb-3 text-center">Expert Insights Locked</h3>
                                     <p className="text-slate-700 text-center mb-8 max-w-md font-medium text-base">Create a free account to unlock exclusive expert analysis, key insights, and opportunity signals.</p>
                                     <Button
-                                        onClick={() => navigate('/auth')}
+                                        onClick={() => navigate('/auth?mode=signup')}
                                         className="h-14 px-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5"
                                     >
                                         Register for Full Access
@@ -751,7 +751,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                 <h3 className="text-2xl font-bold text-slate-900 mb-3 text-center">Market Intelligence Locked</h3>
                                 <p className="text-slate-700 text-center mb-8 max-w-md font-medium text-base">Create a free account to unlock detailed competitor analysis, related keywords, and deep market insights.</p>
                                 <Button
-                                    onClick={() => navigate('/auth')}
+                                    onClick={() => navigate('/auth?mode=signup')}
                                     className="h-14 px-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5"
                                 >
                                     Register for Full Access

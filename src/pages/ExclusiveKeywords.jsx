@@ -233,7 +233,7 @@ export default function ExclusiveKeywords() {
         onBuy={() => {
           if (!user) {
             toast.error('You must create an account to purchase.');
-            navigate('/auth');
+            navigate('/auth?mode=signup');
             return;
           }
           purchaseMutation.mutate([selectedKeyword.id]);
@@ -302,7 +302,7 @@ export default function ExclusiveKeywords() {
               className="flex flex-wrap gap-4"
             >
               <Button
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/auth?mode=signup')}
                 className="h-12 px-8 bg-white hover:bg-slate-100 text-blue-600 font-bold text-sm rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.05] flex items-center gap-2 group cursor-pointer"
               >
                 Register for Full Access

@@ -286,7 +286,7 @@ export default function Layout({ children, currentPageName }) {
               onClick={() => {
                 if (!user) {
                   toast.error('You must create an account to purchase.');
-                  navigate('/auth');
+                  navigate('/auth?mode=signup');
                   return;
                 }
                 purchaseMutation.mutate(cart.map(i => i.id));

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Loader2, ArrowRight, AlertCircle, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -33,11 +33,26 @@ const forgotSchema = z.object({
 });
 
 export default function AuthPage() {
-    const [isLogin, setIsLogin] = useState(true);
+    const [searchParams] = useSearchParams();
+    const mode = searchParams.get('mode');
+
+    const [isLogin, setIsLogin] = useState(() => {
+        return mode !== 'signup';
+    });
     const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const { login, signup, resetPassword, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        if (mode === 'signup') {
+            setIsLogin(false);
+            setIsForgotPassword(false);
+        } else if (mode === 'login') {
+            setIsLogin(true);
+            setIsForgotPassword(false);
+        }
+    }, [mode]);
 
     React.useEffect(() => {
         if (isAuthenticated) {
