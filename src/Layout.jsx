@@ -153,7 +153,10 @@ export default function Layout({ children, currentPageName }) {
                 Claim a winning niche marketplace today. Once purchased, the opportunity is immediately removed from the market.
               </p>
               <Button
-                onClick={() => setIsCartOpen(false)}
+                onClick={() => {
+                  setIsCartOpen(false);
+                  navigate('/ExclusiveKeywords');
+                }}
                 className="w-full max-w-[200px] rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 text-xs shadow-md shadow-blue-600/10 transition-all active:scale-95 cursor-pointer"
               >
                 Browse Opportunities
