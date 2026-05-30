@@ -70,7 +70,8 @@ const formatVolumeToK = (val) => {
 };
 
 export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
+    const isAdmin = profile?.role === 'admin';
     const navigate = useNavigate();
 
     if (!keyword) return null;
@@ -950,7 +951,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                                     {competitorsList.map((comp, idx) => (
                                                         <tr key={idx} className="border-b border-slate-100 last:border-0 even:bg-slate-50/60 hover:bg-blue-50/40 transition-colors">
                                                             <td className="px-2 py-3.5 font-bold text-slate-400 text-center">{idx + 1}</td>
-                                                            <td className="px-3 py-3.5 font-bold text-blue-600 text-center whitespace-nowrap blur-sm select-none pointer-events-none">
+                                                            <td className={`px-3 py-3.5 font-bold text-blue-600 text-center whitespace-nowrap ${isAdmin ? '' : 'blur-sm select-none pointer-events-none'}`}>
                                                                 {comp.asin ? (
                                                                     <a
                                                                         href={`https://www.amazon.com/dp/${comp.asin.trim()}`}
@@ -962,7 +963,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                                                     </a>
                                                                 ) : '—'}
                                                             </td>
-                                                            <td className="px-3 py-3.5 font-bold text-slate-700 truncate max-w-[120px] blur-sm select-none pointer-events-none">{comp.brand || '—'}</td>
+                                                            <td className={`px-3 py-3.5 font-bold text-slate-700 truncate max-w-[120px] ${isAdmin ? '' : 'blur-sm select-none pointer-events-none'}`}>{comp.brand || '—'}</td>
                                                             <td className="px-2 py-3.5 font-bold text-slate-900 text-center">{comp.avgUnitSales || '0'}</td>
                                                             <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{comp.clickCount || '0'}</td>
                                                             <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{comp.clickShare || '0%'}</td>
@@ -1024,7 +1025,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                                     {relatedKeywordsList.map((kw, idx) => (
                                                         <tr key={idx} className="border-b border-slate-100 last:border-0 even:bg-slate-50/60 hover:bg-blue-50/40 transition-colors">
                                                             <td className="px-2 py-3.5 font-bold text-slate-400 text-center">{idx + 1}</td>
-                                                            <td className="px-3 py-3.5 font-bold text-slate-900 break-words leading-tight blur-sm select-none pointer-events-none">
+                                                            <td className={`px-3 py-3.5 font-bold text-slate-900 break-words leading-tight ${isAdmin ? '' : 'blur-sm select-none pointer-events-none'}`}>
                                                                 {kw.keyword ? (
                                                                     <a
                                                                         href={`https://www.amazon.com/s?k=${encodeURIComponent(kw.keyword)}`}
