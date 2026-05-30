@@ -99,6 +99,154 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
     };
 
     const searchTrends = getTrendData();
+
+    const getCompetitorsList = () => {
+        if (!keyword.top_competitors_list) return null;
+        if (Array.isArray(keyword.top_competitors_list)) return keyword.top_competitors_list;
+        try {
+            const parsed = typeof keyword.top_competitors_list === 'string'
+                ? JSON.parse(keyword.top_competitors_list)
+                : keyword.top_competitors_list;
+            return Array.isArray(parsed) ? parsed : null;
+        } catch (e) {
+            console.warn("Failed to parse top_competitors_list JSON:", e);
+            return null;
+        }
+    };
+
+    const getRelatedKeywordsList = () => {
+        if (!keyword.top_related_keywords_list) return null;
+        if (Array.isArray(keyword.top_related_keywords_list)) return keyword.top_related_keywords_list;
+        try {
+            const parsed = typeof keyword.top_related_keywords_list === 'string'
+                ? JSON.parse(keyword.top_related_keywords_list)
+                : keyword.top_related_keywords_list;
+            return Array.isArray(parsed) ? parsed : null;
+        } catch (e) {
+            console.warn("Failed to parse top_related_keywords_list JSON:", e);
+            return null;
+        }
+    };
+
+    const competitorsList = getCompetitorsList();
+    const relatedKeywordsList = getRelatedKeywordsList();
+
+    const getCompetitorAverages = () => {
+        if (!competitorsList || competitorsList.length === 0) return null;
+
+        const parseNumber = (str) => {
+            if (!str) return NaN;
+            const numStr = str.toString().replace(/[^0-9.-]/g, '');
+            return parseFloat(numStr);
+        };
+
+        let salesSum = 0, salesCount = 0;
+        let priceSum = 0, priceCount = 0;
+        let reviewsSum = 0, reviewsCount = 0;
+        let ageSum = 0, ageCount = 0;
+        let clicksSum = 0, clicksCount = 0;
+        let clickShareSum = 0, clickShareCount = 0;
+
+        competitorsList.forEach(comp => {
+            const sales = parseNumber(comp.avgUnitSales);
+            if (!isNaN(sales)) { salesSum += sales; salesCount++; }
+
+            const price = parseNumber(comp.avgSellingPrice);
+            if (!isNaN(price)) { priceSum += price; priceCount++; }
+
+            const reviews = parseNumber(comp.numberOfReviews);
+            if (!isNaN(reviews)) { reviewsSum += reviews; reviewsCount++; }
+
+            const age = parseNumber(comp.listingAge);
+            if (!isNaN(age)) { ageSum += age; ageCount++; }
+
+            const clicks = parseNumber(comp.clickCount);
+            if (!isNaN(clicks)) { clicksSum += clicks; clicksCount++; }
+
+            const cs = parseNumber(comp.clickShare);
+            if (!isNaN(cs)) { clickShareSum += cs; clickShareCount++; }
+        });
+
+        const formatAvg = (sum, count, isPrice = false, isPercent = false) => {
+            if (count === 0) return '—';
+            const avg = sum / count;
+            if (isPrice) return '$' + avg.toFixed(2);
+            if (isPercent) return avg.toFixed(1) + '%';
+            return Math.round(avg).toLocaleString();
+        };
+
+        return {
+            avgUnitSales: formatAvg(salesSum, salesCount),
+            avgSellingPrice: formatAvg(priceSum, priceCount, true),
+            numberOfReviews: formatAvg(reviewsSum, reviewsCount),
+            listingAge: formatAvg(ageSum, ageCount),
+            clickCount: formatAvg(clicksSum, clicksCount),
+            clickShare: formatAvg(clickShareSum, clickShareCount, false, true)
+        };
+    };
+
+    const competitorAverages = getCompetitorAverages();
+
+    const getRelatedKeywordsAverages = () => {
+        if (!relatedKeywordsList || relatedKeywordsList.length === 0) return null;
+
+        const parseNumber = (str) => {
+            if (!str) return NaN;
+            const numStr = str.toString().replace(/[^0-9.-]/g, '');
+            return parseFloat(numStr);
+        };
+
+        let volumeSum = 0, volumeCount = 0;
+        let salesSum = 0, salesCount = 0;
+        let compSum = 0, compCount = 0;
+        let densitySum = 0, densityCount = 0;
+        let clickSum = 0, clickCount = 0;
+        let convSum = 0, convCount = 0;
+
+        relatedKeywordsList.forEach(kw => {
+            const vol = parseNumber(kw.searchVolume);
+            if (!isNaN(vol)) { volumeSum += vol; volumeCount++; }
+
+            const sales = parseNumber(kw.salesMonthly);
+            if (!isNaN(sales)) { salesSum += sales; salesCount++; }
+
+            const comp = parseNumber(kw.competingProducts);
+            if (!isNaN(comp)) { compSum += comp; compCount++; }
+
+            const density = parseNumber(kw.titleDensity);
+            if (!isNaN(density)) { densitySum += density; densityCount++; }
+
+            const click = parseNumber(kw.clickShare);
+            if (!isNaN(click)) { clickSum += click; clickCount++; }
+
+            const conv = parseNumber(kw.conversionShare);
+            if (!isNaN(conv)) { convSum += conv; convCount++; }
+        });
+
+        const formatAvg = (sum, count, isPercent = false) => {
+            if (count === 0) return '—';
+            const avg = sum / count;
+            if (isPercent) return avg.toFixed(1) + '%';
+            return Math.round(avg).toLocaleString();
+        };
+
+        const formatSum = (sum, count) => {
+            if (count === 0) return '—';
+            return Math.round(sum).toLocaleString();
+        };
+
+        return {
+            searchVolume: formatSum(volumeSum, volumeCount),
+            salesMonthly: formatSum(salesSum, salesCount),
+            competingProducts: formatAvg(compSum, compCount),
+            titleDensity: formatAvg(densitySum, densityCount),
+            clickShare: formatAvg(clickSum, clickCount, true),
+            conversionShare: formatAvg(convSum, convCount, true)
+        };
+    };
+
+    const relatedKeywordsAverages = getRelatedKeywordsAverages();
+
     const [localEco, setLocalEco] = useState({
         salePrice: Number(keyword.economics_sale_price) || 0,
         cogs: Number(keyword.economics_cogs) || 0,
@@ -249,6 +397,9 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                             const val = keyword.total_revenue || '120000';
                             const num = parseFloat(val.toString().replace(/[$,\s]/g, ''));
                             if (isNaN(num)) return val;
+                            if (num >= 1000000) {
+                                return `$${(num / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+                            }
                             return num >= 1000 ? `$${(num / 1000).toFixed(0)}K` : `$${num}`;
                         })()}
                         sublabel="Page 1 Listings Only"
@@ -442,18 +593,34 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                 <div className="relative group cursor-help">
                                     <p className="text-[10px] font-bold text-slate-500 leading-none mb-1 uppercase tracking-wider">DEMAND</p>
                                     <p className="text-base font-bold text-blue-600 leading-none whitespace-nowrap">{(keyword.demand_level === 'Moderate' ? 'Mod' : keyword.demand_level) || 'Mod'}</p>
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-36 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-[100] shadow-xl text-center font-medium leading-relaxed normal-case tracking-normal whitespace-normal">
+                                        Overall consumer demand level for this product niche.
+                                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
+                                    </div>
                                 </div>
                                 <div className="relative group cursor-help">
                                     <p className="text-[10px] font-bold text-slate-500 leading-none mb-1 uppercase tracking-wider">AVG OOS</p>
                                     <p className="text-base font-bold text-amber-600 leading-none">{keyword.avg_oos || '12%'}</p>
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-36 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-[100] shadow-xl text-center font-medium leading-relaxed normal-case tracking-normal whitespace-normal">
+                                        Average percentage of time competitors are out of stock.
+                                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
+                                    </div>
                                 </div>
                                 <div className="relative group cursor-help">
                                     <p className="text-[10px] font-bold text-slate-500 leading-none mb-1 uppercase tracking-wider whitespace-nowrap">CONV. RATE</p>
                                     <p className="text-base font-bold text-emerald-600 leading-none">{keyword.conversion_rate || '18%'}</p>
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-36 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-[100] shadow-xl text-center font-medium leading-relaxed normal-case tracking-normal whitespace-normal">
+                                        Average conversion rate of competitors on Page 1.
+                                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
+                                    </div>
                                 </div>
                                 <div className="relative group cursor-help">
                                     <p className="text-[10px] font-bold text-slate-500 leading-none mb-1 uppercase tracking-wider">AVG BSR</p>
                                     <p className="text-base font-bold text-blue-600 leading-none">{keyword.avg_bsr || '4,250'}</p>
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-36 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-[100] shadow-xl text-center font-medium leading-relaxed normal-case tracking-normal whitespace-normal">
+                                        Average Best Sellers Rank of listings on Page 1.
+                                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -759,7 +926,71 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                             </div>
                         )}
                         <div className={`space-y-12 ${!user ? 'opacity-20 pointer-events-none select-none blur-[4px]' : ''}`}>
-                            {keyword.competitor_analysis_image_url && (
+                            {/* Competitor Analysis (Table or Image) */}
+                            {competitorsList && competitorsList.length > 0 ? (
+                                <div className="group">
+                                    <h3 className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider text-center">Top Competitor Analysis</h3>
+                                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full border-collapse text-left text-xs leading-tight table-auto font-medium">
+                                                <thead className="bg-slate-900 text-white">
+                                                    <tr>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-tighter text-center w-8 opacity-80">#</th>
+                                                        <th className="px-3 py-3 font-bold uppercase tracking-wider text-center">ASIN</th>
+                                                        <th className="px-3 py-3 font-bold uppercase tracking-wider">Brand</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Avg Sales (Unit)</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Clicks (past 3M)</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Cl. Share</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Price</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Reviews</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Age (mo)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {competitorsList.map((comp, idx) => (
+                                                        <tr key={idx} className="border-b border-slate-100 last:border-0 even:bg-slate-50/60 hover:bg-blue-50/40 transition-colors">
+                                                            <td className="px-2 py-3.5 font-bold text-slate-400 text-center">{idx + 1}</td>
+                                                            <td className="px-3 py-3.5 font-bold text-blue-600 text-center whitespace-nowrap blur-sm select-none pointer-events-none">
+                                                                {comp.asin ? (
+                                                                    <a
+                                                                        href={`https://www.amazon.com/dp/${comp.asin.trim()}`}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="hover:underline hover:text-blue-700"
+                                                                    >
+                                                                        {comp.asin}
+                                                                    </a>
+                                                                ) : '—'}
+                                                            </td>
+                                                            <td className="px-3 py-3.5 font-bold text-slate-700 truncate max-w-[120px] blur-sm select-none pointer-events-none">{comp.brand || '—'}</td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-900 text-center">{comp.avgUnitSales || '0'}</td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{comp.clickCount || '0'}</td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{comp.clickShare || '0%'}</td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-900 text-center">
+                                                                {comp.avgSellingPrice ? (comp.avgSellingPrice.toString().startsWith('$') ? comp.avgSellingPrice : `$${comp.avgSellingPrice}`) : '—'}
+                                                            </td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{comp.numberOfReviews || '0'}</td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{comp.listingAge || '0'}</td>
+                                                        </tr>
+                                                    ))}
+                                                    {competitorAverages && (
+                                                        <tr className="bg-[#1e1b4b] text-white font-black border-t-2 border-indigo-500">
+                                                            <td colSpan={3} className="px-3 py-3.5 text-right tracking-widest text-[11px] uppercase opacity-90 pr-6">Total / Average</td>
+                                                            <td className="px-2 py-3.5 text-center text-emerald-400 text-[14px]">{competitorAverages.avgUnitSales}</td>
+                                                            <td className="px-2 py-3.5 text-center text-[14px]">{competitorAverages.clickCount}</td>
+                                                            <td className="px-2 py-3.5 text-center text-[14px]">{competitorAverages.clickShare}</td>
+                                                            <td className="px-2 py-3.5 text-center text-emerald-400 text-[14px]">{competitorAverages.avgSellingPrice}</td>
+                                                            <td className="px-2 py-3.5 text-center text-[14px]">{competitorAverages.numberOfReviews}</td>
+                                                            <td className="px-2 py-3.5 text-center text-[14px]">{competitorAverages.listingAge}</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <p className="mt-3 text-slate-400 text-[10px] uppercase text-center tracking-wider font-semibold">Click Share metrics depend on keyword rankings for each ASIN.</p>
+                                </div>
+                            ) : keyword.competitor_analysis_image_url ? (
                                 <div className="group">
                                     <h3 className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider text-center">Top Competitor Analysis</h3>
                                     <div className="bg-white rounded-[2.5rem] p-6 border border-slate-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
@@ -768,8 +999,70 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                         </div>
                                     </div>
                                 </div>
-                            )}
-                            {keyword.related_keywords_image_url && (
+                            ) : null}
+
+                            {/* Related Keywords (Table or Image) */}
+                            {relatedKeywordsList && relatedKeywordsList.length > 0 ? (
+                                <div className="group">
+                                    <h3 className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider text-center">Top Related Keywords</h3>
+                                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full border-collapse text-left text-xs leading-tight table-auto font-medium">
+                                                <thead className="bg-slate-900 text-white">
+                                                    <tr>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center w-8 opacity-80">#</th>
+                                                        <th className="px-3 py-3 font-bold uppercase tracking-wider">Keywords</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Volume</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Sales</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Comp.</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Title D.</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Cl. Share</th>
+                                                        <th className="px-2 py-3 font-bold uppercase tracking-wider text-center">Cv. Share</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {relatedKeywordsList.map((kw, idx) => (
+                                                        <tr key={idx} className="border-b border-slate-100 last:border-0 even:bg-slate-50/60 hover:bg-blue-50/40 transition-colors">
+                                                            <td className="px-2 py-3.5 font-bold text-slate-400 text-center">{idx + 1}</td>
+                                                            <td className="px-3 py-3.5 font-bold text-slate-900 break-words leading-tight blur-sm select-none pointer-events-none">
+                                                                {kw.keyword ? (
+                                                                    <a
+                                                                        href={`https://www.amazon.com/s?k=${encodeURIComponent(kw.keyword)}`}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="capitalize hover:text-blue-600 hover:underline decoration-blue-500/30 transition-all cursor-pointer"
+                                                                        title={`Search "${kw.keyword}" on Amazon`}
+                                                                    >
+                                                                        {kw.keyword}
+                                                                    </a>
+                                                                ) : '—'}
+                                                            </td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{kw.searchVolume || '0'}</td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{kw.salesMonthly || '0'}</td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{kw.competingProducts || '0'}</td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{kw.titleDensity || '0'}</td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{kw.clickShare || '0%'}</td>
+                                                            <td className="px-2 py-3.5 font-bold text-slate-700 text-center">{kw.conversionShare || '0%'}</td>
+                                                        </tr>
+                                                    ))}
+                                                    {relatedKeywordsAverages && (
+                                                        <tr className="bg-[#1e1b4b] text-white font-black border-t-2 border-indigo-500">
+                                                            <td colSpan={2} className="px-3 py-3.5 text-right tracking-widest text-[11px] uppercase opacity-90 pr-6">Total / Average</td>
+                                                            <td className="px-2 py-3.5 text-center text-[14px]">{relatedKeywordsAverages.searchVolume}</td>
+                                                            <td className="px-2 py-3.5 text-center text-[14px]">{relatedKeywordsAverages.salesMonthly}</td>
+                                                            <td className="px-2 py-3.5 text-center text-[14px]">{relatedKeywordsAverages.competingProducts}</td>
+                                                            <td className="px-2 py-3.5 text-center text-[14px]">{relatedKeywordsAverages.titleDensity}</td>
+                                                            <td className="px-2 py-3.5 text-center text-[14px]">{relatedKeywordsAverages.clickShare}</td>
+                                                            <td className="px-2 py-3.5 text-center text-[14px]">{relatedKeywordsAverages.conversionShare}</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <p className="mt-3 text-slate-400 text-[10px] uppercase text-center tracking-wider font-semibold">Sales are estimated on a monthly basis for each keyword.</p>
+                                </div>
+                            ) : keyword.related_keywords_image_url ? (
                                 <div className="group">
                                     <h3 className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider text-center">Top Related Keywords</h3>
                                     <div className="bg-white rounded-[2.5rem] p-6 border border-slate-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
@@ -778,8 +1071,10 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                         </div>
                                     </div>
                                 </div>
-                            )}
-                            {!keyword.competitor_analysis_image_url && !keyword.related_keywords_image_url && (
+                            ) : null}
+
+                            {/* Fallback if both list and image are missing */}
+                            {!competitorsList && !relatedKeywordsList && !keyword.competitor_analysis_image_url && !keyword.related_keywords_image_url && (
                                 <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-100 shadow-sm relative overflow-hidden group text-center py-16">
                                     <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-6 mx-auto">
                                         <BarChart3 className="w-8 h-8 text-blue-600" />
@@ -886,22 +1181,26 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pb-8 pt-2">
-                                <div className="h-56 w-full mb-6">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={keyword.trend_data || mockChartData}>
-                                            <defs>
-                                                <linearGradient id="colorVol" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.08} />
-                                                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                            <XAxis dataKey="month" hide />
-                                            <YAxis hide />
-                                            <Tooltip />
-                                            <Area type="monotone" dataKey="volume" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorVol)" />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
-                                </div>
+                                {keyword.trend_image_url ? (
+                                    <ZoomableImage src={keyword.trend_image_url} alt="Search Volume Trend" className="rounded-xl border border-slate-100 shadow-lg" />
+                                ) : (
+                                    <div className="h-56 w-full mb-6">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart data={keyword.trend_data || mockChartData}>
+                                                <defs>
+                                                    <linearGradient id="colorVol" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.08} />
+                                                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                                                    </linearGradient>
+                                                </defs>
+                                                <XAxis dataKey="month" hide />
+                                                <YAxis hide />
+                                                <Tooltip />
+                                                <Area type="monotone" dataKey="volume" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorVol)" />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                )}
                             </AccordionContent>
                         </AccordionItem>
 
@@ -1024,7 +1323,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                             <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-emerald-100 group-hover:bg-emerald-600 transition-colors duration-300 relative z-10">
                                 <FileText className="w-7 h-7 text-emerald-600 group-hover:text-white transition-colors duration-300" />
                             </div>
-                            <h3 className="text-base font-bold text-slate-900 tracking-tight mb-3 relative z-10">Downloadable Research Report (+14 Pages)</h3>
+                            <h3 className="text-base font-bold text-slate-900 tracking-tight mb-3 relative z-10">Instant Downloadable Research Report (+14 Pages)</h3>
                             <p className="text-xs text-slate-500 font-medium leading-relaxed relative z-10">
                                 A structured, actionable PDF report covering demand analysis, competition landscape, profitability breakdown, and risk assessment.
                             </p>

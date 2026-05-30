@@ -60,7 +60,9 @@ export default function AdminDashboard() {
         "Quality complaints in reviews",
         "Recent successful launches",
         "Healthy price range for margins",
-        "Design improvements possible"
+        "Design improvements possible",
+        "Clear product improvement opportunities",
+        "Multiple new sellers are gaining traction"
     ];
 
     const riskIndicatorOptions = [
@@ -73,7 +75,9 @@ export default function AdminDashboard() {
         "Category gating requirements",
         "Safety certification requirements",
         "High product return rates",
-        "Complex manufacturing requirements"
+        "Complex manufacturing requirements",
+        "High PPC cost",
+        "Seasonality Risk"
     ];
 
     // Form State
@@ -147,6 +151,8 @@ export default function AdminDashboard() {
         competitor_analysis_image_url: '',
         related_keywords_image_url: '',
         initial_investment: 0,
+        top_competitors_list: '',
+        top_related_keywords_list: '',
     });
 
     const { data: keywords = [], isLoading } = useQuery({
@@ -223,7 +229,9 @@ export default function AdminDashboard() {
                 market_intelligence,
                 competitor_analysis_image_url,
                 related_keywords_image_url,
-                initial_investment
+                initial_investment,
+                top_competitors_list,
+                top_related_keywords_list
             `);
             if (error) throw error;
             return (data || []).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -440,6 +448,8 @@ export default function AdminDashboard() {
             opportunity_insight: kw.opportunity_insight || '',
             risk_assessment: kw.risk_assessment || '',
             sold_at: kw.sold_at || null,
+            top_competitors_list: kw.top_competitors_list ? JSON.stringify(kw.top_competitors_list, null, 2) : '',
+            top_related_keywords_list: kw.top_related_keywords_list ? JSON.stringify(kw.top_related_keywords_list, null, 2) : '',
         });
     };
 
@@ -479,6 +489,28 @@ export default function AdminDashboard() {
             payload.sales_trend_data = null; // Send null if empty
         }
 
+        if (payload.top_competitors_list && typeof payload.top_competitors_list === 'string' && payload.top_competitors_list.trim() !== '') {
+            try {
+                payload.top_competitors_list = JSON.parse(payload.top_competitors_list);
+            } catch (e) {
+                toast.error('Invalid JSON in Top Competitors List');
+                return;
+            }
+        } else {
+            payload.top_competitors_list = null;
+        }
+
+        if (payload.top_related_keywords_list && typeof payload.top_related_keywords_list === 'string' && payload.top_related_keywords_list.trim() !== '') {
+            try {
+                payload.top_related_keywords_list = JSON.parse(payload.top_related_keywords_list);
+            } catch (e) {
+                toast.error('Invalid JSON in Top Related Keywords List');
+                return;
+            }
+        } else {
+            payload.top_related_keywords_list = null;
+        }
+
         // Auto-manage sold_at timestamp
         if (payload.status === 'sold') {
             // Only set sold_at if it's not already set (to prevent resetting the 5-day timer on every edit)
@@ -501,6 +533,77 @@ export default function AdminDashboard() {
             payload.updated_at = new Date().toISOString();
             createMutation.mutate(payload);
         }
+    };
+
+    const handleCompetitorsPaste = (e) => {
+        const pasteData = e.clipboardData.getData('text');
+        if (!pasteData) return;
+
+        // If it's already a JSON array, let default paste happen
+        if (pasteData.trim().startsWith('[') || pasteData.trim().startsWith('{')) return;
+
+        // Check if it's spreadsheet rows
+        if (!pasteData.includes('\t') && !pasteData.includes('\n') && !pasteData.includes(',')) return;
+
+        e.preventDefault();
+        const rows = pasteData.trim().split(/\r?\n/);
+        const parsedList = rows.map(row => {
+            let cells = row.split('\t');
+            if (cells.length === 1) cells = row.split(/[ ]{3,}/);
+            if (cells.length === 1) cells = row.split(',');
+
+            return {
+                asin: cells[0]?.trim() || '',
+                brand: cells[1]?.trim() || '',
+                avgUnitSales: cells[2]?.trim() || '',
+                clickCount: cells[3]?.trim() || '',
+                clickShare: cells[4]?.trim() || '',
+                avgSellingPrice: cells[5]?.trim() || '',
+                numberOfReviews: cells[6]?.trim() || '',
+                listingAge: cells[7]?.trim() || ''
+            };
+        });
+
+        setFormData(prev => ({
+            ...prev,
+            top_competitors_list: JSON.stringify(parsedList, null, 2)
+        }));
+        toast.success(`Successfully parsed ${parsedList.length} competitors from clipboard!`);
+    };
+
+    const handleKeywordsPaste = (e) => {
+        const pasteData = e.clipboardData.getData('text');
+        if (!pasteData) return;
+
+        // If it's already a JSON array, let default paste happen
+        if (pasteData.trim().startsWith('[') || pasteData.trim().startsWith('{')) return;
+
+        // Check if it's spreadsheet rows
+        if (!pasteData.includes('\t') && !pasteData.includes('\n') && !pasteData.includes(',')) return;
+
+        e.preventDefault();
+        const rows = pasteData.trim().split(/\r?\n/);
+        const parsedList = rows.map(row => {
+            let cells = row.split('\t');
+            if (cells.length === 1) cells = row.split(/[ ]{3,}/);
+            if (cells.length === 1) cells = row.split(',');
+
+            return {
+                keyword: cells[0]?.trim() || '',
+                searchVolume: cells[1]?.trim() || '',
+                salesMonthly: cells[2]?.trim() || '',
+                competingProducts: cells[3]?.trim() || '',
+                titleDensity: cells[4]?.trim() || '',
+                clickShare: cells[5]?.trim() || '',
+                conversionShare: cells[6]?.trim() || ''
+            };
+        });
+
+        setFormData(prev => ({
+            ...prev,
+            top_related_keywords_list: JSON.stringify(parsedList, null, 2)
+        }));
+        toast.success(`Successfully parsed ${parsedList.length} keywords from clipboard!`);
     };
 
     const filteredKeywords = Array.isArray(keywords) ? keywords.filter(kw =>
@@ -1087,14 +1190,14 @@ export default function AdminDashboard() {
                                                             transition={{ duration: 0.3 }}
                                                             className="overflow-hidden px-4 pt-4 pb-2 space-y-4"
                                                         >
-                                                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
-                                                                <div>
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-start">
+                                                                <div className="lg:col-span-2">
                                                                     <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">PEAK (MONTHS)</label>
                                                                     <div className="flex items-center gap-1">
                                                                         <select
                                                                             value={(formData.seasonality_peak || 'Jun - Aug').split(' - ')[0] || 'Jun'}
                                                                             onChange={(e) => setFormData({ ...formData, seasonality_peak: `${e.target.value} - ${(formData.seasonality_peak || 'Jun - Aug').split(' - ')[1] || 'Aug'}` })}
-                                                                            className="flex-1 h-10 border border-slate-200 rounded-lg text-xs px-2 font-bold bg-white"
+                                                                            className="flex-1 h-10 border border-slate-200 rounded-lg text-xs px-2 font-bold bg-white min-w-0"
                                                                         >
                                                                             {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map(m => <option key={m} value={m}>{m}</option>)}
                                                                         </select>
@@ -1102,19 +1205,19 @@ export default function AdminDashboard() {
                                                                         <select
                                                                             value={(formData.seasonality_peak || 'Jun - Aug').split(' - ')[1] || 'Aug'}
                                                                             onChange={(e) => setFormData({ ...formData, seasonality_peak: `${(formData.seasonality_peak || 'Jun - Aug').split(' - ')[0] || 'Jun'} - ${e.target.value}` })}
-                                                                            className="flex-1 h-10 border border-slate-200 rounded-lg text-xs px-2 font-bold bg-white"
+                                                                            className="flex-1 h-10 border border-slate-200 rounded-lg text-xs px-2 font-bold bg-white min-w-0"
                                                                         >
                                                                             {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map(m => <option key={m} value={m}>{m}</option>)}
                                                                         </select>
                                                                     </div>
                                                                 </div>
-                                                                <div>
+                                                                <div className="lg:col-span-2">
                                                                     <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">OFF-PEAK (MONTHS)</label>
                                                                     <div className="flex items-center gap-1">
                                                                         <select
                                                                             value={(formData.seasonality_off_peak || 'Nov - Feb').split(' - ')[0] || 'Nov'}
                                                                             onChange={(e) => setFormData({ ...formData, seasonality_off_peak: `${e.target.value} - ${(formData.seasonality_off_peak || 'Nov - Feb').split(' - ')[1] || 'Feb'}` })}
-                                                                            className="flex-1 h-10 border border-slate-200 rounded-lg text-xs px-2 font-bold bg-white"
+                                                                            className="flex-1 h-10 border border-slate-200 rounded-lg text-xs px-2 font-bold bg-white min-w-0"
                                                                         >
                                                                             {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map(m => <option key={m} value={m}>{m}</option>)}
                                                                         </select>
@@ -1122,13 +1225,13 @@ export default function AdminDashboard() {
                                                                         <select
                                                                             value={(formData.seasonality_off_peak || 'Nov - Feb').split(' - ')[1] || 'Feb'}
                                                                             onChange={(e) => setFormData({ ...formData, seasonality_off_peak: `${(formData.seasonality_off_peak || 'Nov - Feb').split(' - ')[0] || 'Nov'} - ${e.target.value}` })}
-                                                                            className="flex-1 h-10 border border-slate-200 rounded-lg text-xs px-2 font-bold bg-white"
+                                                                            className="flex-1 h-10 border border-slate-200 rounded-lg text-xs px-2 font-bold bg-white min-w-0"
                                                                         >
                                                                             {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map(m => <option key={m} value={m}>{m}</option>)}
                                                                         </select>
                                                                     </div>
                                                                 </div>
-                                                                <div>
+                                                                <div className="lg:col-span-1">
                                                                     <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Demand Lvl</label>
                                                                     <select
                                                                         value={formData.demand_level}
@@ -1140,7 +1243,7 @@ export default function AdminDashboard() {
                                                                         <option value="High">High</option>
                                                                     </select>
                                                                 </div>
-                                                                <div>
+                                                                <div className="lg:col-span-1">
                                                                     <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Type</label>
                                                                     <select
                                                                         value={formData.demand_type}
@@ -1492,6 +1595,26 @@ export default function AdminDashboard() {
                                                                         onChange={(e) => setFormData({ ...formData, sales_trend_data: e.target.value })}
                                                                         placeholder='[{"month": "Jan", "sales": 1500}, ...]'
                                                                         className="w-full h-24 rounded-lg border border-slate-200 p-3 text-xs font-mono"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Top Competitors List (JSON)</label>
+                                                                    <textarea
+                                                                        value={formData.top_competitors_list}
+                                                                        onChange={(e) => setFormData({ ...formData, top_competitors_list: e.target.value })}
+                                                                        onPaste={handleCompetitorsPaste}
+                                                                        placeholder='[{"asin": "B01...", "brand": "Brand", "avgUnitSales": "500", "clickCount": "120", "clickShare": "12%", "avgSellingPrice": "25", "numberOfReviews": "450", "listingAge": "12"}, ...]'
+                                                                        className="w-full h-32 rounded-lg border border-slate-200 p-3 text-xs font-mono"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Top Related Keywords List (JSON)</label>
+                                                                    <textarea
+                                                                        value={formData.top_related_keywords_list}
+                                                                        onChange={(e) => setFormData({ ...formData, top_related_keywords_list: e.target.value })}
+                                                                        onPaste={handleKeywordsPaste}
+                                                                        placeholder='[{"keyword": "sample keyword", "searchVolume": "2500", "salesMonthly": "320", "competingProducts": "450", "titleDensity": "10", "clickShare": "15%", "conversionShare": "18%"}, ...]'
+                                                                        className="w-full h-32 rounded-lg border border-slate-200 p-3 text-xs font-mono"
                                                                     />
                                                                 </div>
                                                             </div>
