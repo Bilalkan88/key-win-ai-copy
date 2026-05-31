@@ -78,25 +78,80 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
 
     // Harmonize Trend Data (prioritizing the JSON field from Admin Dashboard)
     const getTrendData = () => {
-        if (!keyword.trend_data) return dashboardTrendsData;
-        try {
-            const parsed = typeof keyword.trend_data === 'string'
-                ? JSON.parse(keyword.trend_data)
-                : keyword.trend_data;
-
-            // Ensure we have an array of valid objects with month and volume
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                return parsed.map(item => ({
-                    month: item.month?.toString().toUpperCase() || 'JAN',
-                    volume: Number(item.volume) || 0,
-                    sales: Number(item.sales) || Math.round((Number(item.volume) || 0) * 0.4) // Fallback if sales data is missing
-                }));
+        let volumes = [];
+        if (keyword.trend_data) {
+            try {
+                const parsed = typeof keyword.trend_data === 'string'
+                    ? JSON.parse(keyword.trend_data)
+                    : keyword.trend_data;
+                if (Array.isArray(parsed)) {
+                    volumes = parsed;
+                }
+            } catch (e) {
+                console.warn("Failed to parse trend_data JSON:", e);
             }
-            return dashboardTrendsData;
-        } catch (e) {
-            console.warn("Failed to parse trend_data JSON:", e);
+        }
+
+        let sales = [];
+        if (keyword.sales_trend_data) {
+            try {
+                const parsed = typeof keyword.sales_trend_data === 'string'
+                    ? JSON.parse(keyword.sales_trend_data)
+                    : keyword.sales_trend_data;
+                if (Array.isArray(parsed)) {
+                    sales = parsed;
+                }
+            } catch (e) {
+                console.warn("Failed to parse sales_trend_data JSON:", e);
+            }
+        }
+
+        if (volumes.length === 0 && sales.length === 0) {
             return dashboardTrendsData;
         }
+
+        const mergedMap = new Map();
+        const normMonth = (m) => m ? m.toString().toUpperCase() : '';
+
+        volumes.forEach(item => {
+            const m = normMonth(item.month);
+            if (m) {
+                mergedMap.set(m, {
+                    month: m,
+                    volume: Number(item.volume) || 0,
+                    sales: Number(item.sales) || 0
+                });
+            }
+        });
+
+        sales.forEach(item => {
+            const m = normMonth(item.month);
+            if (m) {
+                const existing = mergedMap.get(m);
+                const salesVal = Number(item.sales) || Number(item.volume) || 0;
+                if (existing) {
+                    existing.sales = salesVal;
+                } else {
+                    mergedMap.set(m, {
+                        month: m,
+                        volume: 0,
+                        sales: salesVal
+                    });
+                }
+            }
+        });
+
+        const mergedArray = Array.from(mergedMap.values());
+
+        if (sales.length === 0) {
+            mergedArray.forEach(item => {
+                if (item.sales === 0) {
+                    item.sales = Math.round(item.volume * 0.4);
+                }
+            });
+        }
+
+        return mergedArray;
     };
 
     const searchTrends = getTrendData();
