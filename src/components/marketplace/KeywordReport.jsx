@@ -703,7 +703,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
 
                                 <span className="text-slate-500 whitespace-nowrap">Amazon Dominancy</span>
                                 <ShieldCheck size={12} className="text-emerald-600 mx-1" />
-                                <span className="text-blue-600 text-sm font-bold whitespace-nowrap text-left uppercase tracking-tight">{keyword.competition_amazon_dominancy ? `${keyword.competition_amazon_dominancy}%` : (keyword.amazon_dominancy || keyword.click_share_single || 'Low')}</span>
+                                <span className="text-blue-600 text-sm font-bold whitespace-nowrap text-left uppercase tracking-tight">{(keyword.competition_amazon_dominancy !== undefined && keyword.competition_amazon_dominancy !== null && keyword.competition_amazon_dominancy !== '') ? `${keyword.competition_amazon_dominancy}%` : (keyword.amazon_dominancy || keyword.click_share_single || 'Low')}</span>
                             </div>
                         </div>
                     </Card>
