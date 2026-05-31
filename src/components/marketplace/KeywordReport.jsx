@@ -741,7 +741,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                     <span className="text-slate-900 text-sm font-bold text-right">{keyword.total_reviews || '1,178'}</span>
                                 </div>
                                 <div className="grid grid-cols-[1fr_auto_45px] items-center gap-2 text-xs font-bold">
-                                    <span className="text-slate-500">Sellers {"<"} 100</span>
+                                    <span className="text-slate-500">Sellers {"<"} 75</span>
                                     <StarRating rating={4} />
                                     <span className="text-slate-900 text-sm font-bold text-right">{keyword.avg_reviews || '7/10'}</span>
                                 </div>
