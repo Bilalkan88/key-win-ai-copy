@@ -527,11 +527,11 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                     <YAxis
                                         yAxisId="right"
                                         orientation="right"
+                                        domain={[0, (dataMax) => dataMax * 1.6]}
                                         axisLine={false}
                                         tickLine={false}
                                         tick={false}
                                         hide={true}
-                                        domain={['auto', 'auto']}
                                     />
                                     <Tooltip
                                         cursor={{ fill: '#f8fafc', radius: 4 }}
