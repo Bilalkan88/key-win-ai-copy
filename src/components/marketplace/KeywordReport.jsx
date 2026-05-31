@@ -582,7 +582,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                         })}
                                     </Bar>
                                     <Line
-                                        yAxisId="right"
+                                        yAxisId="left"
                                         type="monotone"
                                         dataKey="sales"
                                         stroke="#34d399"
