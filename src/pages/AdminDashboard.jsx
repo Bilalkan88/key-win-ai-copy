@@ -1536,22 +1536,6 @@ export default function AdminDashboard() {
                                                             {/* Image Uploads Grid */}
                                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                                                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                                                    <label className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Top Competitor Analysis Image</label>
-                                                                    <ImageUpload
-                                                                        value={formData.competitor_analysis_image_url}
-                                                                        onChange={(url) => setFormData({ ...formData, competitor_analysis_image_url: url })}
-                                                                        onRemove={() => setFormData({ ...formData, competitor_analysis_image_url: '' })}
-                                                                    />
-                                                                </div>
-                                                                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                                                    <label className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Top Related Keywords Image</label>
-                                                                    <ImageUpload
-                                                                        value={formData.related_keywords_image_url}
-                                                                        onChange={(url) => setFormData({ ...formData, related_keywords_image_url: url })}
-                                                                        onRemove={() => setFormData({ ...formData, related_keywords_image_url: '' })}
-                                                                    />
-                                                                </div>
-                                                                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
                                                                     <label className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Trend Image (Search Volume)</label>
                                                                     <ImageUpload
                                                                         value={formData.trend_image_url}
