@@ -155,6 +155,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
     };
 
     const searchTrends = getTrendData();
+    const maxVolume = Math.max(...searchTrends.map(item => item.volume || 0)) || 5000;
 
     const getCompetitorsList = () => {
         if (!keyword.top_competitors_list) return null;
@@ -527,7 +528,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                     <YAxis
                                         yAxisId="right"
                                         orientation="right"
-                                        domain={[0, (dataMax) => dataMax * 1.6]}
+                                        domain={[0, maxVolume * 0.4]}
                                         axisLine={false}
                                         tickLine={false}
                                         tick={false}
