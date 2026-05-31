@@ -531,6 +531,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                         tickLine={false}
                                         tick={false}
                                         hide={true}
+                                        domain={['auto', 'auto']}
                                     />
                                     <Tooltip
                                         cursor={{ fill: '#f8fafc', radius: 4 }}
@@ -582,7 +583,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                         })}
                                     </Bar>
                                     <Line
-                                        yAxisId="left"
+                                        yAxisId="right"
                                         type="monotone"
                                         dataKey="sales"
                                         stroke="#34d399"
