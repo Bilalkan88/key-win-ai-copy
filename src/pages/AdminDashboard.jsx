@@ -1157,8 +1157,8 @@ export default function AdminDashboard() {
                                                                     <div className="relative">
                                                                         <Input
                                                                             type="number"
-                                                                            value={formData.competition_amazon_dominancy || ''}
-                                                                            onChange={(e) => setFormData({ ...formData, competition_amazon_dominancy: Number(e.target.value) })}
+                                                                            value={formData.competition_amazon_dominancy ?? ''}
+                                                                            onChange={(e) => setFormData({ ...formData, competition_amazon_dominancy: e.target.value === '' ? '' : Number(e.target.value) })}
                                                                             className="h-10 border-slate-200 pr-8"
                                                                             placeholder="e.g. 25"
                                                                         />
