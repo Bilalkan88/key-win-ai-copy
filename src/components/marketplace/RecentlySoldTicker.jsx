@@ -20,18 +20,6 @@ const getRelativeTime = (isoString) => {
     return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
 };
 
-// Realistic mock items to fall back on if no sales happened in the last 24h
-const generateFallbackItems = () => {
-    const mockIds = ['B7E2A', '9F8D4', '3C2A5', '6B1D8', 'F4E0C'];
-    const mockHours = [2, 5, 8, 14, 21];
-    
-    return mockIds.map((id, idx) => ({
-        id: `mock-${id}`,
-        displayId: id,
-        soldAtText: `${mockHours[idx]} hours ago`
-    }));
-};
-
 export default function RecentlySoldTicker() {
     const [soldItems, setSoldItems] = useState([]);
     const [index, setIndex] = useState(0);
@@ -58,11 +46,11 @@ export default function RecentlySoldTicker() {
                     }));
                     setSoldItems(formatted);
                 } else {
-                    setSoldItems(generateFallbackItems());
+                    setSoldItems([]);
                 }
             } catch (err) {
                 console.error('Error fetching recently sold items:', err);
-                setSoldItems(generateFallbackItems());
+                setSoldItems([]);
             } finally {
                 setLoading(false);
             }
@@ -81,11 +69,7 @@ export default function RecentlySoldTicker() {
     }, [soldItems]);
 
     if (loading || soldItems.length === 0) {
-        return (
-            <div className="w-full bg-slate-900 text-white py-2 overflow-hidden border-y border-slate-800 shadow-inner relative h-10 flex items-center justify-center">
-                <span className="text-xs text-slate-400">Loading recent sales activity...</span>
-            </div>
-        );
+        return null;
     }
 
     const current = soldItems[index];
