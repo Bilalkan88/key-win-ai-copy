@@ -18,6 +18,34 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/AuthContext';
 import { Lock } from 'lucide-react';
 
+const PREDEFINED_CATEGORIES = [
+    "Appliances",
+    "Arts, Crafts & Sewing",
+    "Automotive Parts & Accessories",
+    "Baby",
+    "Beauty & Personal Care",
+    "Cell Phones & Accessories",
+    "Clothing, Shoes & Jewelry",
+    "Collectibles & Fine Art",
+    "Computers",
+    "Electronics",
+    "Garden & Outdoor",
+    "Grocery & Gourmet Food",
+    "Handmade",
+    "Health, Household & Baby Care",
+    "Home & Kitchen",
+    "Industrial & Scientific",
+    "Luggage & Travel Gear",
+    "Office Products",
+    "Patio, Lawn & Garden",
+    "Pet Supplies",
+    "Software",
+    "Sports & Outdoors",
+    "Subscribe & Save",
+    "Tools & Home Improvement",
+    "Toys & Games"
+];
+
 export default function AdminDashboard() {
     const { profile, isLoadingAuth, isAuthenticated } = useAuth();
     const queryClient = useQueryClient();
@@ -38,6 +66,7 @@ export default function AdminDashboard() {
     const [searchTerm, setSearchTerm] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [isAdding, setIsAdding] = useState(false);
+    const [isCustomCategory, setIsCustomCategory] = useState(false);
     const [openSections, setOpenSections] = useState({
         competition: true,
         seasonality: false,
@@ -305,6 +334,7 @@ export default function AdminDashboard() {
 
     const resetForm = () => {
         const newId = crypto.randomUUID();
+        setIsCustomCategory(false);
         setFormData({
             id: newId,
             keyword_phrase: `VN-${newId.slice(-8).toUpperCase()}`,
@@ -382,6 +412,8 @@ export default function AdminDashboard() {
 
     const handleEdit = (kw) => {
         setEditingId(kw.id);
+        const categoryVal = kw.category || 'Home & Kitchen';
+        setIsCustomCategory(!PREDEFINED_CATEGORIES.includes(categoryVal));
         setFormData({
             keyword_phrase: kw.keyword_phrase || '',
             price: kw.price || 0,
@@ -399,7 +431,7 @@ export default function AdminDashboard() {
             roi: kw.roi || '',
             demand_level: kw.demand_level || 'Moderate',
             demand_type: kw.demand_type || 'Year-Round',
-            category: kw.category || 'Home & Kitchen',
+            category: categoryVal,
             marketplace: kw.marketplace || 'US',
             best_fit_for: kw.best_fit_for || 'Private Label',
             product_seller_fit: kw.product_seller_fit || 'New Seller',
@@ -799,8 +831,17 @@ export default function AdminDashboard() {
                                             <div>
                                                 <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">NICHE / CATEGORY</label>
                                                 <select
-                                                    value={formData.category}
-                                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                                    value={isCustomCategory ? "Custom" : formData.category}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        if (val === "Custom") {
+                                                            setIsCustomCategory(true);
+                                                            setFormData({ ...formData, category: "" });
+                                                        } else {
+                                                            setIsCustomCategory(false);
+                                                            setFormData({ ...formData, category: val });
+                                                        }
+                                                    }}
                                                     className="w-full h-12 rounded-lg border border-slate-200 px-3 bg-white font-medium text-slate-900"
                                                 >
                                                     <option value="Appliances">Appliances</option>
@@ -828,7 +869,17 @@ export default function AdminDashboard() {
                                                     <option value="Subscribe & Save">Subscribe & Save</option>
                                                     <option value="Tools & Home Improvement">Tools & Home Improvement</option>
                                                     <option value="Toys & Games">Toys & Games</option>
+                                                    <option value="Custom">Custom</option>
                                                 </select>
+                                                {isCustomCategory && (
+                                                    <Input
+                                                        type="text"
+                                                        value={formData.category}
+                                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                                        placeholder="Enter custom category name..."
+                                                        className="mt-2 h-12 border-slate-200"
+                                                    />
+                                                )}
                                             </div>
 
                                             <div>
