@@ -83,6 +83,7 @@ export default function RecentlySoldTicker() {
     }, []);
 
     useEffect(() => {
+        setIndex(0);
         if (soldItems.length === 0) return;
         
         const timer = setInterval(() => {
@@ -96,6 +97,9 @@ export default function RecentlySoldTicker() {
     }
 
     const current = soldItems[index];
+    if (!current) {
+        return null;
+    }
 
     return (
         <div className="w-full bg-slate-900 text-white py-2 overflow-hidden border-y border-slate-800 shadow-inner relative h-10 flex items-center">
