@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Clock, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 
 // Helper to format relative time
@@ -21,6 +22,7 @@ const getRelativeTime = (isoString) => {
 };
 
 export default function RecentlySoldTicker() {
+    const navigate = useNavigate();
     const [soldItems, setSoldItems] = useState([]);
     const [index, setIndex] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -50,6 +52,7 @@ export default function RecentlySoldTicker() {
 
                 const formattedSold = (soldData || []).map(item => ({
                     id: `sold-${item.id}`,
+                    rawId: item.id,
                     displayId: item.id?.slice(-5).toUpperCase() || 'UNKNOWN',
                     timeText: getRelativeTime(item.sold_at),
                     type: 'sold',
@@ -58,6 +61,7 @@ export default function RecentlySoldTicker() {
 
                 const formattedNew = (newData || []).map(item => ({
                     id: `new-${item.id}`,
+                    rawId: item.id,
                     displayId: item.id?.slice(-5).toUpperCase() || 'UNKNOWN',
                     timeText: getRelativeTime(item.created_at),
                     type: 'new',
@@ -116,7 +120,12 @@ export default function RecentlySoldTicker() {
                                 <span className="uppercase tracking-wider text-[10px] font-bold">New Listing:</span>
                             </div>
                         )}
-                        <span className="text-slate-200">Listing ID: #{current.displayId}</span>
+                        <button
+                            onClick={() => navigate(`/ExclusiveKeywords/listig/${current.rawId}`)}
+                            className="text-slate-200 hover:text-blue-400 hover:underline transition-colors font-bold cursor-pointer"
+                        >
+                            Listing ID: #{current.displayId}
+                        </button>
                         <div className="flex items-center gap-1.5 text-slate-400 text-xs">
                             <Clock className="w-3 h-3" />
                             <span>{current.timeText}</span>
