@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Clock } from 'lucide-react';
+import { ShoppingBag, Clock, Sparkles } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 // Helper to format relative time
@@ -29,27 +29,46 @@ export default function RecentlySoldTicker() {
         async function loadRecentlySold() {
             try {
                 const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-                const { data, error } = await supabase
+                
+                // Fetch sold items in last 24h
+                const { data: soldData, error: soldError } = await supabase
                     .from('exclusive_keywords')
                     .select('id, sold_at')
                     .eq('status', 'sold')
                     .gt('sold_at', last24h)
                     .order('sold_at', { ascending: false });
 
-                if (error) throw error;
+                // Fetch new items created in last 24h
+                const { data: newData, error: newError } = await supabase
+                    .from('exclusive_keywords')
+                    .select('id, created_at')
+                    .gt('created_at', last24h)
+                    .order('created_at', { ascending: false });
 
-                if (data && data.length > 0) {
-                    const formatted = data.map(item => ({
-                        id: item.id,
-                        displayId: item.id?.slice(-5).toUpperCase() || 'UNKNOWN',
-                        soldAtText: getRelativeTime(item.sold_at)
-                    }));
-                    setSoldItems(formatted);
-                } else {
-                    setSoldItems([]);
-                }
+                if (soldError) throw soldError;
+                if (newError) throw newError;
+
+                const formattedSold = (soldData || []).map(item => ({
+                    id: `sold-${item.id}`,
+                    displayId: item.id?.slice(-5).toUpperCase() || 'UNKNOWN',
+                    timeText: getRelativeTime(item.sold_at),
+                    type: 'sold',
+                    timestamp: new Date(item.sold_at).getTime()
+                }));
+
+                const formattedNew = (newData || []).map(item => ({
+                    id: `new-${item.id}`,
+                    displayId: item.id?.slice(-5).toUpperCase() || 'UNKNOWN',
+                    timeText: getRelativeTime(item.created_at),
+                    type: 'new',
+                    timestamp: new Date(item.created_at).getTime()
+                }));
+
+                // Combine both and sort by most recent event first
+                const combined = [...formattedNew, ...formattedSold].sort((a, b) => b.timestamp - a.timestamp);
+                setSoldItems(combined);
             } catch (err) {
-                console.error('Error fetching recently sold items:', err);
+                console.error('Error fetching recently sold or new items:', err);
                 setSoldItems([]);
             } finally {
                 setLoading(false);
@@ -86,14 +105,21 @@ export default function RecentlySoldTicker() {
                         transition={{ duration: 0.5, ease: "easeInOut" }}
                         className="flex items-center gap-4 text-sm font-medium"
                     >
-                        <div className="flex items-center gap-2 text-blue-400">
-                            <ShoppingBag className="w-4 h-4" />
-                            <span className="uppercase tracking-wider text-[10px] font-bold">Recently Sold:</span>
-                        </div>
+                        {current.type === 'sold' ? (
+                            <div className="flex items-center gap-2 text-blue-400">
+                                <ShoppingBag className="w-4 h-4" />
+                                <span className="uppercase tracking-wider text-[10px] font-bold">Recently Sold:</span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 text-emerald-400 animate-pulse">
+                                <Sparkles className="w-4 h-4" />
+                                <span className="uppercase tracking-wider text-[10px] font-bold">New Listing:</span>
+                            </div>
+                        )}
                         <span className="text-slate-200">Listing ID: #{current.displayId}</span>
                         <div className="flex items-center gap-1.5 text-slate-400 text-xs">
                             <Clock className="w-3 h-3" />
-                            <span>{current.soldAtText}</span>
+                            <span>{current.timeText}</span>
                         </div>
                     </motion.div>
                 </AnimatePresence>
