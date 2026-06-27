@@ -1,6 +1,9 @@
 # 1. إخفاء معلومات السيرفر
 ServerSignature Off
 
+# تحديد ترميز الحروف الافتراضي
+AddDefaultCharset UTF-8
+
 <IfModule mod_headers.c>
     # إخفاء ترويسة X-Powered-By (إذا كان السيرفر يسمح بذلك)
     Header unset X-Powered-By
