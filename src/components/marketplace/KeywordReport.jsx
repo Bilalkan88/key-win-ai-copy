@@ -118,6 +118,7 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
             if (m) {
                 mergedMap.set(m, {
                     month: m,
+                    year: item.year ? item.year.toString() : '',
                     volume: Number(item.volume) || 0,
                     sales: Number(item.sales) || 0
                 });
@@ -131,9 +132,13 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                 const salesVal = Number(item.sales) || Number(item.volume) || 0;
                 if (existing) {
                     existing.sales = salesVal;
+                    if (item.year && !existing.year) {
+                        existing.year = item.year.toString();
+                    }
                 } else {
                     mergedMap.set(m, {
                         month: m,
+                        year: item.year ? item.year.toString() : '',
                         volume: 0,
                         sales: salesVal
                     });
@@ -151,7 +156,10 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
             });
         }
 
-        return mergedArray;
+        return mergedArray.map(item => ({
+            ...item,
+            month: item.year ? `${item.month} ${item.year}` : item.month
+        }));
     };
 
     const searchTrends = getTrendData();
