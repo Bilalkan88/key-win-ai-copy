@@ -385,20 +385,29 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                             <span className="text-3xl font-black text-blue-600 leading-none">${keyword.price || '149'}</span>
                         </div>
                         <div className="flex items-center gap-2 sm:gap-3">
-                            <Button
-                                variant="outline"
-                                onClick={onAddToCart}
-                                className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold px-4 sm:px-6 h-12 rounded-xl flex items-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95 text-xs sm:text-sm cursor-pointer shadow-sm"
-                            >
-                                <ShoppingCart className="w-4 h-4" />
-                                Add to Cart
-                            </Button>
-                            <Button
-                                onClick={onBuy}
-                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 sm:px-8 h-12 rounded-xl flex items-center gap-2 border-none shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5 active:scale-95 text-xs sm:text-sm cursor-pointer"
-                            >
-                                Buy Now
-                            </Button>
+                            {keyword.status === 'sold' ? (
+                                <div className="bg-rose-100 text-rose-700 border border-rose-200 font-extrabold px-6 h-12 rounded-xl text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2 select-none">
+                                    <ShoppingBag className="w-4 h-4 text-rose-600" />
+                                    Sold Out
+                                </div>
+                            ) : (
+                                <>
+                                    <Button
+                                        variant="outline"
+                                        onClick={onAddToCart}
+                                        className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold px-4 sm:px-6 h-12 rounded-xl flex items-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95 text-xs sm:text-sm cursor-pointer shadow-sm"
+                                    >
+                                        <ShoppingCart className="w-4 h-4" />
+                                        Add to Cart
+                                    </Button>
+                                    <Button
+                                        onClick={onBuy}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 sm:px-8 h-12 rounded-xl flex items-center gap-2 border-none shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5 active:scale-95 text-xs sm:text-sm cursor-pointer"
+                                    >
+                                        Buy Now
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
