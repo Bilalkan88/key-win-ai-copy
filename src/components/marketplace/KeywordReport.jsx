@@ -1489,20 +1489,41 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                         }} />
 
                         <div className="relative z-10 p-10 md:p-14 text-center flex flex-col items-center">
-                            <h2 className="text-3xl sm:text-4xl font-black text-white mb-4 tracking-tight leading-tight">
-                                Ready to Claim This Exclusive Opportunity?
-                            </h2>
-                            <p className="text-blue-100 text-sm md:text-base mb-8 max-w-2xl mx-auto font-medium leading-relaxed">
-                                Most sellers waste months and hundreds of dollars testing the wrong products.<br className="hidden md:block" />This report gives you the clarity to skip that — and go straight to a verified opportunity.
-                            </p>
-                            <Button
-                                onClick={onBuy}
-                                size="lg"
-                                className="bg-white text-blue-700 hover:bg-slate-50 font-black text-sm px-8 py-6 rounded-xl shadow-2xl transition-all hover:-translate-y-1 cursor-pointer"
-                            >
-                                <ShoppingCart className="w-4 h-4 mr-3" />
-                                Claim This Exclusive Market Now
-                            </Button>
+                            {keyword.status === 'sold' ? (
+                                <>
+                                    <h2 className="text-3xl sm:text-4xl font-black text-white mb-4 tracking-tight leading-tight">
+                                        This Exclusive Opportunity Has Been Claimed
+                                    </h2>
+                                    <p className="text-blue-100 text-sm md:text-base mb-8 max-w-2xl mx-auto font-medium leading-relaxed">
+                                        This product and keyword opportunity was sold exclusively to one buyer and has been permanently removed from the marketplace.
+                                    </p>
+                                    <Button
+                                        onClick={onBack}
+                                        size="lg"
+                                        className="bg-white text-blue-700 hover:bg-slate-50 font-black text-sm px-8 py-6 rounded-xl shadow-2xl transition-all hover:-translate-y-1 cursor-pointer"
+                                    >
+                                        <ArrowLeft className="w-4 h-4 mr-3" />
+                                        Back to Marketplace
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <h2 className="text-3xl sm:text-4xl font-black text-white mb-4 tracking-tight leading-tight">
+                                        Ready to Claim This Exclusive Opportunity?
+                                    </h2>
+                                    <p className="text-blue-100 text-sm md:text-base mb-8 max-w-2xl mx-auto font-medium leading-relaxed">
+                                        Most sellers waste months and hundreds of dollars testing the wrong products.<br className="hidden md:block" />This report gives you the clarity to skip that — and go straight to a verified opportunity.
+                                    </p>
+                                    <Button
+                                        onClick={onBuy}
+                                        size="lg"
+                                        className="bg-white text-blue-700 hover:bg-slate-50 font-black text-sm px-8 py-6 rounded-xl shadow-2xl transition-all hover:-translate-y-1 cursor-pointer"
+                                    >
+                                        <ShoppingCart className="w-4 h-4 mr-3" />
+                                        Claim This Exclusive Market Now
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </Card>
                 </section>
