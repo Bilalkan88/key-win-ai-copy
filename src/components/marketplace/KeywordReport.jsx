@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -163,7 +163,27 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
     };
 
     const searchTrends = getTrendData();
-    const maxVolume = Math.max(...searchTrends.map(item => item.volume || 0)) || 5000;
+    const [trendFilter, setTrendFilter] = useState('ALL'); // 'ALL', 'Q1', 'Q2', 'Q3', 'Q4'
+
+    const filteredSearchTrends = useMemo(() => {
+        if (trendFilter === 'ALL') return searchTrends;
+        const quarterMonths = {
+            Q1: ['JAN', 'FEB', 'MAR'],
+            Q2: ['APR', 'MAY', 'JUN'],
+            Q3: ['JUL', 'AUG', 'SEP'],
+            Q4: ['OCT', 'NOV', 'DEC']
+        };
+        const allowed = quarterMonths[trendFilter] || [];
+        return searchTrends.filter(item => {
+            const monthPart = item.month.split(' ')[0].toUpperCase();
+            return allowed.includes(monthPart);
+        });
+    }, [searchTrends, trendFilter]);
+
+    const maxVolume = useMemo(() => {
+        const list = filteredSearchTrends.length > 0 ? filteredSearchTrends : searchTrends;
+        return Math.max(...list.map(item => item.volume || 0)) || 5000;
+    }, [searchTrends, filteredSearchTrends]);
 
     const getCompetitorsList = () => {
         if (!keyword.top_competitors_list) return null;
@@ -513,11 +533,25 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                     </div>
                                 </div>
                             </div>
-                            <Badge variant="outline" className="text-[10px] font-bold border-slate-200 px-2.5 py-0.5 mt-0.5 text-slate-600">Last 12 Months</Badge>
+                            <div className="flex items-center gap-1 mt-0.5">
+                                {['ALL', 'Q1', 'Q2', 'Q3', 'Q4'].map((q) => (
+                                    <button
+                                        key={q}
+                                        onClick={() => setTrendFilter(q)}
+                                        className={`text-[9px] font-black px-1.5 py-0.5 rounded border transition-all ${
+                                            trendFilter === q
+                                                ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                                                : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                                        }`}
+                                    >
+                                        {q === 'ALL' ? '12M' : q}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                         <div className="h-44 w-full">
                             <ResponsiveContainer width="100%" height="100%">
-                                <ComposedChart data={searchTrends} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                                <ComposedChart data={filteredSearchTrends} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                                     <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
                                     <XAxis
                                         dataKey="month"
@@ -578,9 +612,9 @@ export default function KeywordReport({ keyword, onBack, onBuy, onAddToCart }) {
                                         }}
                                     />
                                     <Bar yAxisId="left" dataKey="volume" radius={[4, 4, 4, 4]}>
-                                        {searchTrends.map((entry, index) => {
-                                            const maxVolume = Math.max(...searchTrends.map(item => item.volume)) || 1;
-                                            const ratio = entry.volume / maxVolume;
+                                        {filteredSearchTrends.map((entry, index) => {
+                                            const maxVolVal = Math.max(...filteredSearchTrends.map(item => item.volume || 0)) || 1;
+                                            const ratio = entry.volume / maxVolVal;
                                             const opacity = 0.15 + (ratio * 0.85);
                                             return (
                                                 <Cell
