@@ -35,7 +35,7 @@ export default function RecentlySoldTicker() {
                 // Fetch sold items in last 24h
                 const { data: soldData, error: soldError } = await supabase
                     .from('exclusive_keywords')
-                    .select('id, sold_at')
+                    .select('id, sold_at, keyword_phrase')
                     .eq('status', 'sold')
                     .gt('sold_at', last24h)
                     .order('sold_at', { ascending: false });
@@ -43,7 +43,7 @@ export default function RecentlySoldTicker() {
                 // Fetch new items created in last 24h
                 const { data: newData, error: newError } = await supabase
                     .from('exclusive_keywords')
-                    .select('id, created_at')
+                    .select('id, created_at, keyword_phrase')
                     .gt('created_at', last24h)
                     .order('created_at', { ascending: false });
 
@@ -52,7 +52,7 @@ export default function RecentlySoldTicker() {
 
                 const formattedSold = (soldData || []).map(item => ({
                     id: `sold-${item.id}`,
-                    rawId: item.id,
+                    rawId: item.keyword_phrase || item.id,
                     displayId: item.id?.slice(-5).toUpperCase() || 'UNKNOWN',
                     timeText: getRelativeTime(item.sold_at),
                     type: 'sold',
@@ -61,7 +61,7 @@ export default function RecentlySoldTicker() {
 
                 const formattedNew = (newData || []).map(item => ({
                     id: `new-${item.id}`,
-                    rawId: item.id,
+                    rawId: item.keyword_phrase || item.id,
                     displayId: item.id?.slice(-5).toUpperCase() || 'UNKNOWN',
                     timeText: getRelativeTime(item.created_at),
                     type: 'new',
